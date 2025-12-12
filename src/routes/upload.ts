@@ -14,7 +14,7 @@ export interface UploadResponse {
   message: string;
   queueEntries?: Array<{
     id: string;
-    platform: Platform;
+    platforms: Platform[]; // ✅ platform emas, platforms
     status: string;
   }>;
   error?: string;
@@ -99,33 +99,28 @@ export async function handleUpload(
       videoContext = body.videoContext;
     }
 
-    const queueEntries: Array<{ id: string; platform: Platform; status: string }> = [];
+    // ✅ Bitta marta navbatga qo'shish — siklsiz!
+    const entry = await queueManager.addToQueue({
+      videoUrl: videoUrl,
+      cloudinaryUrl: videoUrl,
+      platforms, // ✅ barcha platformalar bitta yozuvda
+      channelId,
+      metadata: videoContext ? { title: '', description: '', tags: [] } : undefined
+    });
 
-    for (const platform of platforms) {
-      const entry = await queueManager.addToQueue({
-        videoUrl: videoUrl,
-        cloudinaryUrl: videoUrl,
-        platforms,
-        channelId,
-        metadata: videoContext ? { title: '', description: '', tags: [] } : undefined
-      });
-
-      queueEntries.push({
-        id: entry.id,
-        platforms: entry.platforms,
-        status: entry.status
-      });
-    }
-
-    await logger.info('upload', 'Upload complete, entries added to queue', { 
-      count: queueEntries.length,
-      platforms 
+    await logger.info('upload', 'Upload complete, entry added to queue', { 
+      id: entry.id,
+      platforms: entry.platforms 
     });
 
     const response: UploadResponse = {
       success: true,
-      message: `Video uploaded and ${queueEntries.length} queue entries created`,
-      queueEntries
+      message: `Video uploaded and added to queue for ${platforms.length} platforms`,
+      queueEntries: [{
+        id: entry.id,
+        platforms: entry.platforms,
+        status: entry.status
+      }]
     };
 
     return new Response(JSON.stringify(response), {
