@@ -105,14 +105,14 @@ export async function handleUpload(
       const entry = await queueManager.addToQueue({
         videoUrl: videoUrl,
         cloudinaryUrl: videoUrl,
-        platform,
+        platforms,
         channelId,
         metadata: videoContext ? { title: '', description: '', tags: [] } : undefined
       });
 
       queueEntries.push({
         id: entry.id,
-        platform: entry.platform,
+        platforms: entry.platforms,
         status: entry.status
       });
     }
