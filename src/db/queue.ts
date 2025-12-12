@@ -14,7 +14,7 @@ export interface VideoQueueEntry {
   id: string;
   videoUrl: string;
   cloudinaryUrl: string;
-  platform: Platform;
+  platforms: Platform[];
   channelId: string;
   status: VideoStatus;
   metadata?: VideoMetadata;
