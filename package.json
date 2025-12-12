@@ -1,0 +1,18 @@
+{
+  "name": "ai-video-uploader",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for AI-powered video uploading to multiple platforms",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.1"
+  },
+  "dependencies": {}
+}
