@@ -14,9 +14,9 @@ export interface ScheduleResult {
   skipped: number;
   details: Array<{
     id: string;
-    platform: Platform;
-    status: string;
-    error?: string;
+    platforms: Platform[];
+    status: 'uploaded' | 'failed' | 'skipped' | 'partial';
+    errors?: Record<Platform, string>;
   }>;
 }
 
@@ -76,14 +76,17 @@ export async function handleSchedule(
           result.failed++;
         } else if (detail.status === 'skipped') {
           result.skipped++;
+        } else if (detail.status === 'partial') {
+          // Qisman muvaffaqiyat — statistikaga qo'shish
+          result.uploaded++; // yoki alohida hisoblash mumkin
         }
       } else {
         result.failed++;
         result.details.push({
           id: 'unknown',
-          platform: 'youtube',
+          platforms: ['youtube'],
           status: 'failed',
-          error: res.reason?.message || 'Unknown error'
+          errors: { youtube: res.reason?.message || 'Unknown error' }
         });
       }
     }
@@ -120,21 +123,30 @@ async function processVideo(
   groqService: GroqService,
   platformConfigs: PlatformConfigs,
   logger: Logger
-): Promise<{ id: string; platform: Platform; status: string; error?: string }> {
-  const { id, platform, channelId, cloudinaryUrl } = video;
+): Promise<{ id: string; platforms: Platform[]; status: 'uploaded' | 'failed' | 'skipped' | 'partial'; errors?: Record<Platform, string> }> {
+  const { id, platforms, channelId, cloudinaryUrl } = video;
 
-  await logger.info('schedule', `Processing video ${id} for ${platform}`);
+  await logger.info('schedule', `Processing video ${id} for platforms: ${platforms.join(', ')}`);
 
   try {
-    const canUpload = await queueManager.canUpload(platform, channelId);
-    
-    if (!canUpload) {
-      await logger.warn('schedule', `Daily limit reached for ${platform}/${channelId}`);
-      return { id, platform, status: 'skipped', error: 'Daily limit reached' };
+    // Kunlik limit tekshiruvi — agar barcha platformalar uchun limit oshib ketgan bo'lsa
+    let allSkipped = true;
+    for (const platform of platforms) {
+      const canUpload = await queueManager.canUpload(platform, channelId);
+      if (canUpload) {
+        allSkipped = false;
+        break;
+      }
+    }
+
+    if (allSkipped) {
+      await logger.warn('schedule', `All platforms skipped due to daily limit for ${channelId}`);
+      return { id, platforms, status: 'skipped' };
     }
 
     await queueManager.updateEntry(id, { status: 'processing' });
 
+    // AI metadata — faqat bir marta
     let metadata = video.metadata;
     if (!metadata || !metadata.title) {
       await logger.info('schedule', 'Generating AI metadata', { id });
@@ -142,71 +154,99 @@ async function processVideo(
       await queueManager.updateEntry(id, { metadata });
     }
 
-    let uploadResult: { success: boolean; error?: string };
+    const errors: Record<Platform, string> = {} as any;
+    let successCount = 0;
 
-    switch (platform) {
-      case 'youtube':
-        if (platformConfigs.youtube) {
-          const youtubeUploader = new YouTubeUploader(platformConfigs.youtube, logger);
-          uploadResult = await youtubeUploader.upload(cloudinaryUrl, metadata, channelId);
-        } else {
-          uploadResult = { success: false, error: 'YouTube not configured' };
+    // Har bir platforma uchun yuklash
+    for (const platform of platforms) {
+      const canUpload = await queueManager.canUpload(platform, channelId);
+      if (!canUpload) {
+        errors[platform] = 'Daily limit reached';
+        continue;
+      }
+
+      let uploadResult: { success: boolean; error?: string };
+
+      try {
+        switch (platform) {
+          case 'youtube':
+            if (platformConfigs.youtube) {
+              const uploader = new YouTubeUploader(platformConfigs.youtube, logger);
+              uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+            } else {
+              uploadResult = { success: false, error: 'YouTube not configured' };
+            }
+            break;
+
+          case 'tiktok':
+            if (platformConfigs.tiktok) {
+              const uploader = new TikTokUploader(platformConfigs.tiktok, logger);
+              uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+            } else {
+              uploadResult = { success: false, error: 'TikTok not configured' };
+            }
+            break;
+
+          case 'instagram':
+            if (platformConfigs.instagram) {
+              const uploader = new InstagramUploader(platformConfigs.instagram, logger);
+              uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+            } else {
+              uploadResult = { success: false, error: 'Instagram not configured' };
+            }
+            break;
+
+          case 'facebook':
+            if (platformConfigs.facebook) {
+              const uploader = new FacebookUploader(platformConfigs.facebook, logger);
+              uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+            } else {
+              uploadResult = { success: false, error: 'Facebook not configured' };
+            }
+            break;
+
+          default:
+            uploadResult = { success: false, error: `Unsupported platform: ${platform}` };
         }
-        break;
 
-      case 'tiktok':
-        if (platformConfigs.tiktok) {
-          const tiktokUploader = new TikTokUploader(platformConfigs.tiktok, logger);
-          uploadResult = await tiktokUploader.upload(cloudinaryUrl, metadata, channelId);
+        if (uploadResult.success) {
+          await queueManager.incrementDailyCounter(platform, channelId);
+          successCount++;
         } else {
-          uploadResult = { success: false, error: 'TikTok not configured' };
+          errors[platform] = uploadResult.error || 'Unknown upload error';
         }
-        break;
-
-      case 'instagram':
-        if (platformConfigs.instagram) {
-          const instagramUploader = new InstagramUploader(platformConfigs.instagram, logger);
-          uploadResult = await instagramUploader.upload(cloudinaryUrl, metadata, channelId);
-        } else {
-          uploadResult = { success: false, error: 'Instagram not configured' };
-        }
-        break;
-
-      case 'facebook':
-        if (platformConfigs.facebook) {
-          const facebookUploader = new FacebookUploader(platformConfigs.facebook, logger);
-          uploadResult = await facebookUploader.upload(cloudinaryUrl, metadata, channelId);
-        } else {
-          uploadResult = { success: false, error: 'Facebook not configured' };
-        }
-        break;
-
-      default:
-        uploadResult = { success: false, error: `Unknown platform: ${platform}` };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unexpected error';
+        errors[platform] = msg;
+      }
     }
 
-    if (uploadResult.success) {
-      await queueManager.updateEntry(id, { status: 'uploaded' });
-      await queueManager.incrementDailyCounter(platform, channelId);
-      await logger.info('schedule', `Video ${id} uploaded to ${platform}`);
-      return { id, platform, status: 'uploaded' };
-    } else {
-      await queueManager.updateEntry(id, { 
-        status: 'failed', 
-        errorMessage: uploadResult.error,
-        retryCount: video.retryCount + 1
-      });
-      await logger.error('schedule', `Video ${id} upload failed`, { error: uploadResult.error });
-      return { id, platform, status: 'failed', error: uploadResult.error };
+    // Yakuniy holatni aniqlash
+    let finalStatus: 'uploaded' | 'failed' | 'partial' = 'uploaded';
+    if (successCount === 0) {
+      finalStatus = 'failed';
+    } else if (successCount < platforms.length) {
+      finalStatus = 'partial';
     }
+
+    await queueManager.updateEntry(id, { status: finalStatus });
+
+    const result: any = { id, platforms, status: finalStatus };
+    if (Object.keys(errors).length > 0) {
+      result.errors = errors;
+    }
+
+    await logger.info('schedule', `Video ${id} processing completed with status: ${finalStatus}`);
+    return result;
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     await queueManager.updateEntry(id, { 
       status: 'failed', 
       errorMessage,
-      retryCount: video.retryCount + 1
+      retryCount: (video.retryCount || 0) + 1
     });
     await logger.error('schedule', `Video ${id} processing error`, { error: errorMessage });
-    return { id, platform, status: 'failed', error: errorMessage };
+    return { id, platforms, status: 'failed', errors: { default: errorMessage } };
   }
 }
