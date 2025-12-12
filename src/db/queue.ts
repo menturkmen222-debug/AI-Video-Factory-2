@@ -1,3 +1,4 @@
+// src/db/queue.ts
 import { Logger } from '../utils/logger';
 import { getCurrentTimestamp, getDayKey, getCurrentDate } from '../utils/time';
 
@@ -14,7 +15,7 @@ export interface VideoQueueEntry {
   id: string;
   videoUrl: string;
   cloudinaryUrl: string;
-  platforms: Platform[];
+  platforms: Platform[]; // ✅
   channelId: string;
   status: VideoStatus;
   metadata?: VideoMetadata;
@@ -56,7 +57,8 @@ export class QueueManager {
     };
 
     await this.kv.put(id, JSON.stringify(fullEntry));
-    await this.logger.info('queue', 'Added video to queue', { id, platform: entry.platform });
+    // ✅ Tuzatildi: entry.platform → entry.platforms
+    await this.logger.info('queue', 'Added video to queue', { id, platforms: entry.platforms });
     
     return fullEntry;
   }
@@ -191,4 +193,3 @@ export class QueueManager {
     return stats;
   }
 }
- 
