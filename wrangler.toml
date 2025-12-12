@@ -1,19 +1,19 @@
-name = "ai-video-uploader"
+name = "autooz"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
 
 [triggers]
-crons = ["*/5 * * * *"]
+crons = ["0 */2 * * *"]
 
 [[kv_namespaces]]
 binding = "VIDEO_QUEUE"
-id = "your-kv-namespace-id"
-preview_id = "video-queue-preview"
+id = "58d50a7063994480abcc1ec0705cbd28"
+preview_id = "58d50a7063994480abcc1ec0705cbd28"
 
 [[kv_namespaces]]
 binding = "LOGS"
-id = "your-logs-kv-namespace-id"
-preview_id = "logs-preview"
+id = "597608c5497040b6825706ccac2a7a1b"
+preview_id = "597608c5497040b6825706ccac2a7a1b"
 
 [vars]
 ENVIRONMENT = "development"
