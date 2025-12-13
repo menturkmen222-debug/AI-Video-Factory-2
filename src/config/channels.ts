@@ -46,3 +46,91 @@ export const VIDEOS_PER_DAY_PER_CHANNEL = 5;
 export const TOTAL_CHANNELS = 5;
 export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook'] as const;
 export type Platform = typeof PLATFORMS[number];
+
+// Environment variable interface for channel-based credentials
+export interface ChannelEnvVars {
+  // Global fallback credentials
+  YOUTUBE_CLIENT_ID?: string;
+  YOUTUBE_CLIENT_SECRET?: string;
+  YOUTUBE_REFRESH_TOKEN?: string;
+  TIKTOK_ACCESS_TOKEN?: string;
+  TIKTOK_OPEN_ID?: string;
+  INSTAGRAM_ACCESS_TOKEN?: string;
+  INSTAGRAM_USER_ID?: string;
+  FACEBOOK_ACCESS_TOKEN?: string;
+  FACEBOOK_PAGE_ID?: string;
+  
+  // Channel-specific credentials (CHANNEL1_, CHANNEL2_, etc.)
+  [key: string]: string | undefined;
+}
+
+export interface ChannelPlatformConfigs {
+  youtube?: {
+    clientId: string;
+    clientSecret: string;
+    refreshToken: string;
+  };
+  tiktok?: {
+    accessToken: string;
+    openId: string;
+  };
+  instagram?: {
+    accessToken: string;
+    igUserId: string;
+  };
+  facebook?: {
+    accessToken: string;
+    pageId: string;
+  };
+}
+
+// Get channel-specific credentials from environment variables
+export function getChannelCredentials(channelId: string, env: ChannelEnvVars): ChannelPlatformConfigs {
+  const prefix = channelId.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const configs: ChannelPlatformConfigs = {};
+
+  // Try channel-specific credentials first, fall back to global
+  const ytClientId = env[`${prefix}_YOUTUBE_CLIENT_ID`] || env.YOUTUBE_CLIENT_ID;
+  const ytClientSecret = env[`${prefix}_YOUTUBE_CLIENT_SECRET`] || env.YOUTUBE_CLIENT_SECRET;
+  const ytRefreshToken = env[`${prefix}_YOUTUBE_REFRESH_TOKEN`] || env.YOUTUBE_REFRESH_TOKEN;
+  
+  if (ytClientId && ytClientSecret && ytRefreshToken) {
+    configs.youtube = {
+      clientId: ytClientId,
+      clientSecret: ytClientSecret,
+      refreshToken: ytRefreshToken
+    };
+  }
+
+  const ttAccessToken = env[`${prefix}_TIKTOK_ACCESS_TOKEN`] || env.TIKTOK_ACCESS_TOKEN;
+  const ttOpenId = env[`${prefix}_TIKTOK_OPEN_ID`] || env.TIKTOK_OPEN_ID;
+  
+  if (ttAccessToken && ttOpenId) {
+    configs.tiktok = {
+      accessToken: ttAccessToken,
+      openId: ttOpenId
+    };
+  }
+
+  const igAccessToken = env[`${prefix}_INSTAGRAM_ACCESS_TOKEN`] || env.INSTAGRAM_ACCESS_TOKEN;
+  const igUserId = env[`${prefix}_INSTAGRAM_USER_ID`] || env.INSTAGRAM_USER_ID;
+  
+  if (igAccessToken && igUserId) {
+    configs.instagram = {
+      accessToken: igAccessToken,
+      igUserId: igUserId
+    };
+  }
+
+  const fbAccessToken = env[`${prefix}_FACEBOOK_ACCESS_TOKEN`] || env.FACEBOOK_ACCESS_TOKEN;
+  const fbPageId = env[`${prefix}_FACEBOOK_PAGE_ID`] || env.FACEBOOK_PAGE_ID;
+  
+  if (fbAccessToken && fbPageId) {
+    configs.facebook = {
+      accessToken: fbAccessToken,
+      pageId: fbPageId
+    };
+  }
+
+  return configs;
+}

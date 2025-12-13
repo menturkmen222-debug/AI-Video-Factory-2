@@ -963,12 +963,19 @@ const appJsContent = `class App {
 
     init() {
         this.bindEvents();
-        this.loadSection('dashboard');
+        this.handleInitialRoute();
         this.checkHealth();
         this.loadStats();
         this.loadLogs();
         this.startAutoRefresh();
         this.loadSettings();
+        window.addEventListener('popstate', () => this.handleInitialRoute());
+    }
+
+    handleInitialRoute() {
+        const path = window.location.pathname;
+        const routeMap = { '/': 'dashboard', '/dashboard': 'dashboard', '/upload': 'upload', '/queue': 'queue', '/logs': 'logs', '/settings': 'settings' };
+        this.loadSection(routeMap[path] || 'dashboard', false);
     }
 
     bindEvents() {
@@ -1040,13 +1047,17 @@ const appJsContent = `class App {
         [overlay, closeBtn, cancelBtn].forEach(el => el.addEventListener('click', () => this.hideModal()));
     }
 
-    loadSection(section) {
+    loadSection(section, updateUrl = true) {
         document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.section === section));
         document.querySelectorAll('.section').forEach(sec => sec.classList.toggle('active', sec.id === 'section-' + section));
         const titles = { dashboard: 'Dashboard', upload: 'Upload Video', queue: 'Video Queue', logs: 'System Logs', settings: 'Settings' };
         document.getElementById('pageTitle').textContent = titles[section] || section;
         this.currentSection = section;
         document.querySelector('.sidebar').classList.remove('open');
+        if (updateUrl && window.history && window.history.pushState) {
+            const path = section === 'dashboard' ? '/' : '/' + section;
+            if (window.location.pathname !== path) window.history.pushState({ section }, titles[section], path);
+        }
         if (section === 'logs') this.loadLogs();
         else if (section === 'queue') this.loadStats();
     }

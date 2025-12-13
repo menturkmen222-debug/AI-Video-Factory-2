@@ -18,6 +18,7 @@ export interface Env {
   
   GROQ_API_KEY: string;
   
+  // Global/fallback platform credentials
   YOUTUBE_CLIENT_ID?: string;
   YOUTUBE_CLIENT_SECRET?: string;
   YOUTUBE_REFRESH_TOKEN?: string;
@@ -30,6 +31,10 @@ export interface Env {
   
   FACEBOOK_ACCESS_TOKEN?: string;
   FACEBOOK_PAGE_ID?: string;
+  
+  // Channel-specific credentials (CHANNEL1_, CHANNEL2_, etc.)
+  // Format: CHANNEL1_YOUTUBE_CLIENT_ID, CHANNEL1_TIKTOK_ACCESS_TOKEN, etc.
+  [key: string]: KVNamespace | string | undefined;
 }
 
 const corsHeaders = {
@@ -139,7 +144,8 @@ export default {
             queueManager,
             groqService,
             getPlatformConfigs(env),
-            logger
+            logger,
+            env as any
           );
           break;
 
@@ -207,7 +213,7 @@ export default {
     await logger.info('cron', 'Scheduled job started', { scheduledTime: new Date(event.scheduledTime).toISOString() });
 
     try {
-      await handleSchedule(queueManager, groqService, getPlatformConfigs(env), logger);
+      await handleSchedule(queueManager, groqService, getPlatformConfigs(env), logger, env as any);
       await logger.info('cron', 'Scheduled job completed');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

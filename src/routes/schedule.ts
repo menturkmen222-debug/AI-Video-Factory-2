@@ -6,6 +6,7 @@ import { YouTubeUploader, YouTubeConfig } from '../platforms/youtube';
 import { TikTokUploader, TikTokConfig } from '../platforms/tiktok';
 import { InstagramUploader, InstagramConfig } from '../platforms/instagram';
 import { FacebookUploader, FacebookConfig } from '../platforms/facebook';
+import { getChannelCredentials, ChannelEnvVars, ChannelPlatformConfigs } from '../config/channels';
 
 export interface ScheduleResult {
   success: boolean;
@@ -16,8 +17,8 @@ export interface ScheduleResult {
   details: Array<{
     id: string;
     platforms: Platform[];
-    status: VideoStatus; // ✅ faqat rasmiy statuslar
-    errors?: Partial<Record<Platform, string>>; // ✅ qisman xatolar
+    status: VideoStatus;
+    errors?: Partial<Record<Platform, string>>;
   }>;
 }
 
@@ -32,7 +33,8 @@ export async function handleSchedule(
   queueManager: QueueManager,
   groqService: GroqService,
   platformConfigs: PlatformConfigs,
-  logger: Logger
+  logger: Logger,
+  env?: ChannelEnvVars
 ): Promise<Response> {
   await logger.info('schedule', 'Scheduler run started');
 
@@ -59,7 +61,7 @@ export async function handleSchedule(
     await logger.info('schedule', `Processing ${pendingVideos.length} pending videos`);
 
     const uploadPromises = pendingVideos.map(async (video) => {
-      return processVideo(video, queueManager, groqService, platformConfigs, logger);
+      return processVideo(video, queueManager, groqService, platformConfigs, logger, env);
     });
 
     const results = await Promise.allSettled(uploadPromises);
@@ -121,14 +123,27 @@ async function processVideo(
   queueManager: QueueManager,
   groqService: GroqService,
   platformConfigs: PlatformConfigs,
-  logger: Logger
+  logger: Logger,
+  env?: ChannelEnvVars
 ): Promise<{ id: string; platforms: Platform[]; status: VideoStatus; errors?: Partial<Record<Platform, string>> }> {
   const { id, platforms, channelId, cloudinaryUrl } = video;
 
-  await logger.info('schedule', `Processing video ${id} for platforms: ${platforms.join(', ')}`);
+  await logger.info('schedule', `Processing video ${id} for channel ${channelId}`, { platforms: platforms.join(', ') });
 
   try {
-    // Kunlik limit tekshiruvi
+    // Get channel-specific credentials (falls back to global if env provided)
+    let channelCreds: ChannelPlatformConfigs = {};
+    if (env) {
+      channelCreds = getChannelCredentials(channelId, env);
+      await logger.info('schedule', `Loaded credentials for channel ${channelId}`, {
+        youtube: !!channelCreds.youtube,
+        tiktok: !!channelCreds.tiktok,
+        instagram: !!channelCreds.instagram,
+        facebook: !!channelCreds.facebook
+      });
+    }
+
+    // Daily limit check
     let hasUploadable = false;
     for (const platform of platforms) {
       if (await queueManager.canUpload(platform, channelId)) {
@@ -160,40 +175,48 @@ async function processVideo(
       if (!canUpload) {
         errors[platform] = 'Daily limit reached';
         allSucceeded = false;
+        await logger.warn('schedule', `Platform ${platform} skipped - daily limit reached`, { channelId });
         continue;
       }
 
       let uploadResult: { success: boolean; error?: string };
 
       try {
+        await logger.info('schedule', `Starting upload to ${platform}`, { id, channelId });
+        
         switch (platform) {
           case 'youtube':
-            if (platformConfigs.youtube) {
-              const uploader = new YouTubeUploader(platformConfigs.youtube, logger);
+            // Use channel-specific credentials if available, otherwise use global
+            const ytConfig = channelCreds.youtube || platformConfigs.youtube;
+            if (ytConfig) {
+              const uploader = new YouTubeUploader(ytConfig, logger);
               uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
             } else {
               uploadResult = { success: false, error: 'YouTube not configured' };
             }
             break;
           case 'tiktok':
-            if (platformConfigs.tiktok) {
-              const uploader = new TikTokUploader(platformConfigs.tiktok, logger);
+            const ttConfig = channelCreds.tiktok || platformConfigs.tiktok;
+            if (ttConfig) {
+              const uploader = new TikTokUploader(ttConfig, logger);
               uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
             } else {
               uploadResult = { success: false, error: 'TikTok not configured' };
             }
             break;
           case 'instagram':
-            if (platformConfigs.instagram) {
-              const uploader = new InstagramUploader(platformConfigs.instagram, logger);
+            const igConfig = channelCreds.instagram || platformConfigs.instagram;
+            if (igConfig) {
+              const uploader = new InstagramUploader(igConfig, logger);
               uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
             } else {
               uploadResult = { success: false, error: 'Instagram not configured' };
             }
             break;
           case 'facebook':
-            if (platformConfigs.facebook) {
-              const uploader = new FacebookUploader(platformConfigs.facebook, logger);
+            const fbConfig = channelCreds.facebook || platformConfigs.facebook;
+            if (fbConfig) {
+              const uploader = new FacebookUploader(fbConfig, logger);
               uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
             } else {
               uploadResult = { success: false, error: 'Facebook not configured' };
@@ -205,20 +228,24 @@ async function processVideo(
 
         if (uploadResult.success) {
           await queueManager.incrementDailyCounter(platform, channelId);
+          await logger.info('schedule', `Upload to ${platform} successful`, { id, channelId });
         } else {
           errors[platform] = uploadResult.error || 'Unknown upload error';
           allSucceeded = false;
+          await logger.error('schedule', `Upload to ${platform} failed`, { id, channelId, error: uploadResult.error });
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unexpected error';
         errors[platform] = msg;
         allSucceeded = false;
+        await logger.error('schedule', `Upload to ${platform} exception`, { id, channelId, error: msg });
       }
     }
 
     const finalStatus: VideoStatus = allSucceeded ? 'uploaded' : 'failed';
 
     await queueManager.updateEntry(id, { status: finalStatus });
+    await logger.info('schedule', `Video ${id} processing complete`, { status: finalStatus, channelId });
 
     const result: any = { id, platforms, status: finalStatus };
     if (Object.keys(errors).length > 0) {

@@ -7,6 +7,16 @@ const contentTypes: Record<string, string> = {
   'json': 'application/json; charset=utf-8',
 };
 
+const spaRoutes = [
+  '/',
+  '/index.html',
+  '/dashboard',
+  '/upload',
+  '/queue',
+  '/logs',
+  '/settings',
+];
+
 export function handleFrontend(path: string): Response {
   const headers = {
     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -14,7 +24,7 @@ export function handleFrontend(path: string): Response {
     'Expires': '0',
   };
 
-  if (path === '/' || path === '/index.html' || path === '/dashboard') {
+  if (spaRoutes.includes(path)) {
     return new Response(getHTML(), {
       status: 200,
       headers: { ...headers, 'Content-Type': contentTypes.html }
@@ -47,9 +57,7 @@ export function handleFrontend(path: string): Response {
 
 export function isFrontendPath(path: string): boolean {
   const frontendPaths = [
-    '/',
-    '/index.html',
-    '/dashboard',
+    ...spaRoutes,
     '/css/styles.css',
     '/js/api.js',
     '/js/app.js',
