@@ -144,11 +144,11 @@ async function processVideo(
 
     await queueManager.updateEntry(id, { status: 'processing' });
 
-    // AI metadata — 1 marta
+    // AI metadata — generated once using the prompt and channel name
     let metadata = video.metadata;
     if (!metadata || !metadata.title) {
-      await logger.info('schedule', 'Generating AI metadata', { id });
-      metadata = await groqService.generateMetadata();
+      await logger.info('schedule', 'Generating AI metadata', { id, context: video.videoContext, channel: channelId });
+      metadata = await groqService.generateMetadata(video.videoContext, channelId);
       await queueManager.updateEntry(id, { metadata });
     }
 

@@ -3,7 +3,7 @@ import { Logger } from '../utils/logger';
 import { getCurrentTimestamp, getDayKey, getCurrentDate } from '../utils/time';
 
 export type Platform = 'youtube' | 'tiktok' | 'instagram' | 'facebook';
-export type VideoStatus = 'pending' | 'processing' | 'uploaded' | 'failed';
+export type VideoStatus = 'pending' | 'processing' | 'uploaded' | 'failed' | 'skipped';
 
 export interface VideoMetadata {
   title: string;
@@ -15,10 +15,11 @@ export interface VideoQueueEntry {
   id: string;
   videoUrl: string;
   cloudinaryUrl: string;
-  platforms: Platform[]; // ✅
+  platforms: Platform[];
   channelId: string;
   status: VideoStatus;
   metadata?: VideoMetadata;
+  videoContext?: string;
   createdAt: string;
   updatedAt: string;
   errorMessage?: string;
@@ -176,9 +177,9 @@ export class QueueManager {
     await this.logger.info('queue', 'Queue cleared');
   }
 
-  async getStats(): Promise<{ pending: number; processing: number; uploaded: number; failed: number }> {
+  async getStats(): Promise<{ pending: number; processing: number; uploaded: number; failed: number; skipped: number }> {
     const keys = await this.kv.list({ prefix: 'video_' });
-    const stats = { pending: 0, processing: 0, uploaded: 0, failed: 0 };
+    const stats = { pending: 0, processing: 0, uploaded: 0, failed: 0, skipped: 0 };
 
     for (const key of keys.keys) {
       const value = await this.kv.get(key.name);

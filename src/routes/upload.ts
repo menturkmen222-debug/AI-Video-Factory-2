@@ -99,13 +99,12 @@ export async function handleUpload(
       videoContext = body.videoContext;
     }
 
-    // ✅ Bitta marta navbatga qo'shish — siklsiz!
     const entry = await queueManager.addToQueue({
       videoUrl: videoUrl,
       cloudinaryUrl: videoUrl,
-      platforms, // ✅ barcha platformalar bitta yozuvda
+      platforms,
       channelId,
-      metadata: videoContext ? { title: '', description: '', tags: [] } : undefined
+      videoContext
     });
 
     await logger.info('upload', 'Upload complete, entry added to queue', { 

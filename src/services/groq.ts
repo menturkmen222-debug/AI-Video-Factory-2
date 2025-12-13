@@ -38,8 +38,8 @@ export class GroqService {
     this.logger = logger;
   }
 
-  async generateMetadata(videoContext?: string): Promise<VideoMetadata> {
-    await this.logger.info('groq', 'Generating AI metadata', { context: videoContext });
+  async generateMetadata(videoContext?: string, channelName?: string): Promise<VideoMetadata> {
+    await this.logger.info('groq', 'Generating AI metadata', { context: videoContext, channel: channelName });
 
     try {
       const systemPrompt = `You are a social media expert. Generate engaging video metadata.
@@ -50,9 +50,16 @@ Return ONLY valid JSON with this exact format:
   "tags": ["5 to 10 relevant hashtags without # symbol"]
 }`;
 
-      const userPrompt = videoContext 
-        ? `Generate metadata for this video: ${videoContext}`
-        : 'Generate generic engaging video metadata for a viral social media video.';
+      let userPrompt: string;
+      if (videoContext && channelName) {
+        userPrompt = `Generate metadata for this video from channel "${channelName}": ${videoContext}`;
+      } else if (videoContext) {
+        userPrompt = `Generate metadata for this video: ${videoContext}`;
+      } else if (channelName) {
+        userPrompt = `Generate engaging video metadata for channel "${channelName}".`;
+      } else {
+        userPrompt = 'Generate generic engaging video metadata for a viral social media video.';
+      }
 
       const messages: GroqMessage[] = [
         { role: 'system', content: systemPrompt },
