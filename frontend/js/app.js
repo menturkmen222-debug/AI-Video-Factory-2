@@ -6,6 +6,7 @@ class App {
         this.isLoading = false;
         this.refreshInterval = null;
         this.notifications = [];
+        this.activeInputTab = 'file';
         
         this.init();
     }
@@ -66,9 +67,37 @@ class App {
         });
 
         this.bindUploadEvents();
+        this.bindTabEvents();
         this.bindLogEvents();
         this.bindSettingsEvents();
         this.bindModalEvents();
+    }
+
+    bindTabEvents() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                this.switchTab(tab);
+            });
+        });
+    }
+
+    switchTab(tab) {
+        this.activeInputTab = tab;
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === `tab-${tab}`);
+        });
+
+        if (tab === 'url') {
+            this.clearVideoPreview();
+        } else {
+            document.getElementById('videoUrl').value = '';
+        }
     }
 
     bindUploadEvents() {
@@ -236,7 +265,7 @@ class App {
                     <video src="${video.videoUrl || ''}" muted></video>
                 </div>
                 <div class="queue-info">
-                    <div class="queue-title">${this.escapeHtml(video.channelName || video.id || 'Untitled')}</div>
+                    <div class="queue-title">${this.escapeHtml(video.channelId || video.id || 'Untitled')}</div>
                     <div class="queue-meta">
                         ${video.platforms ? video.platforms.join(', ') : 'All platforms'} 
                         ${video.createdAt ? '• ' + this.formatDate(video.createdAt) : ''}
@@ -379,20 +408,27 @@ class App {
 
     async handleUpload() {
         const videoInput = document.getElementById('videoFile');
-        const channelName = document.getElementById('channelName').value.trim();
+        const videoUrlInput = document.getElementById('videoUrl');
+        const channelSelect = document.getElementById('channelSelect');
         const videoPrompt = document.getElementById('videoPrompt').value.trim();
-        const platforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked'))
-            .map(cb => cb.value);
+        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
 
         const file = videoInput.files[0] || videoInput.file;
+        const videoUrl = videoUrlInput.value.trim();
+        const channelId = channelSelect.value;
 
-        if (!file) {
+        if (!channelId) {
+            this.showToast('error', 'Missing Channel', 'Please select a channel');
+            return;
+        }
+
+        if (this.activeInputTab === 'file' && !file) {
             this.showToast('error', 'Missing Video', 'Please select a video file');
             return;
         }
 
-        if (!channelName) {
-            this.showToast('error', 'Missing Channel Name', 'Please enter your channel name');
+        if (this.activeInputTab === 'url' && !videoUrl) {
+            this.showToast('error', 'Missing Video URL', 'Please enter a video URL');
             return;
         }
 
@@ -401,15 +437,16 @@ class App {
             return;
         }
 
-        if (platforms.length === 0) {
-            this.showToast('error', 'No Platforms', 'Please select at least one platform');
-            return;
-        }
-
         const formData = new FormData();
-        formData.append('video', file);
-        formData.append('channelName', channelName);
-        formData.append('prompt', videoPrompt);
+        
+        if (this.activeInputTab === 'file' && file) {
+            formData.append('video', file);
+        } else if (this.activeInputTab === 'url' && videoUrl) {
+            formData.append('videoUrl', videoUrl);
+        }
+        
+        formData.append('channelId', channelId);
+        formData.append('videoContext', videoPrompt);
         formData.append('platforms', JSON.stringify(platforms));
 
         const progressEl = document.getElementById('uploadProgress');
@@ -440,8 +477,9 @@ class App {
 
             setTimeout(() => {
                 this.clearVideoPreview();
-                document.getElementById('channelName').value = '';
+                channelSelect.value = '';
                 document.getElementById('videoPrompt').value = '';
+                document.getElementById('videoUrl').value = '';
                 progressEl.hidden = true;
                 progressFill.style.width = '0%';
                 submitBtn.disabled = false;
@@ -595,74 +633,44 @@ class App {
             </button>
         `;
 
-        container.appendChild(toast);
-
         toast.querySelector('.toast-close').addEventListener('click', () => {
-            this.removeToast(toast);
+            toast.remove();
         });
 
+        container.appendChild(toast);
+
         setTimeout(() => {
-            this.removeToast(toast);
+            if (toast.parentNode) {
+                toast.remove();
+            }
         }, 5000);
     }
 
-    removeToast(toast) {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }
-
-    formatDate(dateStr) {
-        if (!dateStr) return '';
-        try {
-            const date = new Date(dateStr);
-            return date.toLocaleString();
-        } catch {
-            return dateStr;
-        }
-    }
-
-    formatTimeAgo(dateStr) {
-        if (!dateStr) return '';
-        try {
-            const date = new Date(dateStr);
-            const now = new Date();
-            const diff = Math.floor((now - date) / 1000);
-
-            if (diff < 60) return 'Just now';
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            return `${Math.floor(diff / 86400)}d ago`;
-        } catch {
-            return '';
-        }
-    }
-
-    escapeHtml(str) {
-        if (!str) return '';
+    escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
-        div.textContent = str;
+        div.textContent = text;
         return div.innerHTML;
     }
-}
 
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
+    formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleString();
     }
-`;
-document.head.appendChild(styleSheet);
+
+    formatTimeAgo(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+
+        if (diff < 60) return 'Just now';
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
