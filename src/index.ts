@@ -6,6 +6,7 @@ import { GroqService, GroqConfig } from './services/groq';
 import { handleUpload } from './routes/upload';
 import { handleSchedule, PlatformConfigs } from './routes/schedule';
 import { handleGetLogs, handleClearLogs, handleClearQueue, handleGetStats } from './routes/stats';
+import { handleFrontend, isFrontendPath } from './routes/frontend';
 
 export interface Env {
   VIDEO_QUEUE: KVNamespace;
@@ -168,23 +169,8 @@ export default {
           });
           break;
 
-        case path === '/' && method === 'GET':
-          response = new Response(JSON.stringify({
-            name: 'AI Video Uploader',
-            version: '1.0.0',
-            endpoints: [
-              { path: '/upload-video', method: 'POST', description: 'Upload video' },
-              { path: '/run-schedule', method: 'POST', description: 'Run scheduler' },
-              { path: '/api/logs', method: 'GET', description: 'Get logs' },
-              { path: '/api/clear-logs', method: 'POST/GET', description: 'Clear logs' },
-              { path: '/api/clear-queue', method: 'POST/GET', description: 'Clear queue' },
-              { path: '/api/stats', method: 'GET', description: 'Get queue stats' },
-              { path: '/health', method: 'GET', description: 'Health check' }
-            ]
-          }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          });
+        case isFrontendPath(path) && method === 'GET':
+          response = handleFrontend(path);
           break;
 
         default:

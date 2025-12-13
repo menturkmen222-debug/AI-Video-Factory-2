@@ -21,15 +21,14 @@ args = "Cloudflare Worker Dev"
 name = "Cloudflare Worker Dev"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx wrangler dev --port 5000 --local"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx wrangler dev --port 5000 --ip 0.0.0.0 --local"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-exposeLocalhost = true
