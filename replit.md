@@ -67,3 +67,12 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
 - AI metadata generation with Groq
 - Full logging system
 - CORS support enabled
+- 2024-12-13: Updated queue system to store videoContext (prompt) with each video entry
+- 2024-12-13: Enhanced AI metadata generation to use both prompt and channel name
+- 2024-12-13: Single queue entry now uploads to all 4 platforms with the same AI-generated metadata
+
+## Video Upload Flow
+1. User sends video + prompt + channel name to `/upload-video`
+2. Single queue entry is created with video URL, prompt, and target platforms
+3. When `/run-schedule` runs, AI generates title/description/tags using the prompt and channel name
+4. Same video is uploaded to all 4 platforms (YouTube, TikTok, Instagram, Facebook) with identical metadata
