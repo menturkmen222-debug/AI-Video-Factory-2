@@ -11,15 +11,6 @@ export interface VideoMetadata {
   tags: string[];
 }
 
-export interface PlatformUploadStatus {
-  platform: Platform;
-  channelId: string;
-  status: VideoStatus;
-  uploadedAt?: string;
-  errorMessage?: string;
-  retryCount: number;
-}
-
 export interface VideoQueueEntry {
   id: string;
   videoUrl: string;
@@ -33,7 +24,6 @@ export interface VideoQueueEntry {
   updatedAt: string;
   errorMessage?: string;
   retryCount: number;
-  platformStatuses?: PlatformUploadStatus[];
 }
 
 export interface DailyCounter {
@@ -220,165 +210,5 @@ export class QueueManager {
 
     videos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return videos;
-  }
-
-  async initializePlatformStatuses(entry: VideoQueueEntry): Promise<VideoQueueEntry> {
-    if (!entry.platformStatuses) {
-      entry.platformStatuses = entry.platforms.map(platform => ({
-        platform,
-        channelId: entry.channelId,
-        status: 'pending' as VideoStatus,
-        retryCount: 0
-      }));
-      await this.updateEntry(entry.id, { platformStatuses: entry.platformStatuses });
-    }
-    return entry;
-  }
-
-  async updatePlatformStatus(
-    videoId: string,
-    platform: Platform,
-    channelId: string,
-    status: VideoStatus,
-    errorMessage?: string
-  ): Promise<VideoQueueEntry | null> {
-    const entry = await this.getEntry(videoId);
-    if (!entry) {
-      await this.logger.error('queue', 'Entry not found for platform status update', { videoId });
-      return null;
-    }
-
-    if (!entry.platformStatuses) {
-      entry.platformStatuses = [];
-    }
-
-    const existingIndex = entry.platformStatuses.findIndex(
-      ps => ps.platform === platform && ps.channelId === channelId
-    );
-
-    const platformStatus: PlatformUploadStatus = {
-      platform,
-      channelId,
-      status,
-      uploadedAt: status === 'uploaded' ? new Date().toISOString() : undefined,
-      errorMessage,
-      retryCount: existingIndex >= 0 ? entry.platformStatuses[existingIndex].retryCount : 0
-    };
-
-    if (existingIndex >= 0) {
-      entry.platformStatuses[existingIndex] = platformStatus;
-    } else {
-      entry.platformStatuses.push(platformStatus);
-    }
-
-    return this.updateEntry(videoId, { platformStatuses: entry.platformStatuses });
-  }
-
-  async retryPlatform(videoId: string, platform: Platform, channelId: string): Promise<VideoQueueEntry | null> {
-    const entry = await this.getEntry(videoId);
-    if (!entry) {
-      await this.logger.error('queue', 'Entry not found for retry', { videoId });
-      return null;
-    }
-
-    if (!entry.platformStatuses) {
-      entry.platformStatuses = [];
-    }
-
-    const existingIndex = entry.platformStatuses.findIndex(
-      ps => ps.platform === platform && ps.channelId === channelId
-    );
-
-    if (existingIndex >= 0) {
-      entry.platformStatuses[existingIndex].status = 'pending';
-      entry.platformStatuses[existingIndex].retryCount += 1;
-      entry.platformStatuses[existingIndex].errorMessage = undefined;
-    } else {
-      entry.platformStatuses.push({
-        platform,
-        channelId,
-        status: 'pending',
-        retryCount: 1
-      });
-    }
-
-    if (entry.status === 'failed') {
-      entry.status = 'pending';
-    }
-
-    await this.logger.info('queue', 'Platform retry initiated', { videoId, platform, channelId });
-    return this.updateEntry(videoId, { 
-      status: entry.status, 
-      platformStatuses: entry.platformStatuses 
-    });
-  }
-
-  async getExtendedStats(): Promise<{
-    byPlatform: Record<Platform, { pending: number; processing: number; uploaded: number; failed: number }>;
-    byChannel: Record<string, { pending: number; processing: number; uploaded: number; failed: number; todayCount: number }>;
-    byPlatformChannel: Record<string, { pending: number; processing: number; uploaded: number; failed: number; todayCount: number }>;
-  }> {
-    const videos = await this.getAllVideos(1000);
-    const today = new Date().toISOString().split('T')[0];
-
-    const byPlatform: Record<Platform, { pending: number; processing: number; uploaded: number; failed: number }> = {
-      youtube: { pending: 0, processing: 0, uploaded: 0, failed: 0 },
-      tiktok: { pending: 0, processing: 0, uploaded: 0, failed: 0 },
-      instagram: { pending: 0, processing: 0, uploaded: 0, failed: 0 },
-      facebook: { pending: 0, processing: 0, uploaded: 0, failed: 0 }
-    };
-
-    const byChannel: Record<string, { pending: number; processing: number; uploaded: number; failed: number; todayCount: number }> = {};
-    const byPlatformChannel: Record<string, { pending: number; processing: number; uploaded: number; failed: number; todayCount: number }> = {};
-
-    for (const video of videos) {
-      const isToday = video.createdAt.startsWith(today);
-      
-      if (!byChannel[video.channelId]) {
-        byChannel[video.channelId] = { pending: 0, processing: 0, uploaded: 0, failed: 0, todayCount: 0 };
-      }
-
-      if (video.status in byChannel[video.channelId]) {
-        (byChannel[video.channelId] as any)[video.status]++;
-      }
-      if (isToday) {
-        byChannel[video.channelId].todayCount++;
-      }
-
-      for (const platform of video.platforms) {
-        if (video.status in byPlatform[platform]) {
-          (byPlatform[platform] as any)[video.status]++;
-        }
-
-        const key = `${platform}_${video.channelId}`;
-        if (!byPlatformChannel[key]) {
-          byPlatformChannel[key] = { pending: 0, processing: 0, uploaded: 0, failed: 0, todayCount: 0 };
-        }
-        if (video.status in byPlatformChannel[key]) {
-          (byPlatformChannel[key] as any)[video.status]++;
-        }
-        if (isToday) {
-          byPlatformChannel[key].todayCount++;
-        }
-      }
-    }
-
-    return { byPlatform, byChannel, byPlatformChannel };
-  }
-
-  async getDailyUploadCounts(): Promise<Record<string, number>> {
-    const keys = await this.kv.list({ prefix: 'daily_' });
-    const counts: Record<string, number> = {};
-
-    for (const key of keys.keys) {
-      const value = await this.kv.get(key.name);
-      if (value) {
-        const counter: DailyCounter = JSON.parse(value);
-        const channelKey = `${counter.platform}_${counter.channelId}`;
-        counts[channelKey] = counter.count;
-      }
-    }
-
-    return counts;
   }
 }

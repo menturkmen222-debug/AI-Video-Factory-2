@@ -114,15 +114,6 @@ const htmlContent = `<!DOCTYPE html>
                             </svg>
                             <span class="notification-badge" id="notificationBadge">0</span>
                         </button>
-                        <div class="notifications-panel" id="notificationsPanel" hidden>
-                            <div class="notifications-header">
-                                <h3 data-i18n="notifications.title">Bildirishnomalar</h3>
-                                <button class="btn btn-text btn-sm" id="markAllReadBtn" data-i18n="notifications.markAllRead">Barchasini o'qilgan deb belgilash</button>
-                            </div>
-                            <div class="notifications-list" id="notificationsList">
-                                <div class="notifications-empty" data-i18n="notifications.noNotifications">Bildirishnomalar yo'q</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </header>
@@ -180,31 +171,6 @@ const htmlContent = `<!DOCTYPE html>
                         </div>
                     </div>
 
-                    <div class="services-status-grid">
-                        <div class="service-status-card" id="groqServiceCard">
-                            <div class="service-icon groq">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                </svg>
-                            </div>
-                            <div class="service-info">
-                                <span class="service-name" data-i18n="dashboard.groqAI">Groq AI</span>
-                                <span class="service-status checking" id="groqStatus" data-i18n="health.checking">Tekshirilmoqda...</span>
-                            </div>
-                        </div>
-                        <div class="service-status-card" id="cloudinaryServiceCard">
-                            <div class="service-icon cloudinary">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M18 10a6 6 0 0 0-12 0c-3 0-6 2-6 6s3 6 6 6h12c3 0 6-3 6-6s-3-6-6-6z"/>
-                                </svg>
-                            </div>
-                            <div class="service-info">
-                                <span class="service-name" data-i18n="dashboard.cloudinary">Cloudinary</span>
-                                <span class="service-status checking" id="cloudinaryStatus" data-i18n="health.checking">Tekshirilmoqda...</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="dashboard-grid">
                         <div class="card activity-card">
                             <div class="card-header">
@@ -226,8 +192,8 @@ const htmlContent = `<!DOCTYPE html>
                                 <h2 data-i18n="dashboard.platformStatus">Platforma holati</h2>
                             </div>
                             <div class="card-body">
-                                <div class="platform-list" id="platformList">
-                                    <div class="platform-item" data-platform="youtube">
+                                <div class="platform-list">
+                                    <div class="platform-item">
                                         <div class="platform-icon youtube">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -235,16 +201,10 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">YouTube</span>
-                                            <div class="platform-stats">
-                                                <span class="platform-stat" id="youtubeUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
-                                                <span class="platform-stat queue" id="youtubeQueue" data-i18n-prefix="dashboard.inQueue">0</span>
-                                                <span class="platform-stat failed" id="youtubeFailed" data-i18n-prefix="dashboard.failures">0</span>
-                                            </div>
-                                            <span class="platform-next-upload" id="youtubeNextUpload"></span>
-                                            <div class="platform-channels" id="youtubeChannels"></div>
+                                            <span class="platform-status" id="youtubeStatus" data-i18n="dashboard.ready">Tayyor</span>
                                         </div>
                                     </div>
-                                    <div class="platform-item" data-platform="tiktok">
+                                    <div class="platform-item">
                                         <div class="platform-icon tiktok">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
@@ -252,16 +212,10 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">TikTok</span>
-                                            <div class="platform-stats">
-                                                <span class="platform-stat" id="tiktokUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
-                                                <span class="platform-stat queue" id="tiktokQueue" data-i18n-prefix="dashboard.inQueue">0</span>
-                                                <span class="platform-stat failed" id="tiktokFailed" data-i18n-prefix="dashboard.failures">0</span>
-                                            </div>
-                                            <span class="platform-next-upload" id="tiktokNextUpload"></span>
-                                            <div class="platform-channels" id="tiktokChannels"></div>
+                                            <span class="platform-status" id="tiktokStatus" data-i18n="dashboard.ready">Tayyor</span>
                                         </div>
                                     </div>
-                                    <div class="platform-item" data-platform="instagram">
+                                    <div class="platform-item">
                                         <div class="platform-icon instagram">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
@@ -269,16 +223,10 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">Instagram</span>
-                                            <div class="platform-stats">
-                                                <span class="platform-stat" id="instagramUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
-                                                <span class="platform-stat queue" id="instagramQueue" data-i18n-prefix="dashboard.inQueue">0</span>
-                                                <span class="platform-stat failed" id="instagramFailed" data-i18n-prefix="dashboard.failures">0</span>
-                                            </div>
-                                            <span class="platform-next-upload" id="instagramNextUpload"></span>
-                                            <div class="platform-channels" id="instagramChannels"></div>
+                                            <span class="platform-status" id="instagramStatus" data-i18n="dashboard.ready">Tayyor</span>
                                         </div>
                                     </div>
-                                    <div class="platform-item" data-platform="facebook">
+                                    <div class="platform-item">
                                         <div class="platform-icon facebook">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -286,13 +234,7 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">Facebook</span>
-                                            <div class="platform-stats">
-                                                <span class="platform-stat" id="facebookUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
-                                                <span class="platform-stat queue" id="facebookQueue" data-i18n-prefix="dashboard.inQueue">0</span>
-                                                <span class="platform-stat failed" id="facebookFailed" data-i18n-prefix="dashboard.failures">0</span>
-                                            </div>
-                                            <span class="platform-next-upload" id="facebookNextUpload"></span>
-                                            <div class="platform-channels" id="facebookChannels"></div>
+                                            <span class="platform-status" id="facebookStatus" data-i18n="dashboard.ready">Tayyor</span>
                                         </div>
                                     </div>
                                 </div>
@@ -529,10 +471,6 @@ const htmlContent = `<!DOCTYPE html>
                                 <h3 data-i18n="logs.noLogs">Jurnallar mavjud emas</h3>
                                 <p data-i18n="logs.noMatch">Filtrlaringizga mos jurnallar yo'q</p>
                             </div>
-                            <div class="load-more-container" id="loadMoreContainer" hidden>
-                                <button class="btn btn-secondary" id="loadMoreLogsBtn" data-i18n="logs.loadMore">Ko'proq yuklash</button>
-                                <span class="logs-count" id="logsCount"></span>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -550,104 +488,6 @@ const htmlContent = `<!DOCTYPE html>
                                     <input type="url" id="apiEndpoint" class="form-input" data-i18n-placeholder="settings.apiEndpointPlaceholder" placeholder="Bir xil origin uchun bo'sh qoldiring">
                                     <p class="form-hint" data-i18n="settings.apiEndpointHint">Faqat boshqa API serveridan foydalanayotgan bo'lsangiz o'rnating</p>
                                 </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3 data-i18n="settings.notificationPreferences">Bildirishnoma sozlamalari</h3>
-                                <div class="settings-grid">
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="emailNotifications">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.emailNotifications">Email bildirishnomalari</span>
-                                        </label>
-                                    </div>
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="uploadSuccess">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.uploadSuccess">Muvaffaqiyatli yuklash</span>
-                                        </label>
-                                    </div>
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="uploadFailure">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.uploadFailure">Muvaffaqiyatsiz yuklash</span>
-                                        </label>
-                                    </div>
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="dailyDigest">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.dailyDigest">Kunlik hisobot</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="notificationEmail" data-i18n="settings.email">Email manzili</label>
-                                        <input type="email" id="notificationEmail" class="form-input" placeholder="email@example.com">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3 data-i18n="settings.uploadLimits">Yuklash cheklovlari</h3>
-                                <div class="settings-grid">
-                                    <div class="form-group">
-                                        <label for="dailyLimitPerChannel" data-i18n="settings.dailyLimitPerChannel">Har bir kanal uchun kunlik cheklov</label>
-                                        <input type="number" id="dailyLimitPerChannel" class="form-input" min="1" max="100" value="10">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="dailyLimitPerPlatform" data-i18n="settings.dailyLimitPerPlatform">Har bir platforma uchun kunlik cheklov</label>
-                                        <input type="number" id="dailyLimitPerPlatform" class="form-input" min="1" max="500" value="50">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="maxConcurrentUploads" data-i18n="settings.maxConcurrentUploads">Maksimal bir vaqtda yuklashlar</label>
-                                        <input type="number" id="maxConcurrentUploads" class="form-input" min="1" max="10" value="3">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="retryAttempts" data-i18n="settings.retryAttempts">Qayta urinish soni</label>
-                                        <input type="number" id="retryAttempts" class="form-input" min="0" max="10" value="3">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3 data-i18n="settings.schedulingConfig">Rejalashtirish sozlamalari</h3>
-                                <div class="settings-grid">
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="schedulingEnabled">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.schedulingEnabled">Rejalashtirishni yoqish</span>
-                                        </label>
-                                    </div>
-                                    <div class="settings-item">
-                                        <label class="settings-toggle">
-                                            <input type="checkbox" id="autoRetry">
-                                            <span class="toggle-slider"></span>
-                                            <span data-i18n="settings.autoRetry">Avtomatik qayta urinish</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="timezone" data-i18n="settings.timezone">Vaqt zonasi</label>
-                                        <select id="timezone" class="form-select">
-                                            <option value="Asia/Tashkent">Toshkent (UTC+5)</option>
-                                            <option value="Asia/Ashgabat">Ashgabat (UTC+5)</option>
-                                            <option value="UTC">UTC</option>
-                                            <option value="Europe/Moscow">Moscow (UTC+3)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label data-i18n="settings.optimalTimes">Optimal yuklash vaqtlari</label>
-                                        <div id="optimalTimesContainer" class="optimal-times-list">
-                                        </div>
-                                        <button type="button" class="btn btn-secondary btn-sm" id="addOptimalTimeBtn" data-i18n="settings.addTime">Vaqt qo'shish</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-actions">
                                 <button class="btn btn-primary" id="saveSettings" data-i18n="settings.saveSettings">Sozlamalarni saqlash</button>
                             </div>
                         </div>
@@ -1346,89 +1186,6 @@ body {
     color: var(--gray-500);
 }
 
-.platform-stats {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-}
-
-.platform-stat {
-    font-size: 0.7rem;
-    color: var(--gray-600);
-    background: var(--gray-100);
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-.platform-stat.queue {
-    background: var(--primary-50);
-    color: var(--primary-700);
-}
-
-.platform-stat.failed {
-    background: var(--gray-100);
-    color: var(--gray-500);
-}
-
-.platform-stat.failed.has-failures {
-    background: var(--error-50);
-    color: var(--error-600);
-}
-
-.platform-next-upload {
-    font-size: 0.7rem;
-    color: var(--gray-500);
-    margin-top: 4px;
-}
-
-.platform-channels {
-    margin-top: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.channel-stat-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.65rem;
-    padding: 3px 0;
-    border-top: 1px solid var(--gray-100);
-}
-
-.channel-name {
-    flex: 1;
-    color: var(--gray-600);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.channel-stat-badge {
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 0.6rem;
-    background: var(--gray-100);
-    color: var(--gray-600);
-}
-
-.channel-stat-badge.completed {
-    background: var(--success-50);
-    color: var(--success-600);
-}
-
-.channel-stat-badge.queue {
-    background: var(--primary-50);
-    color: var(--primary-700);
-}
-
-.channel-stat-badge.failed {
-    background: var(--error-50);
-    color: var(--error-600);
-}
-
 .quick-actions {
     display: flex;
     gap: 12px;
@@ -1709,82 +1466,6 @@ textarea.form-input {
 .queue-status.failed {
     background: var(--error-50);
     color: var(--error-600);
-}
-
-.queue-item-failed {
-    border-left: 3px solid var(--error-500);
-}
-
-.queue-platforms {
-    display: inline-flex;
-    gap: 4px;
-}
-
-.queue-platform {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-transform: capitalize;
-}
-
-.queue-platform.youtube {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.queue-platform.tiktok {
-    background: var(--gray-100);
-    color: var(--gray-900);
-}
-
-.queue-platform.instagram {
-    background: #fce7f3;
-    color: #db2777;
-}
-
-.queue-platform.facebook {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.queue-date {
-    margin-left: 8px;
-    color: var(--gray-400);
-}
-
-.queue-failure-reason {
-    font-size: 0.75rem;
-    color: var(--error-600);
-    margin-top: 4px;
-    padding: 4px 8px;
-    background: var(--error-50);
-    border-radius: 4px;
-}
-
-.queue-retry-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-
-.btn-retry {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.7rem;
-    padding: 4px 8px;
-    background: var(--primary-50);
-    color: var(--primary-700);
-    border: 1px solid var(--primary-200);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.btn-retry:hover {
-    background: var(--primary-100);
-    border-color: var(--primary-300);
 }
 
 .logs-card .card-body {
@@ -2320,354 +2001,6 @@ textarea.form-input {
     .platform-checkboxes {
         flex-direction: column;
     }
-}
-
-.services-status-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.service-status-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--gray-200);
-    cursor: pointer;
-    transition: all var(--transition-base);
-}
-
-.service-status-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-.service-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.service-icon svg {
-    width: 24px;
-    height: 24px;
-}
-
-.service-icon.groq {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.service-icon.cloudinary {
-    background: linear-gradient(135deg, #3448c5 0%, #4f8eff 100%);
-    color: white;
-}
-
-.service-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.service-name {
-    font-weight: 600;
-    color: var(--gray-900);
-}
-
-.service-status {
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.service-status.checking {
-    color: var(--gray-500);
-}
-
-.service-status.online,
-.service-status.healthy {
-    color: var(--success-500);
-}
-
-.service-status.offline,
-.service-status.unhealthy {
-    color: var(--error-500);
-}
-
-.notifications-dropdown {
-    position: relative;
-}
-
-.notifications-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 360px;
-    max-height: 480px;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--gray-200);
-    z-index: 1000;
-    overflow: hidden;
-    margin-top: 8px;
-}
-
-.notifications-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid var(--gray-200);
-}
-
-.notifications-header h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.notifications-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.notifications-empty {
-    padding: 32px;
-    text-align: center;
-    color: var(--gray-500);
-}
-
-.notification-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--gray-100);
-    cursor: pointer;
-    transition: background var(--transition-fast);
-}
-
-.notification-item:hover {
-    background: var(--gray-50);
-}
-
-.notification-item.unread {
-    background: var(--primary-50);
-}
-
-.notification-item.unread:hover {
-    background: var(--primary-100);
-}
-
-.notification-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.notification-icon svg {
-    width: 16px;
-    height: 16px;
-}
-
-.notification-icon.success {
-    background: var(--success-50);
-    color: var(--success-500);
-}
-
-.notification-icon.error {
-    background: var(--error-50);
-    color: var(--error-500);
-}
-
-.notification-icon.info {
-    background: var(--primary-50);
-    color: var(--primary-500);
-}
-
-.notification-content {
-    flex: 1;
-    min-width: 0;
-}
-
-.notification-title {
-    font-weight: 500;
-    color: var(--gray-900);
-    margin-bottom: 2px;
-}
-
-.notification-message {
-    font-size: 0.875rem;
-    color: var(--gray-600);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.notification-time {
-    font-size: 0.75rem;
-    color: var(--gray-400);
-    margin-top: 4px;
-}
-
-.load-more-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 16px;
-    border-top: 1px solid var(--gray-200);
-}
-
-.logs-count {
-    font-size: 0.875rem;
-    color: var(--gray-500);
-}
-
-.settings-section {
-    margin-bottom: 32px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--gray-200);
-}
-
-.settings-section:last-of-type {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.settings-section h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 20px;
-}
-
-.settings-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.settings-item {
-    display: flex;
-    align-items: center;
-}
-
-.settings-toggle {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.settings-toggle input[type="checkbox"] {
-    display: none;
-}
-
-.toggle-slider {
-    width: 44px;
-    height: 24px;
-    background: var(--gray-300);
-    border-radius: 12px;
-    position: relative;
-    transition: background var(--transition-fast);
-    flex-shrink: 0;
-}
-
-.toggle-slider::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: white;
-    border-radius: 50%;
-    top: 2px;
-    left: 2px;
-    transition: transform var(--transition-fast);
-    box-shadow: var(--shadow-sm);
-}
-
-.settings-toggle input[type="checkbox"]:checked + .toggle-slider {
-    background: var(--primary-600);
-}
-
-.settings-toggle input[type="checkbox"]:checked + .toggle-slider::after {
-    transform: translateX(20px);
-}
-
-.settings-toggle span:last-child {
-    color: var(--gray-700);
-    font-weight: 500;
-}
-
-.optimal-times-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.optimal-time-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: var(--gray-100);
-    border-radius: var(--radius-md);
-}
-
-.optimal-time-item input {
-    width: 80px;
-    padding: 4px 8px;
-    border: 1px solid var(--gray-300);
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
-}
-
-.optimal-time-item .remove-time {
-    background: none;
-    border: none;
-    color: var(--gray-400);
-    cursor: pointer;
-    padding: 4px;
-}
-
-.optimal-time-item .remove-time:hover {
-    color: var(--error-500);
-}
-
-.settings-actions {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--gray-200);
-}
-
-@media (max-width: 768px) {
-    .services-status-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .notifications-panel {
-        width: 300px;
-        right: -50px;
-    }
-
-    .settings-grid {
-        grid-template-columns: 1fr;
-    }
 }`;
 
 const apiJsContent = `class API {
@@ -2775,8 +2108,8 @@ const apiJsContent = `class API {
         return this.get('/api/stats');
     }
 
-    async getLogs(limit = 100, offset = 0) {
-        return this.get(\`/api/logs?limit=\${limit}&offset=\${offset}\`);
+    async getLogs() {
+        return this.get('/api/logs');
     }
 
     async clearLogs() {
@@ -2797,45 +2130,6 @@ const apiJsContent = `class API {
 
     async getApiInfo() {
         return this.get('/');
-    }
-
-    async getGroqHealth() {
-        return this.get('/api/health/groq');
-    }
-
-    async getCloudinaryHealth() {
-        return this.get('/api/health/cloudinary');
-    }
-
-    async getNotifications() {
-        return this.get('/api/notifications');
-    }
-
-    async getNotificationCount() {
-        return this.get('/api/notifications/count');
-    }
-
-    async markNotificationRead(id) {
-        return this.post('/api/notifications/read', { id });
-    }
-
-    async markAllNotificationsRead() {
-        return this.post('/api/notifications/read', { all: true });
-    }
-
-    async getSettings() {
-        return this.get('/api/settings');
-    }
-
-    async updateSettings(settings) {
-        return this.request('/api/settings', {
-            method: 'PUT',
-            body: JSON.stringify(settings)
-        });
-    }
-
-    async retryUpload(videoId, platform, channelId) {
-        return this.post(\`/api/queue/\${videoId}/retry\`, { platform, channelId });
     }
 }
 
@@ -2859,13 +2153,6 @@ const appJsContent = `class App {
         this.refreshInterval = null;
         this.notifications = [];
         this.activeInputTab = 'file';
-        this.logsOffset = 0;
-        this.logsLimit = 100;
-        this.hasMoreLogs = true;
-        this.totalLogs = 0;
-        this.appSettings = null;
-        this.optimalTimes = [];
-        this.notificationsPanelOpen = false;
         
         this.init();
     }
@@ -2874,24 +2161,13 @@ const appJsContent = `class App {
         this.bindEvents();
         this.handleInitialRoute();
         this.checkHealth();
-        this.loadServiceHealth();
         this.loadStats();
         this.loadLogs();
-        this.loadNotificationCount();
         this.startAutoRefresh();
-        this.loadFullSettings();
+        this.loadSettings();
         
         window.addEventListener('popstate', () => {
             this.handleInitialRoute();
-        });
-
-        document.addEventListener('click', (e) => {
-            const panel = document.getElementById('notificationsPanel');
-            const btn = document.getElementById('notificationsBtn');
-            if (panel && !panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) {
-                panel.hidden = true;
-                this.notificationsPanelOpen = false;
-            }
         });
     }
 
@@ -2959,32 +2235,6 @@ const appJsContent = `class App {
         this.bindLogEvents();
         this.bindSettingsEvents();
         this.bindModalEvents();
-        this.bindNotificationEvents();
-    }
-
-    bindNotificationEvents() {
-        document.getElementById('notificationsBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleNotificationsPanel();
-        });
-
-        document.getElementById('markAllReadBtn').addEventListener('click', () => {
-            this.markAllNotificationsRead();
-        });
-
-        const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => {
-                this.loadMoreLogs();
-            });
-        }
-
-        const addTimeBtn = document.getElementById('addOptimalTimeBtn');
-        if (addTimeBtn) {
-            addTimeBtn.addEventListener('click', () => {
-                this.addOptimalTime();
-            });
-        }
     }
 
     bindTabEvents() {
@@ -3154,7 +2404,6 @@ const appJsContent = `class App {
             this.stats = data;
             this.updateStatsUI(data);
             this.updateQueueUI(data);
-            this.updatePlatformStatus(data);
         } catch (error) {
             console.error('Failed to load stats:', error);
             this.showToast('error', i18n.t('toast.error'), i18n.t('toast.error'));
@@ -3184,130 +2433,21 @@ const appJsContent = `class App {
         queueList.innerHTML = videos.map(video => {
             const statusKey = video.status || 'pending';
             const statusText = i18n.t(\`queue.\${statusKey}\`) || statusKey;
-            const isFailed = statusKey === 'failed';
-            const failureReason = video.failureReason || video.error || '';
-            const platformsHtml = (video.platforms || []).map(p => \`
-                <span class="queue-platform \${p}">\${p}</span>
-            \`).join('');
-            
-            let retryButtonsHtml = '';
-            if (isFailed && video.platforms && video.platforms.length > 0) {
-                retryButtonsHtml = \`
-                    <div class="queue-retry-actions">
-                        \${video.platforms.map(p => \`
-                            <button class="btn btn-sm btn-retry" data-video-id="\${video.id}" data-platform="\${p}" data-channel-id="\${video.channelId || ''}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <polyline points="23 4 23 10 17 10"></polyline>
-                                    <path d="M20.49 15C19.9828 16.4332 19.1209 17.7146 17.9845 18.7246C16.8482 19.7346 15.4745 20.4402 13.9917 20.7757C12.5089 21.1112 10.9652 21.0657 9.50481 20.6432C8.04437 20.2208 6.71475 19.4353 5.64 18.36L1 14"></path>
-                                </svg>
-                                \${i18n.t('queue.retry')} \${p}
-                            </button>
-                        \`).join('')}
-                    </div>
-                \`;
-            }
-            
             return \`
-            <div class="queue-item \${isFailed ? 'queue-item-failed' : ''}">
+            <div class="queue-item">
                 <div class="queue-thumbnail">
                     <video src="\${video.videoUrl || ''}" muted></video>
                 </div>
                 <div class="queue-info">
                     <div class="queue-title">\${this.escapeHtml(video.channelId || video.id || i18n.t('queue.untitled'))}</div>
                     <div class="queue-meta">
-                        <span class="queue-platforms">\${platformsHtml || i18n.t('queue.allPlatforms')}</span>
-                        \${video.createdAt ? '<span class="queue-date">' + this.formatDate(video.createdAt) + '</span>' : ''}
+                        \${video.platforms ? video.platforms.join(', ') : i18n.t('queue.allPlatforms')} 
+                        \${video.createdAt ? '• ' + this.formatDate(video.createdAt) : ''}
                     </div>
-                    \${isFailed && failureReason ? \`<div class="queue-failure-reason">\${this.escapeHtml(failureReason)}</div>\` : ''}
-                    \${retryButtonsHtml}
                 </div>
                 <span class="queue-status \${statusKey}">\${statusText}</span>
             </div>
         \`;}).join('');
-
-        queueList.querySelectorAll('.btn-retry').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const videoId = btn.dataset.videoId;
-                const platform = btn.dataset.platform;
-                const channelId = btn.dataset.channelId;
-                await this.handleRetryUpload(videoId, platform, channelId);
-            });
-        });
-    }
-
-    async handleRetryUpload(videoId, platform, channelId) {
-        try {
-            await api.retryUpload(videoId, platform, channelId);
-            this.showToast('success', i18n.t('toast.success'), i18n.t('queue.retryStarted'));
-            await this.loadStats();
-        } catch (error) {
-            console.error('Failed to retry upload:', error);
-            this.showToast('error', i18n.t('toast.error'), i18n.t('queue.retryFailed'));
-        }
-    }
-
-    updatePlatformStatus(data) {
-        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
-        const breakdown = data.breakdown || {};
-        const byPlatform = breakdown.byPlatform || {};
-        const byPlatformChannel = breakdown.byPlatformChannel || {};
-        const dailyUploadCounts = data.dailyUploadCounts || {};
-        const nextScheduledUpload = data.nextScheduledUpload;
-
-        platforms.forEach(platform => {
-            const platformData = byPlatform[platform] || {};
-            const uploadsToday = dailyUploadCounts[platform] || 0;
-            const queueCount = (platformData.pending || 0) + (platformData.processing || 0);
-            const failedCount = platformData.failed || 0;
-
-            const uploadsEl = document.getElementById(\`\${platform}UploadsToday\`);
-            const queueEl = document.getElementById(\`\${platform}Queue\`);
-            const failedEl = document.getElementById(\`\${platform}Failed\`);
-            const nextEl = document.getElementById(\`\${platform}NextUpload\`);
-            const channelsEl = document.getElementById(\`\${platform}Channels\`);
-
-            if (uploadsEl) {
-                uploadsEl.textContent = i18n.t('dashboard.uploadsToday') + ': ' + uploadsToday;
-            }
-            if (queueEl) {
-                queueEl.textContent = i18n.t('dashboard.inQueue') + ': ' + queueCount;
-            }
-            if (failedEl) {
-                failedEl.textContent = i18n.t('dashboard.failures') + ': ' + failedCount;
-                failedEl.classList.toggle('has-failures', failedCount > 0);
-            }
-            if (nextEl) {
-                if (nextScheduledUpload) {
-                    nextEl.textContent = i18n.t('dashboard.nextUpload') + ': ' + this.formatTimeAgo(nextScheduledUpload);
-                } else {
-                    nextEl.textContent = '';
-                }
-            }
-
-            if (channelsEl) {
-                const channelKeys = Object.keys(byPlatformChannel).filter(key => key.startsWith(platform + ':'));
-                if (channelKeys.length > 0) {
-                    channelsEl.innerHTML = channelKeys.map(key => {
-                        const channelId = key.split(':')[1];
-                        const chData = byPlatformChannel[key] || {};
-                        const chQueue = (chData.pending || 0) + (chData.processing || 0);
-                        const chFailed = chData.failed || 0;
-                        const chCompleted = chData.completed || 0;
-                        return \`
-                            <div class="channel-stat-item">
-                                <span class="channel-name">\${this.escapeHtml(channelId)}</span>
-                                <span class="channel-stat-badge completed">\${chCompleted}</span>
-                                <span class="channel-stat-badge queue">\${chQueue}</span>
-                                <span class="channel-stat-badge \${chFailed > 0 ? 'failed' : ''}">\${chFailed}</span>
-                            </div>
-                        \`;
-                    }).join('');
-                } else {
-                    channelsEl.innerHTML = '';
-                }
-            }
-        });
     }
 
     async loadLogs() {
@@ -3704,274 +2844,6 @@ const appJsContent = `class App {
         if (diff < 86400) return i18n.t('time.hoursAgo').replace('{n}', Math.floor(diff / 3600));
         return i18n.t('time.daysAgo').replace('{n}', Math.floor(diff / 86400));
     }
-
-    async loadServiceHealth() {
-        try {
-            const [groqResult, cloudinaryResult] = await Promise.all([
-                api.getGroqHealth().catch(e => ({ success: false, status: 'error', error: e.message })),
-                api.getCloudinaryHealth().catch(e => ({ success: false, status: 'error', error: e.message }))
-            ]);
-
-            const groqStatus = document.getElementById('groqStatus');
-            const cloudinaryStatus = document.getElementById('cloudinaryStatus');
-
-            if (groqStatus) {
-                groqStatus.className = 'service-status ' + (groqResult.success ? 'healthy' : 'unhealthy');
-                groqStatus.textContent = groqResult.success ? i18n.t('health.healthy') : i18n.t('health.offline');
-            }
-
-            if (cloudinaryStatus) {
-                cloudinaryStatus.className = 'service-status ' + (cloudinaryResult.success ? 'healthy' : 'unhealthy');
-                cloudinaryStatus.textContent = cloudinaryResult.success ? i18n.t('health.healthy') : i18n.t('health.offline');
-            }
-        } catch (error) {
-            console.error('Failed to load service health:', error);
-        }
-    }
-
-    async loadNotificationCount() {
-        try {
-            const data = await api.getNotificationCount();
-            const badge = document.getElementById('notificationBadge');
-            if (badge) {
-                badge.textContent = data.count || 0;
-                badge.hidden = !data.count || data.count === 0;
-            }
-        } catch (error) {
-            console.error('Failed to load notification count:', error);
-        }
-    }
-
-    async toggleNotificationsPanel() {
-        const panel = document.getElementById('notificationsPanel');
-        if (!panel) return;
-
-        this.notificationsPanelOpen = !this.notificationsPanelOpen;
-        panel.hidden = !this.notificationsPanelOpen;
-
-        if (this.notificationsPanelOpen) {
-            await this.loadNotifications();
-        }
-    }
-
-    async loadNotifications() {
-        try {
-            const data = await api.getNotifications();
-            this.notifications = data.notifications || [];
-            this.renderNotifications();
-        } catch (error) {
-            console.error('Failed to load notifications:', error);
-        }
-    }
-
-    renderNotifications() {
-        const list = document.getElementById('notificationsList');
-        if (!list) return;
-
-        if (this.notifications.length === 0) {
-            list.innerHTML = \`<div class="notifications-empty">\${i18n.t('notifications.noNotifications')}</div>\`;
-            return;
-        }
-
-        list.innerHTML = this.notifications.map(n => \`
-            <div class="notification-item \${n.read ? 'read' : 'unread'}" data-id="\${n.id}">
-                <div class="notification-icon \${n.type || 'info'}">
-                    \${this.getNotificationIcon(n.type)}
-                </div>
-                <div class="notification-content">
-                    <div class="notification-title">\${this.escapeHtml(n.title || '')}</div>
-                    <div class="notification-message">\${this.escapeHtml(n.message || '')}</div>
-                    <div class="notification-time">\${this.formatTimeAgo(n.createdAt)}</div>
-                </div>
-            </div>
-        \`).join('');
-
-        list.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', () => {
-                this.markNotificationRead(item.dataset.id);
-            });
-        });
-    }
-
-    getNotificationIcon(type) {
-        const icons = {
-            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
-            warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-            info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
-        };
-        return icons[type] || icons.info;
-    }
-
-    async markNotificationRead(id) {
-        try {
-            await api.markNotificationRead(id);
-            await this.loadNotifications();
-            await this.loadNotificationCount();
-        } catch (error) {
-            console.error('Failed to mark notification read:', error);
-        }
-    }
-
-    async markAllNotificationsRead() {
-        try {
-            await api.markAllNotificationsRead();
-            this.notifications = [];
-            this.renderNotifications();
-            await this.loadNotificationCount();
-            this.showToast('success', i18n.t('notifications.title'), i18n.t('notifications.allMarkedRead'));
-        } catch (error) {
-            console.error('Failed to mark all notifications read:', error);
-        }
-    }
-
-    async loadMoreLogs() {
-        try {
-            this.logsOffset += this.logsLimit;
-            const data = await api.getLogs(this.logsLimit, this.logsOffset);
-            const newLogs = data.logs || [];
-            this.logs = [...this.logs, ...newLogs];
-            this.hasMoreLogs = data.hasMore;
-            this.totalLogs = data.total || this.logs.length;
-            
-            this.filterLogs();
-            
-            const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
-            if (loadMoreBtn) {
-                loadMoreBtn.hidden = !this.hasMoreLogs;
-            }
-        } catch (error) {
-            console.error('Failed to load more logs:', error);
-        }
-    }
-
-    async loadFullSettings() {
-        try {
-            const data = await api.getSettings();
-            this.appSettings = data.settings || {};
-            this.renderSettings();
-        } catch (error) {
-            console.error('Failed to load settings:', error);
-        }
-    }
-
-    renderSettings() {
-        if (!this.appSettings) return;
-
-        const s = this.appSettings;
-
-        const emailNotif = document.getElementById('emailNotifications');
-        if (emailNotif) emailNotif.checked = s.notifications?.email || false;
-
-        const uploadSuccess = document.getElementById('notifyUploadSuccess');
-        if (uploadSuccess) uploadSuccess.checked = s.notifications?.onUploadSuccess || false;
-
-        const uploadFailure = document.getElementById('notifyUploadFailure');
-        if (uploadFailure) uploadFailure.checked = s.notifications?.onUploadFailure || false;
-
-        const dailyDigest = document.getElementById('dailyDigest');
-        if (dailyDigest) dailyDigest.checked = s.notifications?.dailyDigest || false;
-
-        const emailAddr = document.getElementById('notificationEmail');
-        if (emailAddr) emailAddr.value = s.notifications?.emailAddress || '';
-
-        const dailyLimitChannel = document.getElementById('dailyLimitPerChannel');
-        if (dailyLimitChannel) dailyLimitChannel.value = s.uploadLimits?.dailyLimitPerChannel || 5;
-
-        const dailyLimitPlatform = document.getElementById('dailyLimitPerPlatform');
-        if (dailyLimitPlatform) dailyLimitPlatform.value = s.uploadLimits?.dailyLimitPerPlatform || 10;
-
-        const maxConcurrent = document.getElementById('maxConcurrentUploads');
-        if (maxConcurrent) maxConcurrent.value = s.uploadLimits?.maxConcurrentUploads || 3;
-
-        const retryAttempts = document.getElementById('retryAttempts');
-        if (retryAttempts) retryAttempts.value = s.uploadLimits?.retryAttempts || 3;
-
-        const schedulingEnabled = document.getElementById('schedulingEnabled');
-        if (schedulingEnabled) schedulingEnabled.checked = s.scheduling?.enabled || false;
-
-        const autoRetry = document.getElementById('autoRetry');
-        if (autoRetry) autoRetry.checked = s.scheduling?.autoRetry || false;
-
-        const timezone = document.getElementById('timezone');
-        if (timezone) timezone.value = s.scheduling?.timezone || 'UTC';
-
-        this.optimalTimes = s.scheduling?.optimalUploadTimes || [];
-        this.renderOptimalTimes();
-    }
-
-    renderOptimalTimes() {
-        const container = document.getElementById('optimalTimesList');
-        if (!container) return;
-
-        if (this.optimalTimes.length === 0) {
-            container.innerHTML = '<p class="text-muted">' + i18n.t('settings.noOptimalTimes') + '</p>';
-            return;
-        }
-
-        container.innerHTML = this.optimalTimes.map((time, idx) => \`
-            <div class="optimal-time-item">
-                <span>\${time}</span>
-                <button class="btn btn-icon btn-sm" onclick="app.removeOptimalTime(\${idx})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-        \`).join('');
-    }
-
-    addOptimalTime() {
-        const input = document.getElementById('newOptimalTime');
-        if (!input || !input.value) return;
-
-        const time = input.value;
-        if (!this.optimalTimes.includes(time)) {
-            this.optimalTimes.push(time);
-            this.optimalTimes.sort();
-            this.renderOptimalTimes();
-        }
-        input.value = '';
-    }
-
-    removeOptimalTime(index) {
-        this.optimalTimes.splice(index, 1);
-        this.renderOptimalTimes();
-    }
-
-    async saveFullSettings() {
-        const settings = {
-            notifications: {
-                email: document.getElementById('emailNotifications')?.checked || false,
-                onUploadSuccess: document.getElementById('notifyUploadSuccess')?.checked || false,
-                onUploadFailure: document.getElementById('notifyUploadFailure')?.checked || false,
-                dailyDigest: document.getElementById('dailyDigest')?.checked || false,
-                emailAddress: document.getElementById('notificationEmail')?.value || ''
-            },
-            uploadLimits: {
-                dailyLimitPerChannel: parseInt(document.getElementById('dailyLimitPerChannel')?.value) || 5,
-                dailyLimitPerPlatform: parseInt(document.getElementById('dailyLimitPerPlatform')?.value) || 10,
-                maxConcurrentUploads: parseInt(document.getElementById('maxConcurrentUploads')?.value) || 3,
-                retryAttempts: parseInt(document.getElementById('retryAttempts')?.value) || 3
-            },
-            scheduling: {
-                enabled: document.getElementById('schedulingEnabled')?.checked || false,
-                autoRetry: document.getElementById('autoRetry')?.checked || false,
-                timezone: document.getElementById('timezone')?.value || 'UTC',
-                optimalUploadTimes: this.optimalTimes
-            }
-        };
-
-        try {
-            await api.updateSettings(settings);
-            this.appSettings = settings;
-            this.showToast('success', i18n.t('toast.settingsSaved'), i18n.t('toast.settingsUpdated'));
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('toast.tryAgain'));
-        }
-    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -4113,12 +2985,6 @@ const uzTranslations = `{
     "healthy": "Tizim sog'lom",
     "offline": "Tizim oflayn"
   },
-  "notifications": {
-    "title": "Bildirishnomalar",
-    "markAllRead": "Barchasini o'qilgan deb belgilash",
-    "noNotifications": "Bildirishnomalar yo'q",
-    "allMarkedRead": "Barcha bildirishnomalar o'qilgan deb belgilandi"
-  },
   "dashboard": {
     "title": "Boshqaruv paneli",
     "pendingVideos": "Kutilayotgan videolar",
@@ -4134,9 +3000,7 @@ const uzTranslations = `{
     "clearLogs": "Jurnallarni tozalash",
     "loadingActivity": "Faoliyat yuklanmoqda...",
     "noRecentActivity": "So'nggi faoliyat yo'q",
-    "ready": "Tayyor",
-    "groqAI": "Groq AI",
-    "cloudinary": "Cloudinary"
+    "ready": "Tayyor"
   },
   "upload": {
     "title": "Video yuklash",
@@ -4174,17 +3038,7 @@ const uzTranslations = `{
     "completed": "Bajarilgan",
     "failed": "Muvaffaqiyatsiz",
     "untitled": "Nomsiz",
-    "allPlatforms": "Barcha platformalar",
-    "retry": "Qayta urinish",
-    "retryPlatform": "Platformani qayta yuklash",
-    "viewDetails": "Tafsilotlarni ko'rish",
-    "platformStatus": "Platforma holati",
-    "uploadsToday": "Bugungi yuklashlar",
-    "inQueue": "Navbatda",
-    "failures": "Muvaffaqiyatsizliklar",
-    "nextUpload": "Keyingi yuklash",
-    "retryStarted": "Qayta yuklash boshlandi",
-    "retryFailed": "Qayta yuklash muvaffaqiyatsiz bo'ldi"
+    "allPlatforms": "Barcha platformalar"
   },
   "logs": {
     "title": "Tizim jurnallari",
@@ -4200,33 +3054,14 @@ const uzTranslations = `{
     "noLogs": "Jurnallar mavjud emas",
     "noMatch": "Filtrlaringizga mos jurnallar yo'q",
     "system": "tizim",
-    "infoLevel": "MA'LUMOT",
-    "loadMore": "Ko'proq yuklash"
+    "infoLevel": "MA'LUMOT"
   },
   "settings": {
     "title": "Sozlamalar",
     "apiEndpoint": "API manzili (ixtiyoriy)",
     "apiEndpointPlaceholder": "Bir xil origin uchun bo'sh qoldiring",
     "apiEndpointHint": "Faqat boshqa API serveridan foydalanayotgan bo'lsangiz o'rnating",
-    "saveSettings": "Sozlamalarni saqlash",
-    "notificationPreferences": "Bildirishnoma sozlamalari",
-    "emailNotifications": "Email bildirishnomalari",
-    "uploadSuccess": "Yuklash muvaffaqiyatli bo'lganda",
-    "uploadFailure": "Yuklash muvaffaqiyatsiz bo'lganda",
-    "dailyDigest": "Kunlik xulosa",
-    "email": "Email manzili",
-    "uploadLimits": "Yuklash chegaralari",
-    "dailyLimitPerChannel": "Kanal uchun kunlik chegara",
-    "dailyLimitPerPlatform": "Platforma uchun kunlik chegara",
-    "maxConcurrentUploads": "Bir vaqtda maksimal yuklashlar",
-    "retryAttempts": "Qayta urinishlar soni",
-    "schedulingConfig": "Rejalashtirish sozlamalari",
-    "schedulingEnabled": "Rejalashtirishni yoqish",
-    "autoRetry": "Avtomatik qayta urinish",
-    "timezone": "Vaqt zonasi",
-    "optimalTimes": "Optimal yuklash vaqtlari",
-    "addTime": "Vaqt qo'shish",
-    "noOptimalTimes": "Optimal vaqtlar belgilanmagan"
+    "saveSettings": "Sozlamalarni saqlash"
   },
   "modal": {
     "confirmAction": "Harakatni tasdiqlash",
@@ -4305,12 +3140,6 @@ const tkTranslations = `{
     "healthy": "Ulgam sagdyn",
     "offline": "Ulgam oflaýn"
   },
-  "notifications": {
-    "title": "Habarnamalar",
-    "markAllRead": "Hemmesini okalan diýip bellemek",
-    "noNotifications": "Habarnamalar ýok",
-    "allMarkedRead": "Ähli habarnamalar okalan diýip bellendi"
-  },
   "dashboard": {
     "title": "Dolandyryş paneli",
     "pendingVideos": "Garaşylýan wideolar",
@@ -4326,9 +3155,7 @@ const tkTranslations = `{
     "clearLogs": "Ýazgylary arassalamak",
     "loadingActivity": "Işjeňlik ýüklenýär...",
     "noRecentActivity": "Soňky işjeňlik ýok",
-    "ready": "Taýýar",
-    "groqAI": "Groq AI",
-    "cloudinary": "Cloudinary"
+    "ready": "Taýýar"
   },
   "upload": {
     "title": "Wideo ýüklemek",
@@ -4366,17 +3193,7 @@ const tkTranslations = `{
     "completed": "Tamamlandy",
     "failed": "Şowsuz",
     "untitled": "Atsyz",
-    "allPlatforms": "Ähli platformalar",
-    "retry": "Täzeden synanyşmak",
-    "retryPlatform": "Platformany täzeden ýüklemek",
-    "viewDetails": "Jikme-jiklikleri görmek",
-    "platformStatus": "Platforma ýagdaýy",
-    "uploadsToday": "Şu günki ýüklemeler",
-    "inQueue": "Nobatda",
-    "failures": "Şowsuzlyklar",
-    "nextUpload": "Indiki ýüklemek",
-    "retryStarted": "Täzeden ýüklemek başlandy",
-    "retryFailed": "Täzeden ýüklemek şowsuz boldy"
+    "allPlatforms": "Ähli platformalar"
   },
   "logs": {
     "title": "Ulgam ýazgylary",
@@ -4392,33 +3209,14 @@ const tkTranslations = `{
     "noLogs": "Ýazgylar ýok",
     "noMatch": "Süzgüçleriňize gabat gelýän ýazgylar ýok",
     "system": "ulgam",
-    "infoLevel": "MAGLUMAT",
-    "loadMore": "Köpräk ýüklemek"
+    "infoLevel": "MAGLUMAT"
   },
   "settings": {
     "title": "Sazlamalar",
     "apiEndpoint": "API salgysy (hökmany däl)",
     "apiEndpointPlaceholder": "Şol bir origin üçin boş goýuň",
     "apiEndpointHint": "Diňe başga API serwer ulanýan bolsaňyz belläň",
-    "saveSettings": "Sazlamalary ýatda saklamak",
-    "notificationPreferences": "Habarnama sazlamalary",
-    "emailNotifications": "Email habarnamalary",
-    "uploadSuccess": "Ýüklemek üstünlikli bolanda",
-    "uploadFailure": "Ýüklemek şowsuz bolanda",
-    "dailyDigest": "Gündelik jemlemek",
-    "email": "Email salgysy",
-    "uploadLimits": "Ýüklemek çäkleri",
-    "dailyLimitPerChannel": "Kanal üçin gündelik çäk",
-    "dailyLimitPerPlatform": "Platforma üçin gündelik çäk",
-    "maxConcurrentUploads": "Bir wagtda iň köp ýüklemeler",
-    "retryAttempts": "Täzeden synanyşyk sany",
-    "schedulingConfig": "Meýilleşdirme sazlamalary",
-    "schedulingEnabled": "Meýilleşdirmäni açmak",
-    "autoRetry": "Awtomatiki täzeden synanyşmak",
-    "timezone": "Wagt zonasy",
-    "optimalTimes": "Optimal ýüklemek wagtlary",
-    "addTime": "Wagt goşmak",
-    "noOptimalTimes": "Optimal wagtlar kesgitlenmedi"
+    "saveSettings": "Sazlamalary ýatda saklamak"
   },
   "modal": {
     "confirmAction": "Hereketi tassyklamak",
