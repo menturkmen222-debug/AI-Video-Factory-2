@@ -226,8 +226,8 @@ const htmlContent = `<!DOCTYPE html>
                                 <h2 data-i18n="dashboard.platformStatus">Platforma holati</h2>
                             </div>
                             <div class="card-body">
-                                <div class="platform-list">
-                                    <div class="platform-item">
+                                <div class="platform-list" id="platformList">
+                                    <div class="platform-item" data-platform="youtube">
                                         <div class="platform-icon youtube">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
@@ -235,10 +235,16 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">YouTube</span>
-                                            <span class="platform-status" id="youtubeStatus" data-i18n="dashboard.ready">Tayyor</span>
+                                            <div class="platform-stats">
+                                                <span class="platform-stat" id="youtubeUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
+                                                <span class="platform-stat queue" id="youtubeQueue" data-i18n-prefix="dashboard.inQueue">0</span>
+                                                <span class="platform-stat failed" id="youtubeFailed" data-i18n-prefix="dashboard.failures">0</span>
+                                            </div>
+                                            <span class="platform-next-upload" id="youtubeNextUpload"></span>
+                                            <div class="platform-channels" id="youtubeChannels"></div>
                                         </div>
                                     </div>
-                                    <div class="platform-item">
+                                    <div class="platform-item" data-platform="tiktok">
                                         <div class="platform-icon tiktok">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
@@ -246,10 +252,16 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">TikTok</span>
-                                            <span class="platform-status" id="tiktokStatus" data-i18n="dashboard.ready">Tayyor</span>
+                                            <div class="platform-stats">
+                                                <span class="platform-stat" id="tiktokUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
+                                                <span class="platform-stat queue" id="tiktokQueue" data-i18n-prefix="dashboard.inQueue">0</span>
+                                                <span class="platform-stat failed" id="tiktokFailed" data-i18n-prefix="dashboard.failures">0</span>
+                                            </div>
+                                            <span class="platform-next-upload" id="tiktokNextUpload"></span>
+                                            <div class="platform-channels" id="tiktokChannels"></div>
                                         </div>
                                     </div>
-                                    <div class="platform-item">
+                                    <div class="platform-item" data-platform="instagram">
                                         <div class="platform-icon instagram">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
@@ -257,10 +269,16 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">Instagram</span>
-                                            <span class="platform-status" id="instagramStatus" data-i18n="dashboard.ready">Tayyor</span>
+                                            <div class="platform-stats">
+                                                <span class="platform-stat" id="instagramUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
+                                                <span class="platform-stat queue" id="instagramQueue" data-i18n-prefix="dashboard.inQueue">0</span>
+                                                <span class="platform-stat failed" id="instagramFailed" data-i18n-prefix="dashboard.failures">0</span>
+                                            </div>
+                                            <span class="platform-next-upload" id="instagramNextUpload"></span>
+                                            <div class="platform-channels" id="instagramChannels"></div>
                                         </div>
                                     </div>
-                                    <div class="platform-item">
+                                    <div class="platform-item" data-platform="facebook">
                                         <div class="platform-icon facebook">
                                             <svg viewBox="0 0 24 24" fill="currentColor">
                                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -268,7 +286,13 @@ const htmlContent = `<!DOCTYPE html>
                                         </div>
                                         <div class="platform-info">
                                             <span class="platform-name">Facebook</span>
-                                            <span class="platform-status" id="facebookStatus" data-i18n="dashboard.ready">Tayyor</span>
+                                            <div class="platform-stats">
+                                                <span class="platform-stat" id="facebookUploadsToday" data-i18n-prefix="dashboard.uploadsToday">0</span>
+                                                <span class="platform-stat queue" id="facebookQueue" data-i18n-prefix="dashboard.inQueue">0</span>
+                                                <span class="platform-stat failed" id="facebookFailed" data-i18n-prefix="dashboard.failures">0</span>
+                                            </div>
+                                            <span class="platform-next-upload" id="facebookNextUpload"></span>
+                                            <div class="platform-channels" id="facebookChannels"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1322,6 +1346,89 @@ body {
     color: var(--gray-500);
 }
 
+.platform-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.platform-stat {
+    font-size: 0.7rem;
+    color: var(--gray-600);
+    background: var(--gray-100);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.platform-stat.queue {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.platform-stat.failed {
+    background: var(--gray-100);
+    color: var(--gray-500);
+}
+
+.platform-stat.failed.has-failures {
+    background: var(--error-50);
+    color: var(--error-600);
+}
+
+.platform-next-upload {
+    font-size: 0.7rem;
+    color: var(--gray-500);
+    margin-top: 4px;
+}
+
+.platform-channels {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.channel-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    padding: 3px 0;
+    border-top: 1px solid var(--gray-100);
+}
+
+.channel-name {
+    flex: 1;
+    color: var(--gray-600);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.channel-stat-badge {
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.channel-stat-badge.completed {
+    background: var(--success-50);
+    color: var(--success-600);
+}
+
+.channel-stat-badge.queue {
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+.channel-stat-badge.failed {
+    background: var(--error-50);
+    color: var(--error-600);
+}
+
 .quick-actions {
     display: flex;
     gap: 12px;
@@ -1602,6 +1709,82 @@ textarea.form-input {
 .queue-status.failed {
     background: var(--error-50);
     color: var(--error-600);
+}
+
+.queue-item-failed {
+    border-left: 3px solid var(--error-500);
+}
+
+.queue-platforms {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.queue-platform {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: capitalize;
+}
+
+.queue-platform.youtube {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.queue-platform.tiktok {
+    background: var(--gray-100);
+    color: var(--gray-900);
+}
+
+.queue-platform.instagram {
+    background: #fce7f3;
+    color: #db2777;
+}
+
+.queue-platform.facebook {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.queue-date {
+    margin-left: 8px;
+    color: var(--gray-400);
+}
+
+.queue-failure-reason {
+    font-size: 0.75rem;
+    color: var(--error-600);
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: var(--error-50);
+    border-radius: 4px;
+}
+
+.queue-retry-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    background: var(--primary-50);
+    color: var(--primary-700);
+    border: 1px solid var(--primary-200);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-retry:hover {
+    background: var(--primary-100);
+    border-color: var(--primary-300);
 }
 
 .logs-card .card-body {
@@ -2971,6 +3154,7 @@ const appJsContent = `class App {
             this.stats = data;
             this.updateStatsUI(data);
             this.updateQueueUI(data);
+            this.updatePlatformStatus(data);
         } catch (error) {
             console.error('Failed to load stats:', error);
             this.showToast('error', i18n.t('toast.error'), i18n.t('toast.error'));
@@ -3000,21 +3184,130 @@ const appJsContent = `class App {
         queueList.innerHTML = videos.map(video => {
             const statusKey = video.status || 'pending';
             const statusText = i18n.t(\`queue.\${statusKey}\`) || statusKey;
+            const isFailed = statusKey === 'failed';
+            const failureReason = video.failureReason || video.error || '';
+            const platformsHtml = (video.platforms || []).map(p => \`
+                <span class="queue-platform \${p}">\${p}</span>
+            \`).join('');
+            
+            let retryButtonsHtml = '';
+            if (isFailed && video.platforms && video.platforms.length > 0) {
+                retryButtonsHtml = \`
+                    <div class="queue-retry-actions">
+                        \${video.platforms.map(p => \`
+                            <button class="btn btn-sm btn-retry" data-video-id="\${video.id}" data-platform="\${p}" data-channel-id="\${video.channelId || ''}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <path d="M20.49 15C19.9828 16.4332 19.1209 17.7146 17.9845 18.7246C16.8482 19.7346 15.4745 20.4402 13.9917 20.7757C12.5089 21.1112 10.9652 21.0657 9.50481 20.6432C8.04437 20.2208 6.71475 19.4353 5.64 18.36L1 14"></path>
+                                </svg>
+                                \${i18n.t('queue.retry')} \${p}
+                            </button>
+                        \`).join('')}
+                    </div>
+                \`;
+            }
+            
             return \`
-            <div class="queue-item">
+            <div class="queue-item \${isFailed ? 'queue-item-failed' : ''}">
                 <div class="queue-thumbnail">
                     <video src="\${video.videoUrl || ''}" muted></video>
                 </div>
                 <div class="queue-info">
                     <div class="queue-title">\${this.escapeHtml(video.channelId || video.id || i18n.t('queue.untitled'))}</div>
                     <div class="queue-meta">
-                        \${video.platforms ? video.platforms.join(', ') : i18n.t('queue.allPlatforms')} 
-                        \${video.createdAt ? '• ' + this.formatDate(video.createdAt) : ''}
+                        <span class="queue-platforms">\${platformsHtml || i18n.t('queue.allPlatforms')}</span>
+                        \${video.createdAt ? '<span class="queue-date">' + this.formatDate(video.createdAt) + '</span>' : ''}
                     </div>
+                    \${isFailed && failureReason ? \`<div class="queue-failure-reason">\${this.escapeHtml(failureReason)}</div>\` : ''}
+                    \${retryButtonsHtml}
                 </div>
                 <span class="queue-status \${statusKey}">\${statusText}</span>
             </div>
         \`;}).join('');
+
+        queueList.querySelectorAll('.btn-retry').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const videoId = btn.dataset.videoId;
+                const platform = btn.dataset.platform;
+                const channelId = btn.dataset.channelId;
+                await this.handleRetryUpload(videoId, platform, channelId);
+            });
+        });
+    }
+
+    async handleRetryUpload(videoId, platform, channelId) {
+        try {
+            await api.retryUpload(videoId, platform, channelId);
+            this.showToast('success', i18n.t('toast.success'), i18n.t('queue.retryStarted'));
+            await this.loadStats();
+        } catch (error) {
+            console.error('Failed to retry upload:', error);
+            this.showToast('error', i18n.t('toast.error'), i18n.t('queue.retryFailed'));
+        }
+    }
+
+    updatePlatformStatus(data) {
+        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
+        const breakdown = data.breakdown || {};
+        const byPlatform = breakdown.byPlatform || {};
+        const byPlatformChannel = breakdown.byPlatformChannel || {};
+        const dailyUploadCounts = data.dailyUploadCounts || {};
+        const nextScheduledUpload = data.nextScheduledUpload;
+
+        platforms.forEach(platform => {
+            const platformData = byPlatform[platform] || {};
+            const uploadsToday = dailyUploadCounts[platform] || 0;
+            const queueCount = (platformData.pending || 0) + (platformData.processing || 0);
+            const failedCount = platformData.failed || 0;
+
+            const uploadsEl = document.getElementById(\`\${platform}UploadsToday\`);
+            const queueEl = document.getElementById(\`\${platform}Queue\`);
+            const failedEl = document.getElementById(\`\${platform}Failed\`);
+            const nextEl = document.getElementById(\`\${platform}NextUpload\`);
+            const channelsEl = document.getElementById(\`\${platform}Channels\`);
+
+            if (uploadsEl) {
+                uploadsEl.textContent = i18n.t('dashboard.uploadsToday') + ': ' + uploadsToday;
+            }
+            if (queueEl) {
+                queueEl.textContent = i18n.t('dashboard.inQueue') + ': ' + queueCount;
+            }
+            if (failedEl) {
+                failedEl.textContent = i18n.t('dashboard.failures') + ': ' + failedCount;
+                failedEl.classList.toggle('has-failures', failedCount > 0);
+            }
+            if (nextEl) {
+                if (nextScheduledUpload) {
+                    nextEl.textContent = i18n.t('dashboard.nextUpload') + ': ' + this.formatTimeAgo(nextScheduledUpload);
+                } else {
+                    nextEl.textContent = '';
+                }
+            }
+
+            if (channelsEl) {
+                const channelKeys = Object.keys(byPlatformChannel).filter(key => key.startsWith(platform + ':'));
+                if (channelKeys.length > 0) {
+                    channelsEl.innerHTML = channelKeys.map(key => {
+                        const channelId = key.split(':')[1];
+                        const chData = byPlatformChannel[key] || {};
+                        const chQueue = (chData.pending || 0) + (chData.processing || 0);
+                        const chFailed = chData.failed || 0;
+                        const chCompleted = chData.completed || 0;
+                        return \`
+                            <div class="channel-stat-item">
+                                <span class="channel-name">\${this.escapeHtml(channelId)}</span>
+                                <span class="channel-stat-badge completed">\${chCompleted}</span>
+                                <span class="channel-stat-badge queue">\${chQueue}</span>
+                                <span class="channel-stat-badge \${chFailed > 0 ? 'failed' : ''}">\${chFailed}</span>
+                            </div>
+                        \`;
+                    }).join('');
+                } else {
+                    channelsEl.innerHTML = '';
+                }
+            }
+        });
     }
 
     async loadLogs() {
@@ -3889,7 +4182,9 @@ const uzTranslations = `{
     "uploadsToday": "Bugungi yuklashlar",
     "inQueue": "Navbatda",
     "failures": "Muvaffaqiyatsizliklar",
-    "nextUpload": "Keyingi yuklash"
+    "nextUpload": "Keyingi yuklash",
+    "retryStarted": "Qayta yuklash boshlandi",
+    "retryFailed": "Qayta yuklash muvaffaqiyatsiz bo'ldi"
   },
   "logs": {
     "title": "Tizim jurnallari",
@@ -4079,7 +4374,9 @@ const tkTranslations = `{
     "uploadsToday": "Şu günki ýüklemeler",
     "inQueue": "Nobatda",
     "failures": "Şowsuzlyklar",
-    "nextUpload": "Indiki ýüklemek"
+    "nextUpload": "Indiki ýüklemek",
+    "retryStarted": "Täzeden ýüklemek başlandy",
+    "retryFailed": "Täzeden ýüklemek şowsuz boldy"
   },
   "logs": {
     "title": "Ulgam ýazgylary",
