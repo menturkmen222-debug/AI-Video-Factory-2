@@ -114,6 +114,15 @@ const htmlContent = `<!DOCTYPE html>
                             </svg>
                             <span class="notification-badge" id="notificationBadge">0</span>
                         </button>
+                        <div class="notifications-panel" id="notificationsPanel" hidden>
+                            <div class="notifications-header">
+                                <h3 data-i18n="notifications.title">Bildirishnomalar</h3>
+                                <button class="btn btn-text btn-sm" id="markAllReadBtn" data-i18n="notifications.markAllRead">Barchasini o'qilgan deb belgilash</button>
+                            </div>
+                            <div class="notifications-list" id="notificationsList">
+                                <div class="notifications-empty" data-i18n="notifications.noNotifications">Bildirishnomalar yo'q</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -167,6 +176,31 @@ const htmlContent = `<!DOCTYPE html>
                             <div class="stat-info">
                                 <span class="stat-value" id="statFailed">-</span>
                                 <span class="stat-label" data-i18n="dashboard.failed">Muvaffaqiyatsiz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="services-status-grid">
+                        <div class="service-status-card" id="groqServiceCard">
+                            <div class="service-icon groq">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                            <div class="service-info">
+                                <span class="service-name" data-i18n="dashboard.groqAI">Groq AI</span>
+                                <span class="service-status checking" id="groqStatus" data-i18n="health.checking">Tekshirilmoqda...</span>
+                            </div>
+                        </div>
+                        <div class="service-status-card" id="cloudinaryServiceCard">
+                            <div class="service-icon cloudinary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 10a6 6 0 0 0-12 0c-3 0-6 2-6 6s3 6 6 6h12c3 0 6-3 6-6s-3-6-6-6z"/>
+                                </svg>
+                            </div>
+                            <div class="service-info">
+                                <span class="service-name" data-i18n="dashboard.cloudinary">Cloudinary</span>
+                                <span class="service-status checking" id="cloudinaryStatus" data-i18n="health.checking">Tekshirilmoqda...</span>
                             </div>
                         </div>
                     </div>
@@ -471,6 +505,10 @@ const htmlContent = `<!DOCTYPE html>
                                 <h3 data-i18n="logs.noLogs">Jurnallar mavjud emas</h3>
                                 <p data-i18n="logs.noMatch">Filtrlaringizga mos jurnallar yo'q</p>
                             </div>
+                            <div class="load-more-container" id="loadMoreContainer" hidden>
+                                <button class="btn btn-secondary" id="loadMoreLogsBtn" data-i18n="logs.loadMore">Ko'proq yuklash</button>
+                                <span class="logs-count" id="logsCount"></span>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -488,6 +526,104 @@ const htmlContent = `<!DOCTYPE html>
                                     <input type="url" id="apiEndpoint" class="form-input" data-i18n-placeholder="settings.apiEndpointPlaceholder" placeholder="Bir xil origin uchun bo'sh qoldiring">
                                     <p class="form-hint" data-i18n="settings.apiEndpointHint">Faqat boshqa API serveridan foydalanayotgan bo'lsangiz o'rnating</p>
                                 </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <h3 data-i18n="settings.notificationPreferences">Bildirishnoma sozlamalari</h3>
+                                <div class="settings-grid">
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="emailNotifications">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.emailNotifications">Email bildirishnomalari</span>
+                                        </label>
+                                    </div>
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="uploadSuccess">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.uploadSuccess">Muvaffaqiyatli yuklash</span>
+                                        </label>
+                                    </div>
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="uploadFailure">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.uploadFailure">Muvaffaqiyatsiz yuklash</span>
+                                        </label>
+                                    </div>
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="dailyDigest">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.dailyDigest">Kunlik hisobot</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="notificationEmail" data-i18n="settings.email">Email manzili</label>
+                                        <input type="email" id="notificationEmail" class="form-input" placeholder="email@example.com">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <h3 data-i18n="settings.uploadLimits">Yuklash cheklovlari</h3>
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="dailyLimitPerChannel" data-i18n="settings.dailyLimitPerChannel">Har bir kanal uchun kunlik cheklov</label>
+                                        <input type="number" id="dailyLimitPerChannel" class="form-input" min="1" max="100" value="10">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dailyLimitPerPlatform" data-i18n="settings.dailyLimitPerPlatform">Har bir platforma uchun kunlik cheklov</label>
+                                        <input type="number" id="dailyLimitPerPlatform" class="form-input" min="1" max="500" value="50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="maxConcurrentUploads" data-i18n="settings.maxConcurrentUploads">Maksimal bir vaqtda yuklashlar</label>
+                                        <input type="number" id="maxConcurrentUploads" class="form-input" min="1" max="10" value="3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="retryAttempts" data-i18n="settings.retryAttempts">Qayta urinish soni</label>
+                                        <input type="number" id="retryAttempts" class="form-input" min="0" max="10" value="3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <h3 data-i18n="settings.schedulingConfig">Rejalashtirish sozlamalari</h3>
+                                <div class="settings-grid">
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="schedulingEnabled">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.schedulingEnabled">Rejalashtirishni yoqish</span>
+                                        </label>
+                                    </div>
+                                    <div class="settings-item">
+                                        <label class="settings-toggle">
+                                            <input type="checkbox" id="autoRetry">
+                                            <span class="toggle-slider"></span>
+                                            <span data-i18n="settings.autoRetry">Avtomatik qayta urinish</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="timezone" data-i18n="settings.timezone">Vaqt zonasi</label>
+                                        <select id="timezone" class="form-select">
+                                            <option value="Asia/Tashkent">Toshkent (UTC+5)</option>
+                                            <option value="Asia/Ashgabat">Ashgabat (UTC+5)</option>
+                                            <option value="UTC">UTC</option>
+                                            <option value="Europe/Moscow">Moscow (UTC+3)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label data-i18n="settings.optimalTimes">Optimal yuklash vaqtlari</label>
+                                        <div id="optimalTimesContainer" class="optimal-times-list">
+                                        </div>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="addOptimalTimeBtn" data-i18n="settings.addTime">Vaqt qo'shish</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-actions">
                                 <button class="btn btn-primary" id="saveSettings" data-i18n="settings.saveSettings">Sozlamalarni saqlash</button>
                             </div>
                         </div>
@@ -2001,6 +2137,352 @@ textarea.form-input {
     .platform-checkboxes {
         flex-direction: column;
     }
+}
+
+.services-status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.service-status-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.service-status-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.service-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.service-icon.groq {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.service-icon.cloudinary {
+    background: linear-gradient(135deg, #3448c5 0%, #4f8eff 100%);
+    color: white;
+}
+
+.service-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.service-name {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.service-status {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.service-status.checking {
+    color: var(--gray-500);
+}
+
+.service-status.online {
+    color: var(--success-500);
+}
+
+.service-status.offline {
+    color: var(--error-500);
+}
+
+.notifications-dropdown {
+    position: relative;
+}
+
+.notifications-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 360px;
+    max-height: 480px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.notifications-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notifications-empty {
+    padding: 32px;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.notification-item:hover {
+    background: var(--gray-50);
+}
+
+.notification-item.unread {
+    background: var(--primary-50);
+}
+
+.notification-item.unread:hover {
+    background: var(--primary-100);
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+.notification-icon.success {
+    background: var(--success-50);
+    color: var(--success-500);
+}
+
+.notification-icon.error {
+    background: var(--error-50);
+    color: var(--error-500);
+}
+
+.notification-icon.info {
+    background: var(--primary-50);
+    color: var(--primary-500);
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    margin-top: 4px;
+}
+
+.load-more-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px;
+    border-top: 1px solid var(--gray-200);
+}
+
+.logs-count {
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.settings-section {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.settings-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 20px;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.settings-toggle input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    width: 44px;
+    height: 24px;
+    background: var(--gray-300);
+    border-radius: 12px;
+    position: relative;
+    transition: background var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.settings-toggle input[type="checkbox"]:checked + .toggle-slider {
+    background: var(--primary-600);
+}
+
+.settings-toggle input[type="checkbox"]:checked + .toggle-slider::after {
+    transform: translateX(20px);
+}
+
+.settings-toggle span:last-child {
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.optimal-times-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.optimal-time-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+}
+
+.optimal-time-item input {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+}
+
+.optimal-time-item .remove-time {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.optimal-time-item .remove-time:hover {
+    color: var(--error-500);
+}
+
+.settings-actions {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+}
+
+@media (max-width: 768px) {
+    .services-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .notifications-panel {
+        width: 300px;
+        right: -50px;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
 }`;
 
 const apiJsContent = `class API {
@@ -2108,8 +2590,8 @@ const apiJsContent = `class API {
         return this.get('/api/stats');
     }
 
-    async getLogs() {
-        return this.get('/api/logs');
+    async getLogs(limit = 100, offset = 0) {
+        return this.get(\`/api/logs?limit=\${limit}&offset=\${offset}\`);
     }
 
     async clearLogs() {
@@ -2130,6 +2612,45 @@ const apiJsContent = `class API {
 
     async getApiInfo() {
         return this.get('/');
+    }
+
+    async getGroqHealth() {
+        return this.get('/api/health/groq');
+    }
+
+    async getCloudinaryHealth() {
+        return this.get('/api/health/cloudinary');
+    }
+
+    async getNotifications() {
+        return this.get('/api/notifications');
+    }
+
+    async getNotificationCount() {
+        return this.get('/api/notifications/count');
+    }
+
+    async markNotificationRead(id) {
+        return this.post('/api/notifications/read', { id });
+    }
+
+    async markAllNotificationsRead() {
+        return this.post('/api/notifications/read', { all: true });
+    }
+
+    async getSettings() {
+        return this.get('/api/settings');
+    }
+
+    async updateSettings(settings) {
+        return this.request('/api/settings', {
+            method: 'PUT',
+            body: JSON.stringify(settings)
+        });
+    }
+
+    async retryUpload(videoId, platform, channelId) {
+        return this.post(\`/api/queue/\${videoId}/retry\`, { platform, channelId });
     }
 }
 
@@ -2153,6 +2674,13 @@ const appJsContent = `class App {
         this.refreshInterval = null;
         this.notifications = [];
         this.activeInputTab = 'file';
+        this.logsOffset = 0;
+        this.logsLimit = 100;
+        this.hasMoreLogs = true;
+        this.totalLogs = 0;
+        this.appSettings = null;
+        this.optimalTimes = [];
+        this.notificationsPanelOpen = false;
         
         this.init();
     }
@@ -2161,13 +2689,24 @@ const appJsContent = `class App {
         this.bindEvents();
         this.handleInitialRoute();
         this.checkHealth();
+        this.loadServiceHealth();
         this.loadStats();
         this.loadLogs();
+        this.loadNotificationCount();
         this.startAutoRefresh();
-        this.loadSettings();
+        this.loadFullSettings();
         
         window.addEventListener('popstate', () => {
             this.handleInitialRoute();
+        });
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notificationsPanel');
+            const btn = document.getElementById('notificationsBtn');
+            if (panel && !panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.hidden = true;
+                this.notificationsPanelOpen = false;
+            }
         });
     }
 
@@ -2235,6 +2774,32 @@ const appJsContent = `class App {
         this.bindLogEvents();
         this.bindSettingsEvents();
         this.bindModalEvents();
+        this.bindNotificationEvents();
+    }
+
+    bindNotificationEvents() {
+        document.getElementById('notificationsBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleNotificationsPanel();
+        });
+
+        document.getElementById('markAllReadBtn').addEventListener('click', () => {
+            this.markAllNotificationsRead();
+        });
+
+        const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                this.loadMoreLogs();
+            });
+        }
+
+        const addTimeBtn = document.getElementById('addOptimalTimeBtn');
+        if (addTimeBtn) {
+            addTimeBtn.addEventListener('click', () => {
+                this.addOptimalTime();
+            });
+        }
     }
 
     bindTabEvents() {
