@@ -156,6 +156,30 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.language-switcher {
+    margin-bottom: 12px;
+}
+
+.language-switcher .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+    border-radius: var(--border-radius-sm);
+    width: 100%;
+}
+
+.language-switcher .form-select:focus {
+    border-color: var(--primary-400);
+    outline: none;
+}
+
+.language-switcher .form-select option {
+    background: var(--gray-800);
+    color: white;
+}
+
 .health-status {
     display: flex;
     align-items: center;

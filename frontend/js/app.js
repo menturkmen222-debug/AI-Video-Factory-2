@@ -697,6 +697,15 @@ class App {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await i18n.init();
     window.app = new App();
+    
+    const languageSwitcher = document.getElementById('languageSwitcher');
+    if (languageSwitcher) {
+        languageSwitcher.value = i18n.getCurrentLang();
+        languageSwitcher.addEventListener('change', async (e) => {
+            await i18n.setLanguage(e.target.value);
+        });
+    }
 });
