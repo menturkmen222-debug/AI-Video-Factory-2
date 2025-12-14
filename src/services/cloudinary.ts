@@ -58,7 +58,7 @@ export class CloudinaryService {
 
       const formData = new FormData();
       formData.append('file', videoUrl);
-      formData.append('upload_preset', 'ai_video_upload');
+      formData.append('upload_preset', 'ml_default');
       formData.append('resource_type', 'video');
       formData.append('folder', 'ai-video-uploader');
       formData.append('api_key', this.config.apiKey);
@@ -105,7 +105,7 @@ export class CloudinaryService {
       
       const formData = new FormData();
       formData.append('file', blob, filename);
-      formData.append('upload_preset', 'ai_video_upload');
+      formData.append('upload_preset', 'ml_default');
       formData.append('resource_type', 'video');
       formData.append('folder', 'ai-video-uploader');
       formData.append('api_key', this.config.apiKey);
