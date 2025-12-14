@@ -2208,11 +2208,13 @@ textarea.form-input {
     color: var(--gray-500);
 }
 
-.service-status.online {
+.service-status.online,
+.service-status.healthy {
     color: var(--success-500);
 }
 
-.service-status.offline {
+.service-status.offline,
+.service-status.unhealthy {
     color: var(--error-500);
 }
 
@@ -3409,6 +3411,274 @@ const appJsContent = `class App {
         if (diff < 86400) return i18n.t('time.hoursAgo').replace('{n}', Math.floor(diff / 3600));
         return i18n.t('time.daysAgo').replace('{n}', Math.floor(diff / 86400));
     }
+
+    async loadServiceHealth() {
+        try {
+            const [groqResult, cloudinaryResult] = await Promise.all([
+                api.getGroqHealth().catch(e => ({ success: false, status: 'error', error: e.message })),
+                api.getCloudinaryHealth().catch(e => ({ success: false, status: 'error', error: e.message }))
+            ]);
+
+            const groqStatus = document.getElementById('groqStatus');
+            const cloudinaryStatus = document.getElementById('cloudinaryStatus');
+
+            if (groqStatus) {
+                groqStatus.className = 'service-status ' + (groqResult.success ? 'healthy' : 'unhealthy');
+                groqStatus.textContent = groqResult.success ? i18n.t('health.healthy') : i18n.t('health.offline');
+            }
+
+            if (cloudinaryStatus) {
+                cloudinaryStatus.className = 'service-status ' + (cloudinaryResult.success ? 'healthy' : 'unhealthy');
+                cloudinaryStatus.textContent = cloudinaryResult.success ? i18n.t('health.healthy') : i18n.t('health.offline');
+            }
+        } catch (error) {
+            console.error('Failed to load service health:', error);
+        }
+    }
+
+    async loadNotificationCount() {
+        try {
+            const data = await api.getNotificationCount();
+            const badge = document.getElementById('notificationBadge');
+            if (badge) {
+                badge.textContent = data.count || 0;
+                badge.hidden = !data.count || data.count === 0;
+            }
+        } catch (error) {
+            console.error('Failed to load notification count:', error);
+        }
+    }
+
+    async toggleNotificationsPanel() {
+        const panel = document.getElementById('notificationsPanel');
+        if (!panel) return;
+
+        this.notificationsPanelOpen = !this.notificationsPanelOpen;
+        panel.hidden = !this.notificationsPanelOpen;
+
+        if (this.notificationsPanelOpen) {
+            await this.loadNotifications();
+        }
+    }
+
+    async loadNotifications() {
+        try {
+            const data = await api.getNotifications();
+            this.notifications = data.notifications || [];
+            this.renderNotifications();
+        } catch (error) {
+            console.error('Failed to load notifications:', error);
+        }
+    }
+
+    renderNotifications() {
+        const list = document.getElementById('notificationsList');
+        if (!list) return;
+
+        if (this.notifications.length === 0) {
+            list.innerHTML = \`<div class="notifications-empty">\${i18n.t('notifications.noNotifications')}</div>\`;
+            return;
+        }
+
+        list.innerHTML = this.notifications.map(n => \`
+            <div class="notification-item \${n.read ? 'read' : 'unread'}" data-id="\${n.id}">
+                <div class="notification-icon \${n.type || 'info'}">
+                    \${this.getNotificationIcon(n.type)}
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">\${this.escapeHtml(n.title || '')}</div>
+                    <div class="notification-message">\${this.escapeHtml(n.message || '')}</div>
+                    <div class="notification-time">\${this.formatTimeAgo(n.createdAt)}</div>
+                </div>
+            </div>
+        \`).join('');
+
+        list.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', () => {
+                this.markNotificationRead(item.dataset.id);
+            });
+        });
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+            info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+        };
+        return icons[type] || icons.info;
+    }
+
+    async markNotificationRead(id) {
+        try {
+            await api.markNotificationRead(id);
+            await this.loadNotifications();
+            await this.loadNotificationCount();
+        } catch (error) {
+            console.error('Failed to mark notification read:', error);
+        }
+    }
+
+    async markAllNotificationsRead() {
+        try {
+            await api.markAllNotificationsRead();
+            this.notifications = [];
+            this.renderNotifications();
+            await this.loadNotificationCount();
+            this.showToast('success', i18n.t('notifications.title'), i18n.t('notifications.allMarkedRead'));
+        } catch (error) {
+            console.error('Failed to mark all notifications read:', error);
+        }
+    }
+
+    async loadMoreLogs() {
+        try {
+            this.logsOffset += this.logsLimit;
+            const data = await api.getLogs(this.logsLimit, this.logsOffset);
+            const newLogs = data.logs || [];
+            this.logs = [...this.logs, ...newLogs];
+            this.hasMoreLogs = data.hasMore;
+            this.totalLogs = data.total || this.logs.length;
+            
+            this.filterLogs();
+            
+            const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.hidden = !this.hasMoreLogs;
+            }
+        } catch (error) {
+            console.error('Failed to load more logs:', error);
+        }
+    }
+
+    async loadFullSettings() {
+        try {
+            const data = await api.getSettings();
+            this.appSettings = data.settings || {};
+            this.renderSettings();
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+        }
+    }
+
+    renderSettings() {
+        if (!this.appSettings) return;
+
+        const s = this.appSettings;
+
+        const emailNotif = document.getElementById('emailNotifications');
+        if (emailNotif) emailNotif.checked = s.notifications?.email || false;
+
+        const uploadSuccess = document.getElementById('notifyUploadSuccess');
+        if (uploadSuccess) uploadSuccess.checked = s.notifications?.onUploadSuccess || false;
+
+        const uploadFailure = document.getElementById('notifyUploadFailure');
+        if (uploadFailure) uploadFailure.checked = s.notifications?.onUploadFailure || false;
+
+        const dailyDigest = document.getElementById('dailyDigest');
+        if (dailyDigest) dailyDigest.checked = s.notifications?.dailyDigest || false;
+
+        const emailAddr = document.getElementById('notificationEmail');
+        if (emailAddr) emailAddr.value = s.notifications?.emailAddress || '';
+
+        const dailyLimitChannel = document.getElementById('dailyLimitPerChannel');
+        if (dailyLimitChannel) dailyLimitChannel.value = s.uploadLimits?.dailyLimitPerChannel || 5;
+
+        const dailyLimitPlatform = document.getElementById('dailyLimitPerPlatform');
+        if (dailyLimitPlatform) dailyLimitPlatform.value = s.uploadLimits?.dailyLimitPerPlatform || 10;
+
+        const maxConcurrent = document.getElementById('maxConcurrentUploads');
+        if (maxConcurrent) maxConcurrent.value = s.uploadLimits?.maxConcurrentUploads || 3;
+
+        const retryAttempts = document.getElementById('retryAttempts');
+        if (retryAttempts) retryAttempts.value = s.uploadLimits?.retryAttempts || 3;
+
+        const schedulingEnabled = document.getElementById('schedulingEnabled');
+        if (schedulingEnabled) schedulingEnabled.checked = s.scheduling?.enabled || false;
+
+        const autoRetry = document.getElementById('autoRetry');
+        if (autoRetry) autoRetry.checked = s.scheduling?.autoRetry || false;
+
+        const timezone = document.getElementById('timezone');
+        if (timezone) timezone.value = s.scheduling?.timezone || 'UTC';
+
+        this.optimalTimes = s.scheduling?.optimalUploadTimes || [];
+        this.renderOptimalTimes();
+    }
+
+    renderOptimalTimes() {
+        const container = document.getElementById('optimalTimesList');
+        if (!container) return;
+
+        if (this.optimalTimes.length === 0) {
+            container.innerHTML = '<p class="text-muted">' + i18n.t('settings.noOptimalTimes') + '</p>';
+            return;
+        }
+
+        container.innerHTML = this.optimalTimes.map((time, idx) => \`
+            <div class="optimal-time-item">
+                <span>\${time}</span>
+                <button class="btn btn-icon btn-sm" onclick="app.removeOptimalTime(\${idx})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        \`).join('');
+    }
+
+    addOptimalTime() {
+        const input = document.getElementById('newOptimalTime');
+        if (!input || !input.value) return;
+
+        const time = input.value;
+        if (!this.optimalTimes.includes(time)) {
+            this.optimalTimes.push(time);
+            this.optimalTimes.sort();
+            this.renderOptimalTimes();
+        }
+        input.value = '';
+    }
+
+    removeOptimalTime(index) {
+        this.optimalTimes.splice(index, 1);
+        this.renderOptimalTimes();
+    }
+
+    async saveFullSettings() {
+        const settings = {
+            notifications: {
+                email: document.getElementById('emailNotifications')?.checked || false,
+                onUploadSuccess: document.getElementById('notifyUploadSuccess')?.checked || false,
+                onUploadFailure: document.getElementById('notifyUploadFailure')?.checked || false,
+                dailyDigest: document.getElementById('dailyDigest')?.checked || false,
+                emailAddress: document.getElementById('notificationEmail')?.value || ''
+            },
+            uploadLimits: {
+                dailyLimitPerChannel: parseInt(document.getElementById('dailyLimitPerChannel')?.value) || 5,
+                dailyLimitPerPlatform: parseInt(document.getElementById('dailyLimitPerPlatform')?.value) || 10,
+                maxConcurrentUploads: parseInt(document.getElementById('maxConcurrentUploads')?.value) || 3,
+                retryAttempts: parseInt(document.getElementById('retryAttempts')?.value) || 3
+            },
+            scheduling: {
+                enabled: document.getElementById('schedulingEnabled')?.checked || false,
+                autoRetry: document.getElementById('autoRetry')?.checked || false,
+                timezone: document.getElementById('timezone')?.value || 'UTC',
+                optimalUploadTimes: this.optimalTimes
+            }
+        };
+
+        try {
+            await api.updateSettings(settings);
+            this.appSettings = settings;
+            this.showToast('success', i18n.t('toast.settingsSaved'), i18n.t('toast.settingsUpdated'));
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('toast.tryAgain'));
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -3550,6 +3820,12 @@ const uzTranslations = `{
     "healthy": "Tizim sog'lom",
     "offline": "Tizim oflayn"
   },
+  "notifications": {
+    "title": "Bildirishnomalar",
+    "markAllRead": "Barchasini o'qilgan deb belgilash",
+    "noNotifications": "Bildirishnomalar yo'q",
+    "allMarkedRead": "Barcha bildirishnomalar o'qilgan deb belgilandi"
+  },
   "dashboard": {
     "title": "Boshqaruv paneli",
     "pendingVideos": "Kutilayotgan videolar",
@@ -3565,7 +3841,9 @@ const uzTranslations = `{
     "clearLogs": "Jurnallarni tozalash",
     "loadingActivity": "Faoliyat yuklanmoqda...",
     "noRecentActivity": "So'nggi faoliyat yo'q",
-    "ready": "Tayyor"
+    "ready": "Tayyor",
+    "groqAI": "Groq AI",
+    "cloudinary": "Cloudinary"
   },
   "upload": {
     "title": "Video yuklash",
@@ -3603,7 +3881,15 @@ const uzTranslations = `{
     "completed": "Bajarilgan",
     "failed": "Muvaffaqiyatsiz",
     "untitled": "Nomsiz",
-    "allPlatforms": "Barcha platformalar"
+    "allPlatforms": "Barcha platformalar",
+    "retry": "Qayta urinish",
+    "retryPlatform": "Platformani qayta yuklash",
+    "viewDetails": "Tafsilotlarni ko'rish",
+    "platformStatus": "Platforma holati",
+    "uploadsToday": "Bugungi yuklashlar",
+    "inQueue": "Navbatda",
+    "failures": "Muvaffaqiyatsizliklar",
+    "nextUpload": "Keyingi yuklash"
   },
   "logs": {
     "title": "Tizim jurnallari",
@@ -3619,14 +3905,33 @@ const uzTranslations = `{
     "noLogs": "Jurnallar mavjud emas",
     "noMatch": "Filtrlaringizga mos jurnallar yo'q",
     "system": "tizim",
-    "infoLevel": "MA'LUMOT"
+    "infoLevel": "MA'LUMOT",
+    "loadMore": "Ko'proq yuklash"
   },
   "settings": {
     "title": "Sozlamalar",
     "apiEndpoint": "API manzili (ixtiyoriy)",
     "apiEndpointPlaceholder": "Bir xil origin uchun bo'sh qoldiring",
     "apiEndpointHint": "Faqat boshqa API serveridan foydalanayotgan bo'lsangiz o'rnating",
-    "saveSettings": "Sozlamalarni saqlash"
+    "saveSettings": "Sozlamalarni saqlash",
+    "notificationPreferences": "Bildirishnoma sozlamalari",
+    "emailNotifications": "Email bildirishnomalari",
+    "uploadSuccess": "Yuklash muvaffaqiyatli bo'lganda",
+    "uploadFailure": "Yuklash muvaffaqiyatsiz bo'lganda",
+    "dailyDigest": "Kunlik xulosa",
+    "email": "Email manzili",
+    "uploadLimits": "Yuklash chegaralari",
+    "dailyLimitPerChannel": "Kanal uchun kunlik chegara",
+    "dailyLimitPerPlatform": "Platforma uchun kunlik chegara",
+    "maxConcurrentUploads": "Bir vaqtda maksimal yuklashlar",
+    "retryAttempts": "Qayta urinishlar soni",
+    "schedulingConfig": "Rejalashtirish sozlamalari",
+    "schedulingEnabled": "Rejalashtirishni yoqish",
+    "autoRetry": "Avtomatik qayta urinish",
+    "timezone": "Vaqt zonasi",
+    "optimalTimes": "Optimal yuklash vaqtlari",
+    "addTime": "Vaqt qo'shish",
+    "noOptimalTimes": "Optimal vaqtlar belgilanmagan"
   },
   "modal": {
     "confirmAction": "Harakatni tasdiqlash",
@@ -3705,6 +4010,12 @@ const tkTranslations = `{
     "healthy": "Ulgam sagdyn",
     "offline": "Ulgam oflaýn"
   },
+  "notifications": {
+    "title": "Habarnamalar",
+    "markAllRead": "Hemmesini okalan diýip bellemek",
+    "noNotifications": "Habarnamalar ýok",
+    "allMarkedRead": "Ähli habarnamalar okalan diýip bellendi"
+  },
   "dashboard": {
     "title": "Dolandyryş paneli",
     "pendingVideos": "Garaşylýan wideolar",
@@ -3720,7 +4031,9 @@ const tkTranslations = `{
     "clearLogs": "Ýazgylary arassalamak",
     "loadingActivity": "Işjeňlik ýüklenýär...",
     "noRecentActivity": "Soňky işjeňlik ýok",
-    "ready": "Taýýar"
+    "ready": "Taýýar",
+    "groqAI": "Groq AI",
+    "cloudinary": "Cloudinary"
   },
   "upload": {
     "title": "Wideo ýüklemek",
@@ -3758,7 +4071,15 @@ const tkTranslations = `{
     "completed": "Tamamlandy",
     "failed": "Şowsuz",
     "untitled": "Atsyz",
-    "allPlatforms": "Ähli platformalar"
+    "allPlatforms": "Ähli platformalar",
+    "retry": "Täzeden synanyşmak",
+    "retryPlatform": "Platformany täzeden ýüklemek",
+    "viewDetails": "Jikme-jiklikleri görmek",
+    "platformStatus": "Platforma ýagdaýy",
+    "uploadsToday": "Şu günki ýüklemeler",
+    "inQueue": "Nobatda",
+    "failures": "Şowsuzlyklar",
+    "nextUpload": "Indiki ýüklemek"
   },
   "logs": {
     "title": "Ulgam ýazgylary",
@@ -3774,14 +4095,33 @@ const tkTranslations = `{
     "noLogs": "Ýazgylar ýok",
     "noMatch": "Süzgüçleriňize gabat gelýän ýazgylar ýok",
     "system": "ulgam",
-    "infoLevel": "MAGLUMAT"
+    "infoLevel": "MAGLUMAT",
+    "loadMore": "Köpräk ýüklemek"
   },
   "settings": {
     "title": "Sazlamalar",
     "apiEndpoint": "API salgysy (hökmany däl)",
     "apiEndpointPlaceholder": "Şol bir origin üçin boş goýuň",
     "apiEndpointHint": "Diňe başga API serwer ulanýan bolsaňyz belläň",
-    "saveSettings": "Sazlamalary ýatda saklamak"
+    "saveSettings": "Sazlamalary ýatda saklamak",
+    "notificationPreferences": "Habarnama sazlamalary",
+    "emailNotifications": "Email habarnamalary",
+    "uploadSuccess": "Ýüklemek üstünlikli bolanda",
+    "uploadFailure": "Ýüklemek şowsuz bolanda",
+    "dailyDigest": "Gündelik jemlemek",
+    "email": "Email salgysy",
+    "uploadLimits": "Ýüklemek çäkleri",
+    "dailyLimitPerChannel": "Kanal üçin gündelik çäk",
+    "dailyLimitPerPlatform": "Platforma üçin gündelik çäk",
+    "maxConcurrentUploads": "Bir wagtda iň köp ýüklemeler",
+    "retryAttempts": "Täzeden synanyşyk sany",
+    "schedulingConfig": "Meýilleşdirme sazlamalary",
+    "schedulingEnabled": "Meýilleşdirmäni açmak",
+    "autoRetry": "Awtomatiki täzeden synanyşmak",
+    "timezone": "Wagt zonasy",
+    "optimalTimes": "Optimal ýüklemek wagtlary",
+    "addTime": "Wagt goşmak",
+    "noOptimalTimes": "Optimal wagtlar kesgitlenmedi"
   },
   "modal": {
     "confirmAction": "Hereketi tassyklamak",
