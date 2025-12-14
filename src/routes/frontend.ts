@@ -1,4 +1,4 @@
-import { getHTML, getCSS, getAPIJS, getAppJS } from '../frontend/assets';
+import { getHTML, getCSS, getAPIJS, getAppJS, getI18nJS, getUzTranslations, getTkTranslations } from '../frontend/assets';
 
 const contentTypes: Record<string, string> = {
   'html': 'text/html; charset=utf-8',
@@ -52,6 +52,27 @@ export function handleFrontend(path: string): Response {
     });
   }
 
+  if (path === '/js/i18n.js') {
+    return new Response(getI18nJS(), {
+      status: 200,
+      headers: { ...headers, 'Content-Type': contentTypes.js }
+    });
+  }
+
+  if (path === '/i18n/uz.json') {
+    return new Response(getUzTranslations(), {
+      status: 200,
+      headers: { ...headers, 'Content-Type': contentTypes.json }
+    });
+  }
+
+  if (path === '/i18n/tk.json') {
+    return new Response(getTkTranslations(), {
+      status: 200,
+      headers: { ...headers, 'Content-Type': contentTypes.json }
+    });
+  }
+
   return new Response(null, { status: 404 });
 }
 
@@ -61,6 +82,9 @@ export function isFrontendPath(path: string): boolean {
     '/css/styles.css',
     '/js/api.js',
     '/js/app.js',
+    '/js/i18n.js',
+    '/i18n/uz.json',
+    '/i18n/tk.json',
   ];
   return frontendPaths.includes(path);
 }

@@ -63,7 +63,9 @@
     "pending": "Garaşylýar",
     "processing": "Işlenilýär",
     "completed": "Tamamlandy",
-    "failed": "Şowsuz"
+    "failed": "Şowsuz",
+    "untitled": "Atsyz",
+    "allPlatforms": "Ähli platformalar"
   },
   "logs": {
     "title": "Ulgam ýazgylary",
@@ -77,7 +79,9 @@
     "refresh": "Täzelemek",
     "export": "Eksport",
     "noLogs": "Ýazgylar ýok",
-    "noMatch": "Süzgüçleriňize gabat gelýän ýazgylar ýok"
+    "noMatch": "Süzgüçleriňize gabat gelýän ýazgylar ýok",
+    "system": "ulgam",
+    "infoLevel": "MAGLUMAT"
   },
   "settings": {
     "title": "Sazlamalar",
@@ -139,5 +143,11 @@
   "language": {
     "uz": "O'zbekcha",
     "tk": "Türkmençe"
+  },
+  "time": {
+    "justNow": "Şu wagt",
+    "minutesAgo": "{n} minut ozal",
+    "hoursAgo": "{n} sagat ozal",
+    "daysAgo": "{n} gün ozal"
   }
 }

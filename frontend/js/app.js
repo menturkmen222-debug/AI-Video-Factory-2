@@ -66,16 +66,16 @@ class App {
 
         document.getElementById('clearQueueBtn').addEventListener('click', () => {
             this.confirmAction(
-                'Clear Queue',
-                'Are you sure you want to clear all videos from the queue? This action cannot be undone.',
+                i18n.t('modal.clearQueueTitle'),
+                i18n.t('modal.clearQueueMessage'),
                 () => this.clearQueue()
             );
         });
 
         document.getElementById('clearLogsBtn').addEventListener('click', () => {
             this.confirmAction(
-                'Clear Logs',
-                'Are you sure you want to clear all logs? This action cannot be undone.',
+                i18n.t('modal.clearLogsTitle'),
+                i18n.t('modal.clearLogsMessage'),
                 () => this.clearLogs()
             );
         });
@@ -210,15 +210,15 @@ class App {
             sec.classList.toggle('active', sec.id === `section-${section}`);
         });
 
-        const titles = {
-            dashboard: 'Dashboard',
-            upload: 'Upload Video',
-            queue: 'Video Queue',
-            logs: 'System Logs',
-            settings: 'Settings'
+        const titleKeys = {
+            dashboard: 'dashboard.title',
+            upload: 'upload.title',
+            queue: 'queue.title',
+            logs: 'logs.title',
+            settings: 'settings.title'
         };
 
-        document.getElementById('pageTitle').textContent = titles[section] || section;
+        document.getElementById('pageTitle').textContent = i18n.t(titleKeys[section]) || section;
         this.currentSection = section;
 
         document.querySelector('.sidebar').classList.remove('open');
@@ -226,7 +226,7 @@ class App {
         if (updateUrl && window.history && window.history.pushState) {
             const path = section === 'dashboard' ? '/' : `/${section}`;
             if (window.location.pathname !== path) {
-                window.history.pushState({ section }, titles[section], path);
+                window.history.pushState({ section }, i18n.t(titleKeys[section]) || section, path);
             }
         }
 
@@ -245,10 +245,10 @@ class App {
         try {
             const data = await api.checkHealth();
             indicator.className = 'health-indicator healthy';
-            text.textContent = 'System Healthy';
+            text.textContent = i18n.t('health.healthy');
         } catch (error) {
             indicator.className = 'health-indicator unhealthy';
-            text.textContent = 'System Offline';
+            text.textContent = i18n.t('health.offline');
         }
     }
 
@@ -260,7 +260,7 @@ class App {
             this.updateQueueUI(data);
         } catch (error) {
             console.error('Failed to load stats:', error);
-            this.showToast('error', 'Error', 'Failed to load statistics');
+            this.showToast('error', i18n.t('toast.error'), i18n.t('toast.error'));
         }
     }
 
@@ -284,21 +284,24 @@ class App {
         }
 
         queueEmpty.hidden = true;
-        queueList.innerHTML = videos.map(video => `
+        queueList.innerHTML = videos.map(video => {
+            const statusKey = video.status || 'pending';
+            const statusText = i18n.t(`queue.${statusKey}`) || statusKey;
+            return `
             <div class="queue-item">
                 <div class="queue-thumbnail">
                     <video src="${video.videoUrl || ''}" muted></video>
                 </div>
                 <div class="queue-info">
-                    <div class="queue-title">${this.escapeHtml(video.channelId || video.id || 'Untitled')}</div>
+                    <div class="queue-title">${this.escapeHtml(video.channelId || video.id || i18n.t('queue.untitled'))}</div>
                     <div class="queue-meta">
-                        ${video.platforms ? video.platforms.join(', ') : 'All platforms'} 
+                        ${video.platforms ? video.platforms.join(', ') : i18n.t('queue.allPlatforms')} 
                         ${video.createdAt ? '• ' + this.formatDate(video.createdAt) : ''}
                     </div>
                 </div>
-                <span class="queue-status ${video.status || 'pending'}">${video.status || 'pending'}</span>
+                <span class="queue-status ${statusKey}">${statusText}</span>
             </div>
-        `).join('');
+        `;}).join('');
     }
 
     async loadLogs() {
@@ -345,15 +348,15 @@ class App {
         }
 
         if (filteredLogs.length === 0) {
-            container.innerHTML = '<div class="loading-placeholder"><span>No logs match your filters</span></div>';
+            container.innerHTML = `<div class="loading-placeholder"><span>${i18n.t('logs.noMatch')}</span></div>`;
             return;
         }
 
         container.innerHTML = filteredLogs.slice(0, 200).map(log => `
             <div class="log-entry">
                 <span class="log-timestamp">${this.formatDate(log.timestamp)}</span>
-                <span class="log-level ${log.level || 'info'}">${log.level || 'INFO'}</span>
-                <span class="log-source">[${this.escapeHtml(log.source || 'system')}]</span>
+                <span class="log-level ${log.level || 'info'}">${log.level ? log.level.toUpperCase() : i18n.t('logs.infoLevel')}</span>
+                <span class="log-source">[${this.escapeHtml(log.source || i18n.t('logs.system'))}]</span>
                 <span class="log-message">${this.escapeHtml(log.message || '')}</span>
                 ${log.data ? `<span class="log-data">${this.escapeHtml(JSON.stringify(log.data))}</span>` : ''}
             </div>
@@ -365,7 +368,7 @@ class App {
         const recentLogs = this.logs.slice(0, 10);
 
         if (recentLogs.length === 0) {
-            activityList.innerHTML = '<div class="loading-placeholder"><span>No recent activity</span></div>';
+            activityList.innerHTML = `<div class="loading-placeholder"><span>${i18n.t('dashboard.noRecentActivity')}</span></div>`;
             return;
         }
 
@@ -377,7 +380,7 @@ class App {
                 <div class="activity-content">
                     <div class="activity-message">${this.escapeHtml(log.message || '')}</div>
                     <div class="activity-meta">
-                        <span>${this.escapeHtml(log.source || 'system')}</span>
+                        <span>${this.escapeHtml(log.source || i18n.t('logs.system'))}</span>
                         <span>${this.formatTimeAgo(log.timestamp)}</span>
                     </div>
                 </div>
@@ -398,7 +401,7 @@ class App {
 
     handleVideoSelect(file) {
         if (file.size > 100 * 1024 * 1024) {
-            this.showToast('error', 'File Too Large', 'Maximum file size is 100MB');
+            this.showToast('error', i18n.t('toast.fileTooLarge'), i18n.t('toast.maxFileSize'));
             return;
         }
 
@@ -443,22 +446,22 @@ class App {
         const channelId = channelSelect.value;
 
         if (!channelId) {
-            this.showToast('error', 'Missing Channel', 'Please select a channel');
+            this.showToast('error', i18n.t('toast.missingChannel'), i18n.t('toast.pleaseSelectChannel'));
             return;
         }
 
         if (this.activeInputTab === 'file' && !file) {
-            this.showToast('error', 'Missing Video', 'Please select a video file');
+            this.showToast('error', i18n.t('toast.missingVideo'), i18n.t('toast.pleaseSelectVideo'));
             return;
         }
 
         if (this.activeInputTab === 'url' && !videoUrl) {
-            this.showToast('error', 'Missing Video URL', 'Please enter a video URL');
+            this.showToast('error', i18n.t('toast.missingVideoUrl'), i18n.t('toast.pleaseEnterUrl'));
             return;
         }
 
         if (!videoPrompt) {
-            this.showToast('error', 'Missing Context', 'Please provide video context/prompt');
+            this.showToast('error', i18n.t('toast.missingContext'), i18n.t('toast.pleaseProvideContext'));
             return;
         }
 
@@ -488,7 +491,7 @@ class App {
                 if (progress < 90) {
                     progress += Math.random() * 10;
                     progressFill.style.width = `${Math.min(progress, 90)}%`;
-                    progressText.textContent = `Uploading... ${Math.round(Math.min(progress, 90))}%`;
+                    progressText.textContent = `${i18n.t('upload.uploading')} ${Math.round(Math.min(progress, 90))}%`;
                 }
             }, 300);
 
@@ -496,9 +499,9 @@ class App {
 
             clearInterval(progressInterval);
             progressFill.style.width = '100%';
-            progressText.textContent = 'Upload Complete!';
+            progressText.textContent = i18n.t('upload.uploadComplete');
 
-            this.showToast('success', 'Upload Successful', 'Your video has been added to the queue');
+            this.showToast('success', i18n.t('toast.uploadSuccess'), i18n.t('toast.videoQueued'));
 
             setTimeout(() => {
                 this.clearVideoPreview();
@@ -516,31 +519,31 @@ class App {
             progressEl.hidden = true;
             progressFill.style.width = '0%';
             submitBtn.disabled = false;
-            this.showToast('error', 'Upload Failed', error.message || 'Please try again');
+            this.showToast('error', i18n.t('toast.uploadFailed'), error.message || i18n.t('toast.tryAgain'));
         }
     }
 
     async runSchedule() {
         try {
-            this.showToast('info', 'Running Scheduler', 'Processing queued videos...');
+            this.showToast('info', i18n.t('toast.schedulerRunning'), i18n.t('toast.processingVideos'));
             const result = await api.runSchedule();
-            this.showToast('success', 'Scheduler Complete', result.message || 'Videos processed successfully');
+            this.showToast('success', i18n.t('toast.schedulerComplete'), result.message || i18n.t('toast.videosProcessed'));
             this.loadStats();
             this.loadLogs();
         } catch (error) {
             console.error('Schedule failed:', error);
-            this.showToast('error', 'Scheduler Failed', error.message || 'Please try again');
+            this.showToast('error', i18n.t('toast.schedulerFailed'), error.message || i18n.t('toast.tryAgain'));
         }
     }
 
     async clearQueue() {
         try {
             await api.clearQueue();
-            this.showToast('success', 'Queue Cleared', 'All videos have been removed from the queue');
+            this.showToast('success', i18n.t('toast.queueCleared'), i18n.t('toast.videosRemoved'));
             this.loadStats();
         } catch (error) {
             console.error('Clear queue failed:', error);
-            this.showToast('error', 'Failed', error.message || 'Could not clear queue');
+            this.showToast('error', i18n.t('toast.clearQueueFailed'), error.message || i18n.t('toast.couldNotClearQueue'));
         }
     }
 
@@ -550,21 +553,21 @@ class App {
             this.logs = [];
             this.updateLogsUI();
             this.updateRecentActivity();
-            this.showToast('success', 'Logs Cleared', 'All logs have been removed');
+            this.showToast('success', i18n.t('toast.logsCleared'), i18n.t('toast.logsRemoved'));
         } catch (error) {
             console.error('Clear logs failed:', error);
-            this.showToast('error', 'Failed', error.message || 'Could not clear logs');
+            this.showToast('error', i18n.t('toast.clearLogsFailed'), error.message || i18n.t('toast.couldNotClearLogs'));
         }
     }
 
     exportLogs() {
         if (this.logs.length === 0) {
-            this.showToast('warning', 'No Logs', 'There are no logs to export');
+            this.showToast('warning', i18n.t('toast.noLogsExport'), i18n.t('toast.noLogsToExport'));
             return;
         }
 
         const logText = this.logs.map(log => 
-            `[${this.formatDate(log.timestamp)}] ${(log.level || 'INFO').toUpperCase()} [${log.source || 'system'}] ${log.message || ''} ${log.data ? JSON.stringify(log.data) : ''}`
+            `[${this.formatDate(log.timestamp)}] ${log.level ? log.level.toUpperCase() : i18n.t('logs.infoLevel')} [${log.source || i18n.t('logs.system')}] ${log.message || ''} ${log.data ? JSON.stringify(log.data) : ''}`
         ).join('\n');
 
         const blob = new Blob([logText], { type: 'text/plain' });
@@ -577,14 +580,14 @@ class App {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        this.showToast('success', 'Export Complete', 'Logs have been downloaded');
+        this.showToast('success', i18n.t('toast.exportComplete'), i18n.t('toast.logsDownloaded'));
     }
 
     async refreshAll() {
         this.checkHealth();
         this.loadStats();
         this.loadLogs();
-        this.showToast('info', 'Refreshed', 'Data has been updated');
+        this.showToast('info', i18n.t('toast.refreshed'), i18n.t('toast.dataUpdated'));
     }
 
     startAutoRefresh() {
@@ -607,7 +610,7 @@ class App {
     saveSettings() {
         const apiEndpoint = document.getElementById('apiEndpoint').value.trim();
         api.setBaseUrl(apiEndpoint);
-        this.showToast('success', 'Settings Saved', 'Your settings have been updated');
+        this.showToast('success', i18n.t('toast.settingsSaved'), i18n.t('toast.settingsUpdated'));
         this.checkHealth();
     }
 
@@ -690,10 +693,10 @@ class App {
         const now = new Date();
         const diff = Math.floor((now - date) / 1000);
 
-        if (diff < 60) return 'Just now';
-        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-        return `${Math.floor(diff / 86400)}d ago`;
+        if (diff < 60) return i18n.t('time.justNow');
+        if (diff < 3600) return i18n.t('time.minutesAgo').replace('{n}', Math.floor(diff / 60));
+        if (diff < 86400) return i18n.t('time.hoursAgo').replace('{n}', Math.floor(diff / 3600));
+        return i18n.t('time.daysAgo').replace('{n}', Math.floor(diff / 86400));
     }
 }
 

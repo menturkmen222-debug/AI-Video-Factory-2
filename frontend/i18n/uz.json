@@ -63,7 +63,9 @@
     "pending": "Kutilmoqda",
     "processing": "Qayta ishlanmoqda",
     "completed": "Bajarilgan",
-    "failed": "Muvaffaqiyatsiz"
+    "failed": "Muvaffaqiyatsiz",
+    "untitled": "Nomsiz",
+    "allPlatforms": "Barcha platformalar"
   },
   "logs": {
     "title": "Tizim jurnallari",
@@ -77,7 +79,9 @@
     "refresh": "Yangilash",
     "export": "Eksport",
     "noLogs": "Jurnallar mavjud emas",
-    "noMatch": "Filtrlaringizga mos jurnallar yo'q"
+    "noMatch": "Filtrlaringizga mos jurnallar yo'q",
+    "system": "tizim",
+    "infoLevel": "MA'LUMOT"
   },
   "settings": {
     "title": "Sozlamalar",
@@ -139,5 +143,11 @@
   "language": {
     "uz": "O'zbekcha",
     "tk": "Türkmençe"
+  },
+  "time": {
+    "justNow": "Hozirgina",
+    "minutesAgo": "{n} daqiqa oldin",
+    "hoursAgo": "{n} soat oldin",
+    "daysAgo": "{n} kun oldin"
   }
 }
