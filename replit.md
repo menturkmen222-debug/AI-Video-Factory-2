@@ -71,6 +71,10 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
 - 2024-12-13: Enhanced AI metadata generation to use both prompt and channel name
 - 2024-12-13: Single queue entry now uploads to all 4 platforms with the same AI-generated metadata
 - 2024-12-14: Added i18n (internationalization) support with Uzbek (uz) and Turkmen (tk) languages
+- 2024-12-14: Fixed dashboard stats and queue display issues:
+  - Added `getAllVideos()` method to QueueManager
+  - Updated `handleGetStats()` to return `stats` object with `completed` field (mapped from `uploaded`)
+  - Added `videos` array to stats response for queue display
 
 ## Internationalization (i18n)
 The frontend supports multiple languages:
