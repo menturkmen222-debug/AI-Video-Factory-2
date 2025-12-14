@@ -1,6 +1,7 @@
 import { Logger, LogEntry } from '../utils/logger';
-import { QueueManager } from '../db/queue';
+import { QueueManager, Platform } from '../db/queue';
 import { LogsManager } from '../db/logs';
+import { getNextOptimalSlot } from '../utils/scheduling';
 
 export interface StatsResponse {
   queue: {
@@ -15,17 +16,24 @@ export interface StatsResponse {
 
 export async function handleGetLogs(
   logsManager: LogsManager,
-  logger: Logger
+  logger: Logger,
+  url: URL
 ): Promise<Response> {
   await logger.info('stats', 'Fetching logs');
 
   try {
-    const logs = await logsManager.getRecentLogs(500);
+    const limit = parseInt(url.searchParams.get('limit') || '100', 10);
+    const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+    
+    const { logs, total, hasMore } = await logsManager.getPaginatedLogs(limit, offset);
     
     return new Response(JSON.stringify({
       success: true,
-      count: logs.length,
-      logs
+      logs,
+      total,
+      hasMore,
+      limit,
+      offset
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
@@ -113,6 +121,8 @@ export async function handleGetStats(
   try {
     const rawStats = await queueManager.getStats();
     const videos = await queueManager.getAllVideos();
+    const extendedStats = await queueManager.getExtendedStats();
+    const dailyUploadCounts = await queueManager.getDailyUploadCounts();
     
     const stats = {
       pending: rawStats.pending,
@@ -123,11 +133,20 @@ export async function handleGetStats(
       total: rawStats.pending + rawStats.processing + rawStats.uploaded + rawStats.failed
     };
 
+    const nextScheduledUpload = getNextOptimalSlot('channel1', stats.completed);
+
     return new Response(JSON.stringify({
       success: true,
       stats,
       queue: stats,
       videos,
+      breakdown: {
+        byPlatform: extendedStats.byPlatform,
+        byChannel: extendedStats.byChannel,
+        byPlatformChannel: extendedStats.byPlatformChannel
+      },
+      dailyUploadCounts,
+      nextScheduledUpload: nextScheduledUpload.toISOString(),
       timestamp: new Date().toISOString()
     }), {
       status: 200,
