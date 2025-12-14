@@ -4,6 +4,7 @@ import { VideoMetadata } from '../db/queue';
 export interface GroqConfig {
   apiKey: string;
   model?: string;
+  maxRetries?: number; // Retry soni
 }
 
 interface GroqMessage {
@@ -31,15 +32,53 @@ export class GroqService {
   private baseUrl = 'https://api.groq.com/openai/v1';
 
   constructor(config: GroqConfig, logger: Logger) {
-    this.config = {
-      ...config,
-      model: config.model || 'llama-3.1-70b-versatile'
-    };
+    this.config = { maxRetries: 2, ...config };
     this.logger = logger;
+  }
+
+  // --- Auto fetch latest Groq model ---
+  private async setLatestModel(): Promise<void> {
+    try {
+      const response = await fetch(`${this.baseUrl}/models`, {
+        headers: { 'Authorization': `Bearer ${this.config.apiKey}` }
+      });
+      if (!response.ok) throw new Error(`Failed to fetch models: ${response.status}`);
+      const data = await response.json() as { latestModel?: string };
+      if (data.latestModel) {
+        this.config.model = data.latestModel;
+        await this.logger.info('groq', 'Latest model set automatically', { model: data.latestModel });
+      } else {
+        this.config.model = 'llama-3.1-8b-instant';
+        await this.logger.warn('groq', 'Could not detect latest model, using fallback', { model: this.config.model });
+      }
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Unknown error';
+      this.config.model = 'llama-3.1-8b-instant';
+      await this.logger.error('groq', 'Failed to fetch latest model, using fallback', { error: errMsg, model: this.config.model });
+    }
+  }
+
+  // --- Retry wrapper ---
+  private async retry<T>(fn: () => Promise<T>, retries: number): Promise<T> {
+    let attempt = 0;
+    let lastError: any;
+    while (attempt <= retries) {
+      try {
+        return await fn();
+      } catch (error) {
+        lastError = error;
+        attempt++;
+        await this.logger.warn('groq', `Retry attempt ${attempt}/${retries} due to error`, { error });
+      }
+    }
+    throw lastError;
   }
 
   async generateMetadata(videoContext?: string, channelName?: string): Promise<VideoMetadata> {
     await this.logger.info('groq', 'Generating AI metadata', { context: videoContext, channel: channelName });
+
+    // Ensure latest model is set
+    if (!this.config.model) await this.setLatestModel();
 
     try {
       const systemPrompt = `You are a social media expert. Generate engaging video metadata.
@@ -66,38 +105,38 @@ Return ONLY valid JSON with this exact format:
         { role: 'user', content: userPrompt }
       ];
 
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.config.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: this.config.model,
-          messages,
-          temperature: 0.7,
-          max_tokens: 500
-        })
-      });
+      const fetchMetadata = async () => {
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.config.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: this.config.model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 500
+          })
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        await this.logger.error('groq', 'API request failed', { status: response.status, error: errorText });
-        return this.getFallbackMetadata();
-      }
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API request failed: ${errorText}`);
+        }
 
-      const result = await response.json() as GroqResponse;
-      const content = result.choices[0]?.message?.content;
+        const result = await response.json() as GroqResponse;
+        const content = result.choices[0]?.message?.content;
+        if (!content) throw new Error('Empty response from API');
+        return content;
+      };
 
-      if (!content) {
-        await this.logger.warn('groq', 'Empty response from API');
-        return this.getFallbackMetadata();
-      }
-
+      const content = await this.retry(fetchMetadata, this.config.maxRetries!);
       const metadata = this.parseMetadata(content);
+
       await this.logger.info('groq', 'Metadata generated successfully', { metadata });
-      
       return metadata;
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       await this.logger.error('groq', 'Metadata generation exception', { error: errorMessage });
@@ -108,12 +147,9 @@ Return ONLY valid JSON with this exact format:
   private parseMetadata(content: string): VideoMetadata {
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        return this.getFallbackMetadata();
-      }
+      if (!jsonMatch) return this.getFallbackMetadata();
 
       const parsed = JSON.parse(jsonMatch[0]) as VideoMetadata;
-      
       return {
         title: this.truncateString(parsed.title || FALLBACK_METADATA.title, 55),
         description: this.truncateString(parsed.description || FALLBACK_METADATA.description, 180),
@@ -131,7 +167,7 @@ Return ONLY valid JSON with this exact format:
 
   private validateTags(tags: unknown): string[] {
     if (!Array.isArray(tags)) return FALLBACK_METADATA.tags;
-    
+
     const validTags = tags
       .filter((tag): tag is string => typeof tag === 'string')
       .map(tag => tag.replace(/^#/, '').trim())
@@ -149,4 +185,4 @@ Return ONLY valid JSON with this exact format:
     this.logger.warn('groq', 'Using fallback metadata');
     return { ...FALLBACK_METADATA };
   }
-}
+  }
