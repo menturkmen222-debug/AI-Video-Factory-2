@@ -111,19 +111,24 @@ export async function handleGetStats(
   await logger.info('stats', 'Fetching stats');
 
   try {
-    const stats = await queueManager.getStats();
+    const rawStats = await queueManager.getStats();
+    const videos = await queueManager.getAllVideos();
     
-    const response: StatsResponse = {
-      queue: {
-        ...stats,
-        total: stats.pending + stats.processing + stats.uploaded + stats.failed
-      },
-      timestamp: new Date().toISOString()
+    const stats = {
+      pending: rawStats.pending,
+      processing: rawStats.processing,
+      completed: rawStats.uploaded,
+      failed: rawStats.failed,
+      skipped: rawStats.skipped,
+      total: rawStats.pending + rawStats.processing + rawStats.uploaded + rawStats.failed
     };
 
     return new Response(JSON.stringify({
       success: true,
-      ...response
+      stats,
+      queue: stats,
+      videos,
+      timestamp: new Date().toISOString()
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }

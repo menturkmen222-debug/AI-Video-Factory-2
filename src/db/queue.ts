@@ -193,4 +193,22 @@ export class QueueManager {
 
     return stats;
   }
+
+  async getAllVideos(limit: number = 100): Promise<VideoQueueEntry[]> {
+    const keys = await this.kv.list({ prefix: 'video_' });
+    const videos: VideoQueueEntry[] = [];
+
+    for (const key of keys.keys) {
+      if (videos.length >= limit) break;
+      
+      const value = await this.kv.get(key.name);
+      if (value) {
+        const entry: VideoQueueEntry = JSON.parse(value);
+        videos.push(entry);
+      }
+    }
+
+    videos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return videos;
+  }
 }
