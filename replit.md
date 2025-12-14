@@ -70,6 +70,15 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
 - 2024-12-13: Updated queue system to store videoContext (prompt) with each video entry
 - 2024-12-13: Enhanced AI metadata generation to use both prompt and channel name
 - 2024-12-13: Single queue entry now uploads to all 4 platforms with the same AI-generated metadata
+- 2024-12-14: Added i18n (internationalization) support with Uzbek (uz) and Turkmen (tk) languages
+
+## Internationalization (i18n)
+The frontend supports multiple languages:
+- **Translation files**: `frontend/i18n/uz.json` (Uzbek), `frontend/i18n/tk.json` (Turkmen)
+- **i18n helper**: `frontend/js/i18n.js` - handles language loading, switching, and translation lookups
+- **Language switcher**: Dropdown in the header to switch between languages
+- All user-facing strings use `i18n.t('key.path')` for translations
+- Translations cover: navigation, modals, toasts, queue status, logs, settings, time formatting
 
 ## Video Upload Flow
 1. User sends video + prompt + channel name to `/upload-video`
