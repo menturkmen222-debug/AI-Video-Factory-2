@@ -1,6 +1,6 @@
 import { Logger, LogEntry } from '../utils/logger';
 import { QueueManager, Platform, GroupedQueueData } from '../db/queue';
-import { LogsManager } from '../db/logs';
+import { LogsManager, LogFilters, PaginatedLogsResult } from '../db/logs';
 
 export interface StatsResponse {
   queue: {
@@ -33,6 +33,70 @@ export async function handleGetLogs(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     await logger.error('stats', 'Failed to fetch logs', { error: errorMessage });
+
+    return new Response(JSON.stringify({
+      success: false,
+      error: errorMessage
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+export async function handleGetLogsPaginated(
+  request: Request,
+  logsManager: LogsManager,
+  logger: Logger
+): Promise<Response> {
+  try {
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor') || null;
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 100);
+    const level = url.searchParams.get('level') as LogEntry['level'] | null;
+    const source = url.searchParams.get('source');
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
+
+    const filters: LogFilters = {};
+    
+    if (level && ['info', 'warn', 'error', 'debug'].includes(level)) {
+      filters.level = level;
+    }
+    
+    if (source && ['system', 'platform', 'service'].includes(source)) {
+      filters.source = source;
+    }
+    
+    if (startDate) {
+      const parsedStart = new Date(startDate);
+      if (!isNaN(parsedStart.getTime())) {
+        filters.startDate = parsedStart.toISOString();
+      }
+    }
+    
+    if (endDate) {
+      const parsedEnd = new Date(endDate);
+      if (!isNaN(parsedEnd.getTime())) {
+        filters.endDate = parsedEnd.toISOString();
+      }
+    }
+
+    const result = await logsManager.getPaginatedLogs(cursor, limit, filters);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      logs: result.logs,
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
+      count: result.totalInBatch
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await logger.error('stats', 'Failed to fetch paginated logs', { error: errorMessage });
 
     return new Response(JSON.stringify({
       success: false,

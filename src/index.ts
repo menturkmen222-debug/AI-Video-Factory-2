@@ -5,7 +5,7 @@ import { CloudinaryService, CloudinaryConfig } from './services/cloudinary';
 import { GroqService, GroqConfig } from './services/groq';
 import { handleUpload } from './routes/upload';
 import { handleSchedule, PlatformConfigs } from './routes/schedule';
-import { handleGetLogs, handleClearLogs, handleClearQueue, handleGetStats, handleGetQueueGrouped, handleRetryPlatformUpload } from './routes/stats';
+import { handleGetLogs, handleGetLogsPaginated, handleClearLogs, handleClearQueue, handleGetStats, handleGetQueueGrouped, handleRetryPlatformUpload } from './routes/stats';
 import { handleFrontend, isFrontendPath } from './routes/frontend';
 
 export interface Env {
@@ -151,6 +151,10 @@ export default {
 
         case path === '/api/logs' && method === 'GET':
           response = await handleGetLogs(logsManager, logger);
+          break;
+
+        case path === '/api/logs/paginated' && method === 'GET':
+          response = await handleGetLogsPaginated(request, logsManager, logger);
           break;
 
         case path === '/api/clear-logs' && (method === 'POST' || method === 'GET'):
