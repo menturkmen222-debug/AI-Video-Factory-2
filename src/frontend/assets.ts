@@ -476,16 +476,6 @@ const htmlContent = `<!DOCTYPE html>
                         <div class="card-header">
                             <h2 data-i18n="logs.systemLogs">Tizim jurnallari</h2>
                             <div class="card-actions">
-                                <div class="log-filters">
-                                    <select id="logLevelFilter" class="form-select">
-                                        <option value="all" data-i18n="logs.allLevels">Barcha darajalar</option>
-                                        <option value="info" data-i18n="logs.info">Ma'lumot</option>
-                                        <option value="warn" data-i18n="logs.warning">Ogohlantirish</option>
-                                        <option value="error" data-i18n="logs.error">Xato</option>
-                                        <option value="debug" data-i18n="logs.debug">Nosozliklarni tuzatish</option>
-                                    </select>
-                                    <input type="text" id="logSearch" class="form-input" data-i18n-placeholder="logs.searchLogs" placeholder="Jurnallarni qidirish...">
-                                </div>
                                 <button class="btn btn-secondary btn-sm" id="refreshLogsBtn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="23 4 23 10 17 10"></polyline>
@@ -504,11 +494,53 @@ const htmlContent = `<!DOCTYPE html>
                             </div>
                         </div>
                         <div class="card-body">
+                            <div class="logs-filters-row">
+                                <div class="log-filters">
+                                    <select id="logLevelFilter" class="form-select">
+                                        <option value="all" data-i18n="logs.allLevels">Barcha darajalar</option>
+                                        <option value="info" data-i18n="logs.info">Ma'lumot</option>
+                                        <option value="warn" data-i18n="logs.warning">Ogohlantirish</option>
+                                        <option value="error" data-i18n="logs.error">Xato</option>
+                                        <option value="debug" data-i18n="logs.debug">Nosozliklarni tuzatish</option>
+                                    </select>
+                                    <select id="logSourceFilter" class="form-select">
+                                        <option value="all" data-i18n="logs.allSources">Barcha manbalar</option>
+                                        <option value="system" data-i18n="logs.sourceSystem">Tizim</option>
+                                        <option value="platform" data-i18n="logs.sourcePlatform">Platforma</option>
+                                        <option value="service" data-i18n="logs.sourceService">Xizmat</option>
+                                    </select>
+                                    <input type="date" id="logStartDate" class="form-input log-date-input" data-i18n-placeholder="logs.startDate">
+                                    <input type="date" id="logEndDate" class="form-input log-date-input" data-i18n-placeholder="logs.endDate">
+                                    <input type="text" id="logSearch" class="form-input" data-i18n-placeholder="logs.searchLogs" placeholder="Jurnallarni qidirish...">
+                                </div>
+                            </div>
                             <div class="logs-container" id="logsContainer">
                                 <div class="loading-placeholder">
                                     <div class="spinner"></div>
                                     <span data-i18n="logs.noLogs">Jurnallar mavjud emas</span>
                                 </div>
+                            </div>
+                            <div class="logs-loading" id="logsLoading" hidden>
+                                <div class="spinner"></div>
+                                <span data-i18n="logs.loading">Yuklanmoqda...</span>
+                            </div>
+                            <div class="logs-error" id="logsError" hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                                <span id="logsErrorMessage" data-i18n="logs.errorLoading">Jurnallarni yuklashda xato</span>
+                                <button class="btn btn-primary btn-sm" id="retryLogsBtn" data-i18n="logs.retry">Qayta urinish</button>
+                            </div>
+                            <div class="logs-load-more" id="logsLoadMore" hidden>
+                                <button class="btn btn-secondary" id="loadMoreLogsBtn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="7 13 12 18 17 13"></polyline>
+                                        <polyline points="7 6 12 11 17 6"></polyline>
+                                    </svg>
+                                    <span data-i18n="logs.loadMore">Ko'proq yuklash</span>
+                                </button>
                             </div>
                             <div class="empty-state" id="logsEmpty" hidden>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1607,6 +1639,169 @@ textarea.form-input {
     color: var(--gray-500);
     margin-left: 16px;
     font-size: 0.75rem;
+}
+
+.logs-filters-row {
+    padding: 0 24px 16px 24px;
+    border-bottom: 1px solid var(--gray-100);
+    margin-bottom: 0;
+}
+
+.logs-filters-row .log-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.log-date-input {
+    width: 140px;
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+}
+
+.log-entry-expandable {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.log-entry-expandable:hover {
+    background: var(--gray-100);
+}
+
+.log-entry-expanded {
+    background: var(--gray-50);
+}
+
+.log-entry-expanded .log-expand-icon {
+    transform: rotate(180deg);
+}
+
+.log-expand-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--gray-400);
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+    margin-left: 8px;
+}
+
+.log-details {
+    display: none;
+    padding: 12px 24px 12px 280px;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-100);
+    font-size: 0.8125rem;
+}
+
+.log-entry-expanded + .log-details,
+.log-entry-expandable.expanded + .log-details {
+    display: block;
+}
+
+.log-details-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.log-details-row {
+    display: flex;
+    gap: 8px;
+}
+
+.log-details-label {
+    font-weight: 600;
+    color: var(--gray-600);
+    min-width: 80px;
+}
+
+.log-details-value {
+    color: var(--gray-800);
+    word-break: break-word;
+}
+
+.log-stack-trace {
+    background: var(--gray-900);
+    color: var(--error-300);
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 8px;
+}
+
+.log-full-data {
+    background: var(--gray-100);
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.logs-load-more {
+    display: flex;
+    justify-content: center;
+    padding: 16px 24px;
+    border-top: 1px solid var(--gray-100);
+}
+
+.logs-load-more .btn {
+    min-width: 180px;
+}
+
+.logs-load-more .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.logs-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+    color: var(--gray-500);
+}
+
+.logs-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+    color: var(--error-600);
+    background: var(--error-50);
+    border-radius: var(--border-radius-sm);
+    margin: 16px 24px;
+}
+
+.logs-error svg {
+    width: 32px;
+    height: 32px;
+}
+
+.logs-error span {
+    font-size: 0.875rem;
+}
+
+.log-entry .log-main-row {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
 }
 
 .settings-section {
@@ -2818,6 +3013,17 @@ const apiJsContent = `class API {
     async retryPlatformUpload(videoId, platform) {
         return this.post('/api/queue/retry', { videoId, platform });
     }
+
+    async getLogsPaginated(cursor = null, level = null, source = null, startDate = null, endDate = null) {
+        const params = new URLSearchParams();
+        params.append('limit', '100');
+        if (cursor) params.append('cursor', cursor);
+        if (level && level !== 'all') params.append('level', level);
+        if (source && source !== 'all') params.append('source', source);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        return this.get(\`/api/logs/paginated?\${params.toString()}\`);
+    }
 }
 
 class APIError extends Error {
@@ -2840,6 +3046,18 @@ const appJsContent = `class App {
         this.refreshInterval = null;
         this.notifications = [];
         this.activeInputTab = 'file';
+        
+        this.logsCursor = null;
+        this.logsHasMore = true;
+        this.logsIsLoading = false;
+        this.logsError = null;
+        this.logsFilters = {
+            level: 'all',
+            source: 'all',
+            startDate: null,
+            endDate: null,
+            search: ''
+        };
         
         this.init();
     }
@@ -2996,20 +3214,45 @@ const appJsContent = `class App {
     }
 
     bindLogEvents() {
-        document.getElementById('logLevelFilter').addEventListener('change', () => {
-            this.filterLogs();
+        document.getElementById('logLevelFilter').addEventListener('change', (e) => {
+            this.logsFilters.level = e.target.value;
+            this.resetLogsAndReload();
         });
 
-        document.getElementById('logSearch').addEventListener('input', () => {
+        document.getElementById('logSourceFilter').addEventListener('change', (e) => {
+            this.logsFilters.source = e.target.value;
+            this.resetLogsAndReload();
+        });
+
+        document.getElementById('logStartDate').addEventListener('change', (e) => {
+            this.logsFilters.startDate = e.target.value || null;
+            this.resetLogsAndReload();
+        });
+
+        document.getElementById('logEndDate').addEventListener('change', (e) => {
+            this.logsFilters.endDate = e.target.value || null;
+            this.resetLogsAndReload();
+        });
+
+        document.getElementById('logSearch').addEventListener('input', (e) => {
+            this.logsFilters.search = e.target.value.toLowerCase();
             this.filterLogs();
         });
 
         document.getElementById('refreshLogsBtn').addEventListener('click', () => {
-            this.loadLogs();
+            this.resetLogsAndReload();
         });
 
         document.getElementById('exportLogsBtn').addEventListener('click', () => {
             this.exportLogs();
+        });
+
+        document.getElementById('loadMoreLogsBtn').addEventListener('click', () => {
+            this.loadMoreLogs();
+        });
+
+        document.getElementById('retryLogsBtn').addEventListener('click', () => {
+            this.resetLogsAndReload();
         });
 
         document.getElementById('refreshQueueBtn').addEventListener('click', () => {
@@ -3480,40 +3723,98 @@ const appJsContent = `class App {
     }
 
     async loadLogs() {
+        if (this.logsIsLoading) return;
+        
+        this.logsIsLoading = true;
+        this.logsError = null;
+        
+        const container = document.getElementById('logsContainer');
+        const logsLoading = document.getElementById('logsLoading');
+        const logsError = document.getElementById('logsError');
+        const loadMoreContainer = document.getElementById('logsLoadMore');
+        const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
+        
+        if (this.logs.length === 0) {
+            container.innerHTML = '';
+            logsLoading.hidden = false;
+        }
+        logsError.hidden = true;
+        loadMoreBtn.disabled = true;
+
         try {
-            const data = await api.getLogs();
-            this.logs = data.logs || [];
+            const data = await api.getLogsPaginated(
+                this.logsCursor,
+                this.logsFilters.level,
+                this.logsFilters.source,
+                this.logsFilters.startDate,
+                this.logsFilters.endDate
+            );
+            
+            const newLogs = data.logs || [];
+            
+            if (this.logsCursor === null) {
+                this.logs = newLogs;
+            } else {
+                const existingIds = new Set(this.logs.map(l => l.id || l.timestamp));
+                const uniqueNewLogs = newLogs.filter(l => !existingIds.has(l.id || l.timestamp));
+                this.logs = [...this.logs, ...uniqueNewLogs];
+            }
+            
+            this.logsCursor = data.nextCursor || null;
+            this.logsHasMore = data.hasMore !== false && !!data.nextCursor;
+            
             this.updateLogsUI();
             this.updateRecentActivity();
         } catch (error) {
             console.error('Failed to load logs:', error);
+            this.logsError = error.message || 'Failed to load logs';
+            logsError.hidden = false;
+            document.getElementById('logsErrorMessage').textContent = this.logsError;
+        } finally {
+            this.logsIsLoading = false;
+            logsLoading.hidden = true;
+            loadMoreBtn.disabled = false;
         }
+    }
+
+    async loadMoreLogs() {
+        if (this.logsIsLoading || !this.logsHasMore) return;
+        await this.loadLogs();
+    }
+
+    resetLogsAndReload() {
+        this.logs = [];
+        this.logsCursor = null;
+        this.logsHasMore = true;
+        this.logsError = null;
+        this.loadLogs();
     }
 
     updateLogsUI() {
         const container = document.getElementById('logsContainer');
         const logsEmpty = document.getElementById('logsEmpty');
+        const loadMoreContainer = document.getElementById('logsLoadMore');
+        const logsError = document.getElementById('logsError');
 
-        if (this.logs.length === 0) {
+        logsError.hidden = true;
+
+        if (this.logs.length === 0 && !this.logsIsLoading) {
             container.innerHTML = '';
             logsEmpty.hidden = false;
+            loadMoreContainer.hidden = true;
             return;
         }
 
         logsEmpty.hidden = true;
+        loadMoreContainer.hidden = !this.logsHasMore;
         this.filterLogs();
     }
 
     filterLogs() {
-        const levelFilter = document.getElementById('logLevelFilter').value;
-        const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+        const searchTerm = this.logsFilters.search || '';
         const container = document.getElementById('logsContainer');
 
         let filteredLogs = this.logs;
-
-        if (levelFilter !== 'all') {
-            filteredLogs = filteredLogs.filter(log => log.level === levelFilter);
-        }
 
         if (searchTerm) {
             filteredLogs = filteredLogs.filter(log => 
@@ -3522,20 +3823,77 @@ const appJsContent = `class App {
             );
         }
 
-        if (filteredLogs.length === 0) {
+        if (filteredLogs.length === 0 && this.logs.length > 0) {
             container.innerHTML = \`<div class="loading-placeholder"><span>\${i18n.t('logs.noMatch')}</span></div>\`;
             return;
         }
 
-        container.innerHTML = filteredLogs.slice(0, 200).map(log => \`
-            <div class="log-entry">
+        if (filteredLogs.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const sortedLogs = [...filteredLogs].sort((a, b) => {
+            const dateA = new Date(a.timestamp || 0);
+            const dateB = new Date(b.timestamp || 0);
+            return dateB - dateA;
+        });
+
+        container.innerHTML = sortedLogs.map((log, index) => this.renderLogEntry(log, index)).join('');
+        
+        container.querySelectorAll('.log-entry-expandable').forEach(entry => {
+            entry.addEventListener('click', () => {
+                entry.classList.toggle('expanded');
+            });
+        });
+    }
+
+    renderLogEntry(log, index) {
+        const hasDetails = log.data || log.stackTrace || log.error;
+        const entryClass = hasDetails ? 'log-entry log-entry-expandable' : 'log-entry';
+        
+        let detailsHtml = '';
+        if (hasDetails) {
+            detailsHtml = \`
+                <div class="log-details">
+                    <div class="log-details-content">
+                        \${log.error ? \`
+                            <div class="log-details-row">
+                                <span class="log-details-label">\${i18n.t('logs.errorDetails')}:</span>
+                                <span class="log-details-value">\${this.escapeHtml(log.error)}</span>
+                            </div>
+                        \` : ''}
+                        \${log.data ? \`
+                            <div class="log-details-row">
+                                <span class="log-details-label">\${i18n.t('logs.data')}:</span>
+                            </div>
+                            <pre class="log-full-data">\${this.escapeHtml(JSON.stringify(log.data, null, 2))}</pre>
+                        \` : ''}
+                        \${log.stackTrace ? \`
+                            <div class="log-details-row">
+                                <span class="log-details-label">\${i18n.t('logs.stackTrace')}:</span>
+                            </div>
+                            <pre class="log-stack-trace">\${this.escapeHtml(log.stackTrace)}</pre>
+                        \` : ''}
+                    </div>
+                </div>
+            \`;
+        }
+
+        return \`
+            <div class="\${entryClass}" data-log-index="\${index}">
                 <span class="log-timestamp">\${this.formatDate(log.timestamp)}</span>
                 <span class="log-level \${log.level || 'info'}">\${log.level ? log.level.toUpperCase() : i18n.t('logs.infoLevel')}</span>
                 <span class="log-source">[\${this.escapeHtml(log.source || i18n.t('logs.system'))}]</span>
                 <span class="log-message">\${this.escapeHtml(log.message || '')}</span>
-                \${log.data ? \`<span class="log-data">\${this.escapeHtml(JSON.stringify(log.data))}</span>\` : ''}
+                \${hasDetails ? \`
+                    <svg class="log-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                \` : ''}
             </div>
-        \`).join('');
+            \${detailsHtml}
+        \`;
     }
 
     updateRecentActivity() {
