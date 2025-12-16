@@ -391,10 +391,10 @@ const htmlContent = `<!DOCTYPE html>
                 </section>
 
                 <section class="section" id="section-queue">
-                    <div class="card">
-                        <div class="card-header">
+                    <div class="queue-management">
+                        <div class="queue-header">
                             <h2 data-i18n="queue.videoQueue">Video navbati</h2>
-                            <div class="card-actions">
+                            <div class="queue-actions">
                                 <button class="btn btn-secondary btn-sm" id="refreshQueueBtn">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="23 4 23 10 17 10"></polyline>
@@ -404,22 +404,69 @@ const htmlContent = `<!DOCTYPE html>
                                 </button>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="queue-list" id="queueList">
-                                <div class="loading-placeholder">
-                                    <div class="spinner"></div>
-                                    <span data-i18n="queue.noVideos">Navbatda video yo'q</span>
-                                </div>
-                            </div>
-                            <div class="empty-state" id="queueEmpty" hidden>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <path d="M9 5H7C6.46957 5 5.96086 5.21071 5.58579 5.58579C5.21071 5.96086 5 6.46957 5 7V19C5 19.5304 5.21071 20.0391 5.58579 20.4142C5.96086 20.7893 6.46957 21 7 21H17C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19V7C19 6.46957 18.7893 5.96086 18.4142 5.58579C18.0391 5.21071 17.5304 5 17 5H15"></path>
-                                    <path d="M9 5C9 4.46957 9.21071 3.96086 9.58579 3.58579C9.96086 3.21071 10.4696 3 11 3H13C13.5304 3 14.0391 3.21071 14.4142 3.58579C14.7893 3.96086 15 4.46957 15 5C15 5.53043 14.7893 6.03914 14.4142 6.41421C14.0391 6.78929 13.5304 7 13 7H11C10.4696 7 9.96086 6.78929 9.58579 6.41421C9.21071 6.03914 9 5.53043 9 5Z"></path>
+                        
+                        <div class="platform-tabs" id="platformTabs">
+                            <button class="platform-tab active" data-platform="all">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
                                 </svg>
-                                <h3 data-i18n="queue.noVideos">Navbatda video yo'q</h3>
-                                <p data-i18n="queue.uploadVideo">Video yuklash</p>
-                                <button class="btn btn-primary" id="goToUpload" data-i18n="queue.uploadVideo">Video yuklash</button>
+                                <span>All</span>
+                            </button>
+                            <button class="platform-tab youtube" data-platform="youtube">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                                <span>YouTube</span>
+                            </button>
+                            <button class="platform-tab tiktok" data-platform="tiktok">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                                </svg>
+                                <span>TikTok</span>
+                            </button>
+                            <button class="platform-tab instagram" data-platform="instagram">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                </svg>
+                                <span>Instagram</span>
+                            </button>
+                            <button class="platform-tab facebook" data-platform="facebook">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                                <span>Facebook</span>
+                            </button>
+                        </div>
+
+                        <div class="queue-content" id="queueContent">
+                            <div class="queue-loading" id="queueLoading">
+                                <div class="spinner"></div>
+                                <span>Loading queue...</span>
                             </div>
+                        </div>
+
+                        <div class="queue-empty" id="queueEmpty" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9 5H7C6.46957 5 5.96086 5.21071 5.58579 5.58579C5.21071 5.96086 5 6.46957 5 7V19C5 19.5304 5.21071 20.0391 5.58579 20.4142C5.96086 20.7893 6.46957 21 7 21H17C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19V7C19 6.46957 18.7893 5.96086 18.4142 5.58579C18.0391 5.21071 17.5304 5 17 5H15"></path>
+                                <path d="M9 5C9 4.46957 9.21071 3.96086 9.58579 3.58579C9.96086 3.21071 10.4696 3 11 3H13C13.5304 3 14.0391 3.21071 14.4142 3.58579C14.7893 3.96086 15 4.46957 15 5C15 5.53043 14.7893 6.03914 14.4142 6.41421C14.0391 6.78929 13.5304 7 13 7H11C10.4696 7 9.96086 6.78929 9.58579 6.41421C9.21071 6.03914 9 5.53043 9 5Z"></path>
+                            </svg>
+                            <h3 data-i18n="queue.noVideos">Navbatda video yo'q</h3>
+                            <p data-i18n="queue.uploadVideo">Video yuklash</p>
+                            <button class="btn btn-primary" id="goToUpload" data-i18n="queue.uploadVideo">Video yuklash</button>
+                        </div>
+
+                        <div class="queue-error" id="queueError" hidden>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            <h3>Error loading queue</h3>
+                            <p id="queueErrorMessage">An error occurred while loading the queue.</p>
+                            <button class="btn btn-primary" id="retryLoadQueue">Retry</button>
                         </div>
                     </div>
                 </section>
@@ -2001,6 +2048,505 @@ textarea.form-input {
     .platform-checkboxes {
         flex-direction: column;
     }
+}
+
+.queue-management {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.queue-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.platform-tabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+.platform-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: var(--gray-100);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-600);
+    white-space: nowrap;
+}
+
+.platform-tab svg {
+    width: 18px;
+    height: 18px;
+}
+
+.platform-tab:hover {
+    background: var(--gray-200);
+}
+
+.platform-tab.active {
+    background: var(--primary-600);
+    color: var(--white);
+}
+
+.platform-tab.youtube.active {
+    background: #FF0000;
+}
+
+.platform-tab.tiktok.active {
+    background: #000000;
+}
+
+.platform-tab.instagram.active {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.platform-tab.facebook.active {
+    background: #1877F2;
+}
+
+.queue-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.queue-loading,
+.queue-empty,
+.queue-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+.queue-loading svg,
+.queue-empty svg,
+.queue-error svg {
+    width: 64px;
+    height: 64px;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+}
+
+.queue-empty h3,
+.queue-error h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--gray-700);
+}
+
+.queue-empty p,
+.queue-error p {
+    margin: 0 0 1.5rem 0;
+    color: var(--gray-500);
+}
+
+.platform-section {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.platform-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.platform-section-header svg {
+    width: 24px;
+    height: 24px;
+}
+
+.platform-section-header.youtube svg { color: #FF0000; }
+.platform-section-header.tiktok svg { color: #000000; }
+.platform-section-header.instagram svg { color: #E4405F; }
+.platform-section-header.facebook svg { color: #1877F2; }
+
+.platform-section-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.platform-section-header .video-count {
+    margin-left: auto;
+    padding: 0.25rem 0.75rem;
+    background: var(--gray-200);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.channel-group {
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.channel-group:last-child {
+    border-bottom: none;
+}
+
+.channel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--gray-50);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.channel-header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gray-400);
+}
+
+.video-queue-item {
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.video-queue-item:last-child {
+    border-bottom: none;
+}
+
+.video-queue-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.video-queue-row:hover {
+    background: var(--gray-50);
+}
+
+.video-thumbnail {
+    width: 80px;
+    height: 45px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--gray-200);
+    flex-shrink: 0;
+}
+
+.video-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.video-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-800);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-meta {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+}
+
+.video-status-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-badge svg {
+    width: 12px;
+    height: 12px;
+}
+
+.status-badge.pending {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.status-badge.uploading {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.status-badge.completed {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.status-badge.failed {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.status-badge.skipped {
+    background: var(--gray-200);
+    color: var(--gray-600);
+}
+
+.expand-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--gray-400);
+    transition: transform var(--transition-fast);
+}
+
+.video-queue-item.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.video-details {
+    display: none;
+    padding: 1rem 1.25rem;
+    background: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+}
+
+.video-queue-item.expanded .video-details {
+    display: block;
+}
+
+.platform-statuses {
+    display: grid;
+    gap: 1rem;
+}
+
+.platform-status-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+}
+
+.platform-status-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.platform-status-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.platform-status-info svg {
+    width: 20px;
+    height: 20px;
+}
+
+.platform-status-info.youtube svg { color: #FF0000; }
+.platform-status-info.tiktok svg { color: #000000; }
+.platform-status-info.instagram svg { color: #E4405F; }
+.platform-status-info.facebook svg { color: #1877F2; }
+
+.platform-status-name {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.error-details {
+    padding: 0.75rem;
+    background: #FEF2F2;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #EF4444;
+}
+
+.error-message {
+    font-size: 0.8125rem;
+    color: #991B1B;
+    margin-bottom: 0.25rem;
+}
+
+.error-code {
+    font-size: 0.75rem;
+    color: #7F1D1D;
+    font-family: monospace;
+}
+
+.btn-retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--primary-600);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.btn-retry:hover {
+    background: var(--primary-700);
+}
+
+.btn-retry svg {
+    width: 14px;
+    height: 14px;
+}
+
+.analytics-section {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.analytics-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0.5rem;
+}
+
+.analytics-card {
+    padding: 0.5rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.analytics-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.analytics-label {
+    font-size: 0.6875rem;
+    color: var(--gray-500);
+    text-transform: uppercase;
+}
+
+.analytics-unavailable {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    font-style: italic;
+    padding: 0.5rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-sm);
+}
+
+.platform-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--primary-600);
+    text-decoration: none;
+    margin-top: 0.5rem;
+}
+
+.platform-link:hover {
+    text-decoration: underline;
+}
+
+.platform-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+@media (max-width: 768px) {
+    .platform-tabs {
+        flex-wrap: nowrap;
+        padding: 0.375rem;
+    }
+    
+    .platform-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    .platform-tab span {
+        display: none;
+    }
+    
+    .video-queue-row {
+        flex-wrap: wrap;
+        padding: 0.75rem;
+    }
+    
+    .video-thumbnail {
+        width: 60px;
+        height: 34px;
+    }
+    
+    .video-status-badges {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }`;
 
 const apiJsContent = `class API {
@@ -2130,6 +2676,14 @@ const apiJsContent = `class API {
 
     async getApiInfo() {
         return this.get('/');
+    }
+
+    async getQueueGrouped() {
+        return this.get('/api/queue/grouped');
+    }
+
+    async retryPlatformUpload(videoId, platform) {
+        return this.post('/api/queue/retry', { videoId, platform });
     }
 }
 
@@ -2379,7 +2933,7 @@ const appJsContent = `class App {
         if (section === 'logs') {
             this.loadLogs();
         } else if (section === 'queue') {
-            this.loadStats();
+            this.loadQueueGrouped();
         }
     }
 
@@ -2448,6 +3002,343 @@ const appJsContent = `class App {
                 <span class="queue-status \${statusKey}">\${statusText}</span>
             </div>
         \`;}).join('');
+    }
+
+    async loadQueueGrouped() {
+        const queueContent = document.getElementById('queueContent');
+        const queueLoading = document.getElementById('queueLoading');
+        const queueEmpty = document.getElementById('queueEmpty');
+        const queueError = document.getElementById('queueError');
+
+        queueLoading.hidden = false;
+        queueEmpty.hidden = true;
+        queueError.hidden = true;
+        queueContent.innerHTML = '';
+        queueContent.appendChild(queueLoading);
+
+        try {
+            const data = await api.getQueueGrouped();
+            queueLoading.hidden = true;
+
+            if (!data.data || Object.keys(data.data).length === 0) {
+                queueEmpty.hidden = false;
+                return;
+            }
+
+            this.currentQueueData = data.data;
+            this.currentPlatformFilter = 'all';
+            this.renderQueueByPlatform(data.data);
+            this.bindQueueEvents();
+        } catch (error) {
+            console.error('Failed to load queue:', error);
+            queueLoading.hidden = true;
+            queueError.hidden = false;
+            document.getElementById('queueErrorMessage').textContent = error.message || 'An error occurred while loading the queue.';
+        }
+    }
+
+    renderQueueByPlatform(groupedData) {
+        const queueContent = document.getElementById('queueContent');
+        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
+        let html = '';
+
+        for (const platform of platforms) {
+            if (this.currentPlatformFilter !== 'all' && this.currentPlatformFilter !== platform) {
+                continue;
+            }
+            
+            const channelData = groupedData[platform];
+            if (!channelData || Object.keys(channelData).length === 0) continue;
+            
+            html += this.renderPlatformSection(platform, channelData);
+        }
+
+        if (!html) {
+            document.getElementById('queueEmpty').hidden = false;
+        } else {
+            document.getElementById('queueEmpty').hidden = true;
+        }
+
+        queueContent.innerHTML = html;
+    }
+
+    renderPlatformSection(platform, channelData) {
+        const platformNames = { youtube: 'YouTube', tiktok: 'TikTok', instagram: 'Instagram', facebook: 'Facebook' };
+        const platformName = platformNames[platform] || platform;
+        
+        let totalVideos = 0;
+        for (const channelId in channelData) {
+            totalVideos += channelData[channelId].length;
+        }
+
+        let channelsHtml = '';
+        for (const channelId in channelData) {
+            const videos = channelData[channelId];
+            channelsHtml += \`
+                <div class="channel-group">
+                    <div class="channel-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <span>\${this.escapeHtml(channelId)}</span>
+                    </div>
+                    \${videos.map(video => this.renderQueueVideo(video, platform)).join('')}
+                </div>
+            \`;
+        }
+
+        return \`
+            <div class="platform-section" data-platform="\${platform}">
+                <div class="platform-section-header \${platform}">
+                    \${this.getPlatformIcon(platform)}
+                    <h3>\${platformName}</h3>
+                    <span class="video-count">\${totalVideos} video\${totalVideos !== 1 ? 's' : ''}</span>
+                </div>
+                \${channelsHtml}
+            </div>
+        \`;
+    }
+
+    renderQueueVideo(video, currentPlatform) {
+        const platformStatus = video.platformStatuses ? video.platformStatuses[currentPlatform] : null;
+        const status = platformStatus ? platformStatus.status : 'pending';
+        const statusInfo = this.formatPlatformStatus(status);
+
+        return \`
+            <div class="video-queue-item" data-video-id="\${video.id}">
+                <div class="video-queue-row" onclick="app.toggleVideoDetails('\${video.id}')">
+                    <div class="video-thumbnail">
+                        <video src="\${video.cloudinaryUrl || video.videoUrl || ''}" muted></video>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">\${this.escapeHtml(video.metadata?.title || video.id)}</div>
+                        <div class="video-meta">\${video.createdAt ? this.formatDate(video.createdAt) : ''}</div>
+                    </div>
+                    <div class="video-status-badges">
+                        <span class="status-badge \${statusInfo.className}">
+                            \${this.getPlatformStatusIcon(status)}
+                            \${statusInfo.text}
+                        </span>
+                    </div>
+                    <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+                <div class="video-details">
+                    \${this.renderVideoDetails(video)}
+                </div>
+            </div>
+        \`;
+    }
+
+    renderVideoDetails(video) {
+        const platforms = video.platforms || [];
+        let platformsHtml = '';
+
+        for (const platform of platforms) {
+            const status = video.platformStatuses ? video.platformStatuses[platform] : null;
+            platformsHtml += this.renderPlatformStatusCard(video.id, platform, status);
+        }
+
+        return \`
+            <div class="platform-statuses">
+                \${platformsHtml}
+            </div>
+        \`;
+    }
+
+    renderPlatformStatusCard(videoId, platform, status) {
+        const platformNames = { youtube: 'YouTube', tiktok: 'TikTok', instagram: 'Instagram', facebook: 'Facebook' };
+        const platformName = platformNames[platform] || platform;
+        const statusData = status || { status: 'pending' };
+        const statusInfo = this.formatPlatformStatus(statusData.status);
+
+        let errorHtml = '';
+        if (statusData.status === 'failed' && statusData.error) {
+            errorHtml = \`
+                <div class="error-details">
+                    <div class="error-message">\${this.escapeHtml(statusData.error)}</div>
+                    \${statusData.errorCode ? \`<div class="error-code">Code: \${this.escapeHtml(statusData.errorCode)}</div>\` : ''}
+                </div>
+            \`;
+        }
+
+        let retryBtn = '';
+        if (statusData.status === 'failed') {
+            retryBtn = \`
+                <button class="btn-retry" onclick="app.handleRetryUpload('\${videoId}', '\${platform}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15C19.9828 16.4332 19.1209 17.7146 17.9845 18.7246C16.8482 19.7346 15.4745 20.4402 13.9917 20.7757C12.5089 21.1112 10.9652 21.0657 9.50481 20.6432C8.04437 20.2208 6.71475 19.4353 5.64 18.36L1 14"></path>
+                    </svg>
+                    Retry
+                </button>
+            \`;
+        }
+
+        let linkHtml = '';
+        if (statusData.platformUrl) {
+            linkHtml = \`
+                <a href="\${statusData.platformUrl}" target="_blank" class="platform-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    View on \${platformName}
+                </a>
+            \`;
+        }
+
+        let analyticsHtml = this.renderAnalytics(statusData.analytics);
+
+        return \`
+            <div class="platform-status-card">
+                <div class="platform-status-header">
+                    <div class="platform-status-info \${platform}">
+                        \${this.getPlatformIcon(platform)}
+                        <span class="platform-status-name">\${platformName}</span>
+                    </div>
+                    <span class="status-badge \${statusInfo.className}">
+                        \${this.getPlatformStatusIcon(statusData.status)}
+                        \${statusInfo.text}
+                    </span>
+                </div>
+                \${errorHtml}
+                \${retryBtn}
+                \${linkHtml}
+                \${analyticsHtml}
+            </div>
+        \`;
+    }
+
+    renderAnalytics(analytics) {
+        if (!analytics) {
+            return \`
+                <div class="analytics-section">
+                    <div class="analytics-title">Analytics</div>
+                    <div class="analytics-unavailable">Analytics not available from platform API</div>
+                </div>
+            \`;
+        }
+
+        let revenueHtml = '';
+        if (analytics.revenue === null || analytics.revenue === undefined) {
+            revenueHtml = \`<div class="analytics-unavailable" style="margin-top: 0.5rem; font-size: 0.75rem;">Revenue data not supported by platform API</div>\`;
+        } else {
+            revenueHtml = \`
+                <div class="analytics-card">
+                    <div class="analytics-value">$\${(analytics.revenue || 0).toFixed(2)}</div>
+                    <div class="analytics-label">Revenue</div>
+                </div>
+            \`;
+        }
+
+        return \`
+            <div class="analytics-section">
+                <div class="analytics-title">Analytics</div>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <div class="analytics-value">\${this.formatNumber(analytics.views || 0)}</div>
+                        <div class="analytics-label">Views</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">\${this.formatNumber(analytics.likes || 0)}</div>
+                        <div class="analytics-label">Likes</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">\${this.formatNumber(analytics.comments || 0)}</div>
+                        <div class="analytics-label">Comments</div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="analytics-value">\${this.formatNumber(analytics.shares || 0)}</div>
+                        <div class="analytics-label">Shares</div>
+                    </div>
+                </div>
+                \${analytics.revenue !== null && analytics.revenue !== undefined ? revenueHtml : '<div class="analytics-unavailable" style="margin-top: 0.5rem; font-size: 0.75rem;">Revenue data not supported by platform API</div>'}
+            </div>
+        \`;
+    }
+
+    formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+
+    toggleVideoDetails(videoId) {
+        const item = document.querySelector(\`[data-video-id="\${videoId}"]\`);
+        if (item) {
+            item.classList.toggle('expanded');
+        }
+    }
+
+    async handleRetryUpload(videoId, platform) {
+        try {
+            this.showToast('info', 'Retrying', \`Retrying \${platform} upload...\`);
+            await api.retryPlatformUpload(videoId, platform);
+            this.showToast('success', 'Retry Scheduled', \`\${platform} upload has been scheduled for retry.\`);
+            this.loadQueueGrouped();
+        } catch (error) {
+            console.error('Retry failed:', error);
+            this.showToast('error', 'Retry Failed', error.message || 'Could not retry upload.');
+        }
+    }
+
+    getPlatformIcon(platform) {
+        const icons = {
+            youtube: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+            tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+            instagram: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>',
+            facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+        };
+        return icons[platform] || '';
+    }
+
+    getPlatformStatusIcon(status) {
+        const icons = {
+            pending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+            uploading: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>',
+            completed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+            failed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            skipped: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h4l4 8-4 8H5l4-8-4-8z"></path><path d="M15 4h4l-4 8 4 8h-4l-4-8 4-8z"></path></svg>'
+        };
+        return icons[status] || icons.pending;
+    }
+
+    formatPlatformStatus(status) {
+        const statusMap = {
+            pending: { className: 'pending', text: 'Pending' },
+            uploading: { className: 'uploading', text: 'Uploading' },
+            completed: { className: 'completed', text: 'Completed' },
+            failed: { className: 'failed', text: 'Failed' },
+            skipped: { className: 'skipped', text: 'Skipped' }
+        };
+        return statusMap[status] || statusMap.pending;
+    }
+
+    bindQueueEvents() {
+        const platformTabs = document.querySelectorAll('.platform-tab');
+        platformTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                platformTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.currentPlatformFilter = tab.dataset.platform;
+                if (this.currentQueueData) {
+                    this.renderQueueByPlatform(this.currentQueueData);
+                }
+            });
+        });
+
+        const retryLoadBtn = document.getElementById('retryLoadQueue');
+        if (retryLoadBtn) {
+            retryLoadBtn.addEventListener('click', () => {
+                this.loadQueueGrouped();
+            });
+        }
     }
 
     async loadLogs() {
