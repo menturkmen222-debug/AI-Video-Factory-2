@@ -127,12 +127,10 @@ export class LogsManager {
       
       const nextCursor = hasMoreKeys && lastProcessedKey ? lastProcessedKey : null;
       
-      matchedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
       return {
         logs: matchedLogs,
         nextCursor,
-        hasMore: !!nextCursor,
+        hasMore: hasMoreKeys,
         totalInBatch: matchedLogs.length
       };
     } catch (error) {

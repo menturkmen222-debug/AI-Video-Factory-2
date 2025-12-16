@@ -3815,8 +3815,8 @@ const appJsContent = `class App {
         } finally {
             this.logsIsLoading = false;
             logsLoading.hidden = true;
-            loadMoreBtn.disabled = false;
             loadMoreBtn.classList.remove('loading');
+            loadMoreBtn.disabled = !this.logsHasMore;
             if (loadMoreBtnText) {
                 loadMoreBtnText.textContent = i18n.t('logs.loadMore') || 'Load More';
             }
