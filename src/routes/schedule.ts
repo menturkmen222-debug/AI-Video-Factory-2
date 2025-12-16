@@ -159,6 +159,11 @@ async function processVideo(
 
     await queueManager.updateEntry(id, { status: 'processing' });
 
+    // Initialize each platform's status to 'uploading'
+    for (const platform of platforms) {
+      await queueManager.updatePlatformStatus(id, platform, { status: 'uploading' });
+    }
+
     // AI metadata — generated once using the prompt and channel name
     let metadata = video.metadata;
     if (!metadata || !metadata.title) {
@@ -175,6 +180,10 @@ async function processVideo(
       if (!canUpload) {
         errors[platform] = 'Daily limit reached';
         allSucceeded = false;
+        await queueManager.updatePlatformStatus(id, platform, {
+          status: 'skipped',
+          error: 'Daily limit reached'
+        });
         await logger.warn('schedule', `Platform ${platform} skipped - daily limit reached`, { channelId });
         continue;
       }
@@ -228,16 +237,31 @@ async function processVideo(
 
         if (uploadResult.success) {
           await queueManager.incrementDailyCounter(platform, channelId);
+          await queueManager.updatePlatformStatus(id, platform, {
+            status: 'completed',
+            uploadedAt: new Date().toISOString(),
+            platformVideoId: (uploadResult as any).videoId || undefined,
+            platformUrl: (uploadResult as any).url || undefined
+          });
           await logger.info('schedule', `Upload to ${platform} successful`, { id, channelId });
         } else {
           errors[platform] = uploadResult.error || 'Unknown upload error';
           allSucceeded = false;
+          await queueManager.updatePlatformStatus(id, platform, {
+            status: 'failed',
+            error: uploadResult.error || errors[platform] || 'Unknown error',
+            errorCode: (uploadResult as any).errorCode || undefined
+          });
           await logger.error('schedule', `Upload to ${platform} failed`, { id, channelId, error: uploadResult.error });
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Unexpected error';
         errors[platform] = msg;
         allSucceeded = false;
+        await queueManager.updatePlatformStatus(id, platform, {
+          status: 'failed',
+          error: msg
+        });
         await logger.error('schedule', `Upload to ${platform} exception`, { id, channelId, error: msg });
       }
     }
