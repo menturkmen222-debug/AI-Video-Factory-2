@@ -82,6 +82,15 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
   - Analytics section with views, likes, comments, shares, and revenue
   - Clear messaging when analytics/revenue not supported by platform API
   - Fixed JavaScript null reference error in updateQueueUI function
+- 2024-12-16: Implemented complete System Logs module with:
+  - Cursor-based pagination loading exactly 100 logs per batch
+  - Comprehensive log display (timestamp, level, source, step, message, stack traces)
+  - Complete filtering (level, source, date range, search)
+  - Error handling with retry functionality
+  - Load More button with loading states and log count display
+  - Added 13 new i18n translation keys for logs section (both Uzbek and Turkmen)
+  - Backend: `getPaginatedLogs` in `src/db/logs.ts` with key-based cursor pagination
+  - API: `GET /api/logs/paginated` endpoint with query params (cursor, limit, level, source, startDate, endDate, search)
 
 ## Internationalization (i18n)
 The frontend supports multiple languages:
