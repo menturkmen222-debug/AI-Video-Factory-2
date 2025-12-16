@@ -5,6 +5,28 @@ import { getCurrentTimestamp, getDayKey, getCurrentDate } from '../utils/time';
 export type Platform = 'youtube' | 'tiktok' | 'instagram' | 'facebook';
 export type VideoStatus = 'pending' | 'processing' | 'uploaded' | 'failed' | 'skipped';
 
+export interface PlatformUploadStatus {
+  status: 'pending' | 'uploading' | 'completed' | 'failed' | 'skipped';
+  error?: string;
+  errorCode?: string;
+  uploadedAt?: string;
+  platformVideoId?: string;
+  platformUrl?: string;
+  analytics?: {
+    views?: number;
+    likes?: number;
+    comments?: number;
+    shares?: number;
+    revenue?: number | null;
+  };
+}
+
+export interface GroupedQueueData {
+  [platform: string]: {
+    [channelId: string]: VideoQueueEntry[];
+  };
+}
+
 export interface VideoMetadata {
   title: string;
   description: string;
@@ -24,6 +46,8 @@ export interface VideoQueueEntry {
   updatedAt: string;
   errorMessage?: string;
   retryCount: number;
+  platformStatuses: Record<Platform, PlatformUploadStatus>;
+  scheduledAt?: string;
 }
 
 export interface DailyCounter {
@@ -44,9 +68,14 @@ export class QueueManager {
     this.logger = logger;
   }
 
-  async addToQueue(entry: Omit<VideoQueueEntry, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'retryCount'>): Promise<VideoQueueEntry> {
+  async addToQueue(entry: Omit<VideoQueueEntry, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'retryCount' | 'platformStatuses'>): Promise<VideoQueueEntry> {
     const id = `video_${getCurrentTimestamp()}_${Math.random().toString(36).substr(2, 9)}`;
     const now = new Date().toISOString();
+    
+    const platformStatuses = {} as Record<Platform, PlatformUploadStatus>;
+    for (const platform of entry.platforms) {
+      platformStatuses[platform] = { status: 'pending' };
+    }
     
     const fullEntry: VideoQueueEntry = {
       ...entry,
@@ -54,11 +83,11 @@ export class QueueManager {
       status: 'pending',
       createdAt: now,
       updatedAt: now,
-      retryCount: 0
+      retryCount: 0,
+      platformStatuses
     };
 
     await this.kv.put(id, JSON.stringify(fullEntry));
-    // ✅ Tuzatildi: entry.platform → entry.platforms
     await this.logger.info('queue', 'Added video to queue', { id, platforms: entry.platforms });
     
     return fullEntry;
@@ -210,5 +239,61 @@ export class QueueManager {
 
     videos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return videos;
+  }
+
+  async updatePlatformStatus(id: string, platform: Platform, status: PlatformUploadStatus): Promise<VideoQueueEntry | null> {
+    const entry = await this.getEntry(id);
+    if (!entry) {
+      await this.logger.error('queue', 'Entry not found for platform status update', { id, platform });
+      return null;
+    }
+
+    entry.platformStatuses[platform] = status;
+    entry.updatedAt = new Date().toISOString();
+
+    await this.kv.put(id, JSON.stringify(entry));
+    await this.logger.info('queue', 'Updated platform status', { id, platform, status: status.status });
+    
+    return entry;
+  }
+
+  async getQueueGroupedByPlatformAndChannel(): Promise<GroupedQueueData> {
+    const videos = await this.getAllVideos();
+    const grouped: GroupedQueueData = {};
+
+    for (const video of videos) {
+      for (const platform of video.platforms) {
+        if (!grouped[platform]) {
+          grouped[platform] = {};
+        }
+        if (!grouped[platform][video.channelId]) {
+          grouped[platform][video.channelId] = [];
+        }
+        grouped[platform][video.channelId].push(video);
+      }
+    }
+
+    return grouped;
+  }
+
+  async retryPlatformUpload(id: string, platform: Platform): Promise<VideoQueueEntry | null> {
+    const entry = await this.getEntry(id);
+    if (!entry) {
+      await this.logger.error('queue', 'Entry not found for retry', { id, platform });
+      return null;
+    }
+
+    if (!entry.platformStatuses[platform]) {
+      await this.logger.error('queue', 'Platform not found in entry', { id, platform });
+      return null;
+    }
+
+    entry.platformStatuses[platform] = { status: 'pending' };
+    entry.updatedAt = new Date().toISOString();
+
+    await this.kv.put(id, JSON.stringify(entry));
+    await this.logger.info('queue', 'Marked platform for retry', { id, platform });
+    
+    return entry;
   }
 }
