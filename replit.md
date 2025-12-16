@@ -75,6 +75,13 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
   - Added `getAllVideos()` method to QueueManager
   - Updated `handleGetStats()` to return `stats` object with `completed` field (mapped from `uploaded`)
   - Added `videos` array to stats response for queue display
+- 2024-12-16: Enhanced Queue Management system:
+  - Added 17 new i18n translation keys for queue section (both Uzbek and Turkmen)
+  - Scheduled time display for videos (scheduledAt)
+  - Enhanced error display with error reason, error code, and retry button
+  - Analytics section with views, likes, comments, shares, and revenue
+  - Clear messaging when analytics/revenue not supported by platform API
+  - Fixed JavaScript null reference error in updateQueueUI function
 
 ## Internationalization (i18n)
 The frontend supports multiple languages:
