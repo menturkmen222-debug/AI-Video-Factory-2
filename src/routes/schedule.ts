@@ -288,3 +288,272 @@ async function processVideo(
     return { id, platforms, status: 'failed', errors: { youtube: errorMessage } };
   }
 }
+
+export interface ImmediateRetryResult {
+  success: boolean;
+  videoId: string;
+  platform: Platform;
+  status: 'uploading' | 'completed' | 'failed';
+  error?: string;
+  errorCode?: string;
+  platformVideoId?: string;
+  platformUrl?: string;
+}
+
+export async function handleRetryImmediateUpload(
+  request: Request,
+  queueManager: QueueManager,
+  groqService: GroqService,
+  platformConfigs: PlatformConfigs,
+  logger: Logger,
+  env?: ChannelEnvVars
+): Promise<Response> {
+  try {
+    const body = await request.json() as { videoId?: string; platform?: string };
+    const { videoId, platform } = body;
+
+    if (!videoId || !platform) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Missing required fields: videoId and platform'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const validPlatforms: Platform[] = ['youtube', 'tiktok', 'instagram', 'facebook'];
+    if (!validPlatforms.includes(platform as Platform)) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: `Invalid platform. Must be one of: ${validPlatforms.join(', ')}`
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const entry = await queueManager.getEntry(videoId);
+    if (!entry) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Video not found in queue'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!entry.platformStatuses[platform as Platform]) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: `Platform ${platform} not found in video queue entry`
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    await logger.info('schedule', 'Starting immediate retry upload', { 
+      videoId, 
+      platform,
+      retryAttempt: (entry.retryCount || 0) + 1
+    });
+
+    await queueManager.updatePlatformStatus(videoId, platform as Platform, { status: 'uploading' });
+
+    const result = await performImmediateUpload(
+      entry,
+      platform as Platform,
+      queueManager,
+      groqService,
+      platformConfigs,
+      logger,
+      env
+    );
+
+    return new Response(JSON.stringify(result), {
+      status: result.success ? 200 : 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await logger.error('schedule', 'Immediate retry failed', { error: errorMessage });
+
+    return new Response(JSON.stringify({
+      success: false,
+      error: errorMessage
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function performImmediateUpload(
+  video: VideoQueueEntry,
+  platform: Platform,
+  queueManager: QueueManager,
+  groqService: GroqService,
+  platformConfigs: PlatformConfigs,
+  logger: Logger,
+  env?: ChannelEnvVars
+): Promise<ImmediateRetryResult> {
+  const { id, channelId, cloudinaryUrl } = video;
+
+  try {
+    let channelCreds: ChannelPlatformConfigs = {};
+    if (env) {
+      channelCreds = getChannelCredentials(channelId, env);
+    }
+
+    const canUpload = await queueManager.canUpload(platform, channelId);
+    if (!canUpload) {
+      const error = 'Daily upload limit reached for this platform';
+      await queueManager.updatePlatformStatus(id, platform, {
+        status: 'failed',
+        error,
+        retryAttempt: new Date().toISOString()
+      });
+      await logger.warn('schedule', `Immediate retry failed - daily limit`, { id, platform, channelId });
+      return {
+        success: false,
+        videoId: id,
+        platform,
+        status: 'failed',
+        error
+      };
+    }
+
+    let metadata = video.metadata;
+    if (!metadata || !metadata.title) {
+      await logger.info('schedule', 'Generating AI metadata for retry', { id, channel: channelId });
+      metadata = await groqService.generateMetadata(video.videoContext, channelId);
+      await queueManager.updateEntry(id, { metadata });
+    }
+
+    let uploadResult: { success: boolean; error?: string; videoId?: string; url?: string; errorCode?: string };
+
+    await logger.info('schedule', `Starting immediate upload to ${platform}`, { id, channelId });
+
+    switch (platform) {
+      case 'youtube':
+        const ytConfig = channelCreds.youtube || platformConfigs.youtube;
+        if (ytConfig) {
+          const uploader = new YouTubeUploader(ytConfig, logger);
+          uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+        } else {
+          uploadResult = { success: false, error: 'YouTube not configured' };
+        }
+        break;
+      case 'tiktok':
+        const ttConfig = channelCreds.tiktok || platformConfigs.tiktok;
+        if (ttConfig) {
+          const uploader = new TikTokUploader(ttConfig, logger);
+          uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+        } else {
+          uploadResult = { success: false, error: 'TikTok not configured' };
+        }
+        break;
+      case 'instagram':
+        const igConfig = channelCreds.instagram || platformConfigs.instagram;
+        if (igConfig) {
+          const uploader = new InstagramUploader(igConfig, logger);
+          uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+        } else {
+          uploadResult = { success: false, error: 'Instagram not configured' };
+        }
+        break;
+      case 'facebook':
+        const fbConfig = channelCreds.facebook || platformConfigs.facebook;
+        if (fbConfig) {
+          const uploader = new FacebookUploader(fbConfig, logger);
+          uploadResult = await uploader.upload(cloudinaryUrl, metadata, channelId);
+        } else {
+          uploadResult = { success: false, error: 'Facebook not configured' };
+        }
+        break;
+      default:
+        uploadResult = { success: false, error: `Unsupported platform: ${platform}` };
+    }
+
+    if (uploadResult.success) {
+      await queueManager.incrementDailyCounter(platform, channelId);
+      await queueManager.updatePlatformStatus(id, platform, {
+        status: 'completed',
+        uploadedAt: new Date().toISOString(),
+        platformVideoId: uploadResult.videoId,
+        platformUrl: uploadResult.url
+      });
+      await logger.info('schedule', `Immediate retry upload to ${platform} successful`, { id, channelId });
+
+      const updatedEntry = await queueManager.getEntry(id);
+      if (updatedEntry) {
+        const allCompleted = Object.values(updatedEntry.platformStatuses).every(
+          s => s.status === 'completed' || s.status === 'skipped'
+        );
+        if (allCompleted) {
+          await queueManager.updateEntry(id, { status: 'uploaded' });
+        }
+      }
+
+      return {
+        success: true,
+        videoId: id,
+        platform,
+        status: 'completed',
+        platformVideoId: uploadResult.videoId,
+        platformUrl: uploadResult.url
+      };
+    } else {
+      await queueManager.updatePlatformStatus(id, platform, {
+        status: 'failed',
+        error: uploadResult.error || 'Unknown error',
+        errorCode: uploadResult.errorCode,
+        retryAttempt: new Date().toISOString()
+      });
+      await queueManager.updateEntry(id, { 
+        retryCount: (video.retryCount || 0) + 1 
+      });
+      await logger.error('schedule', `Immediate retry upload to ${platform} failed`, { 
+        id, 
+        channelId, 
+        error: uploadResult.error,
+        retryCount: (video.retryCount || 0) + 1
+      });
+
+      return {
+        success: false,
+        videoId: id,
+        platform,
+        status: 'failed',
+        error: uploadResult.error,
+        errorCode: uploadResult.errorCode
+      };
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Unexpected error';
+    await queueManager.updatePlatformStatus(id, platform, {
+      status: 'failed',
+      error: errorMessage,
+      retryAttempt: new Date().toISOString()
+    });
+    await queueManager.updateEntry(id, { 
+      retryCount: (video.retryCount || 0) + 1 
+    });
+    await logger.error('schedule', `Immediate retry exception for ${platform}`, { 
+      id, 
+      channelId, 
+      error: errorMessage,
+      retryCount: (video.retryCount || 0) + 1
+    });
+
+    return {
+      success: false,
+      videoId: id,
+      platform,
+      status: 'failed',
+      error: errorMessage
+    };
+  }
+}

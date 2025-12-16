@@ -4,7 +4,7 @@ import { LogsManager } from './db/logs';
 import { CloudinaryService, CloudinaryConfig } from './services/cloudinary';
 import { GroqService, GroqConfig } from './services/groq';
 import { handleUpload } from './routes/upload';
-import { handleSchedule, PlatformConfigs } from './routes/schedule';
+import { handleSchedule, handleRetryImmediateUpload, PlatformConfigs } from './routes/schedule';
 import { handleGetLogs, handleGetLogsPaginated, handleClearLogs, handleClearQueue, handleGetStats, handleGetQueueGrouped, handleRetryPlatformUpload } from './routes/stats';
 import { handleFrontend, isFrontendPath } from './routes/frontend';
 
@@ -175,6 +175,17 @@ export default {
 
         case path === '/api/queue/retry' && method === 'POST':
           response = await handleRetryPlatformUpload(request, queueManager, logger);
+          break;
+
+        case path === '/api/queue/retry-immediate' && method === 'POST':
+          response = await handleRetryImmediateUpload(
+            request,
+            queueManager,
+            groqService,
+            getPlatformConfigs(env),
+            logger,
+            env as any
+          );
           break;
 
         case path === '/health' && method === 'GET':

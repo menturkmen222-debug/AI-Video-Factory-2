@@ -12,6 +12,7 @@ export interface PlatformUploadStatus {
   uploadedAt?: string;
   platformVideoId?: string;
   platformUrl?: string;
+  retryAttempt?: string;
   analytics?: {
     views?: number;
     likes?: number;

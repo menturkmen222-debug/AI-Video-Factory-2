@@ -3044,6 +3044,10 @@ const apiJsContent = `class API {
         return this.post('/api/queue/retry', { videoId, platform });
     }
 
+    async retryPlatformUploadImmediate(videoId, platform) {
+        return this.post('/api/queue/retry-immediate', { videoId, platform });
+    }
+
     async getLogsPaginated(cursor = null, level = null, source = null, startDate = null, endDate = null) {
         const params = new URLSearchParams();
         params.append('limit', '100');
@@ -3575,7 +3579,7 @@ const appJsContent = `class App {
         let retryBtn = '';
         if (statusData.status === 'failed') {
             retryBtn = \`
-                <button class="btn-retry" onclick="app.handleRetryUpload('\${videoId}', '\${platform}')">
+                <button class="btn-retry" data-retry-video="\${videoId}" data-retry-platform="\${platform}" onclick="app.handleRetryUpload('\${videoId}', '\${platform}')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="23 4 23 10 17 10"></polyline>
                         <path d="M20.49 15C19.9828 16.4332 19.1209 17.7146 17.9845 18.7246C16.8482 19.7346 15.4745 20.4402 13.9917 20.7757C12.5089 21.1112 10.9652 21.0657 9.50481 20.6432C8.04437 20.2208 6.71475 19.4353 5.64 18.36L1 14"></path>
@@ -3688,14 +3692,35 @@ const appJsContent = `class App {
     }
 
     async handleRetryUpload(videoId, platform) {
+        const retryBtn = document.querySelector(\`[data-retry-video="\${videoId}"][data-retry-platform="\${platform}"]\`);
+        
+        if (retryBtn) {
+            retryBtn.disabled = true;
+            retryBtn.classList.add('loading');
+            retryBtn.innerHTML = \`
+                <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+                Uploading...
+            \`;
+        }
+
         try {
-            this.showToast('info', 'Retrying', \`Retrying \${platform} upload...\`);
-            await api.retryPlatformUpload(videoId, platform);
-            this.showToast('success', 'Retry Scheduled', \`\${platform} upload has been scheduled for retry.\`);
-            this.loadQueueGrouped();
+            this.showToast('info', 'Uploading', \`Starting \${platform} upload immediately...\`);
+            
+            const result = await api.retryPlatformUploadImmediate(videoId, platform);
+            
+            if (result.success) {
+                this.showToast('success', 'Upload Complete', \`\${platform} upload completed successfully!\`);
+            } else {
+                this.showToast('error', 'Upload Failed', result.error || \`\${platform} upload failed.\`);
+            }
+            
+            await this.loadQueueGrouped();
         } catch (error) {
             console.error('Retry failed:', error);
             this.showToast('error', 'Retry Failed', error.message || 'Could not retry upload.');
+            await this.loadQueueGrouped();
         }
     }
 
