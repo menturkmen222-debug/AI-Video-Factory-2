@@ -2547,6 +2547,139 @@ textarea.form-input {
     .analytics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+.scheduled-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.error-details {
+    background: var(--error-50);
+    border: 1px solid var(--error-500);
+    border-radius: var(--border-radius-sm);
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.error-details .error-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--error-600);
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+}
+
+.error-details .error-header svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--error-500);
+}
+
+.error-details .error-message {
+    color: var(--error-600);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.error-details .error-code {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(239, 68, 68, 0.2);
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    font-family: monospace;
+}
+
+.error-details .error-code-label {
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.target-channel-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--gray-50);
+    border-radius: var(--border-radius-sm);
+    margin-top: 8px;
+    font-size: 0.875rem;
+}
+
+.target-channel-info .target-label {
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+.target-channel-info .target-value {
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
+.btn-retry {
+    transition: all var(--transition-fast);
+}
+
+.btn-retry:hover {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.platform-link {
+    transition: all var(--transition-fast);
+}
+
+.platform-link:hover {
+    background: var(--gray-100);
+    transform: translateY(-1px);
+}
+
+.platform-status-card {
+    transition: all var(--transition-fast);
+}
+
+.platform-status-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.analytics-card {
+    transition: all var(--transition-fast);
+}
+
+.analytics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.revenue-unavailable {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.revenue-card {
+    background: linear-gradient(135deg, var(--success-50), var(--primary-50));
+    border: 1px solid var(--success-500);
+}
+
+.video-queue-item {
+    transition: all var(--transition-fast);
+}
+
+.video-queue-item:hover {
+    box-shadow: var(--shadow-md);
 }`;
 
 const apiJsContent = `class API {
@@ -2973,35 +3106,14 @@ const appJsContent = `class App {
     }
 
     updateQueueUI(data) {
-        const queueList = document.getElementById('queueList');
-        const queueEmpty = document.getElementById('queueEmpty');
+        // Queue is now managed by loadQueueGrouped - this function only updates notification badge
         const videos = data.videos || [];
-
-        if (videos.length === 0) {
-            queueList.innerHTML = '';
-            queueEmpty.hidden = false;
-            return;
+        const failedCount = videos.filter(v => v.status === 'failed').length;
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            badge.textContent = failedCount > 0 ? failedCount.toString() : '0';
+            badge.setAttribute('data-count', failedCount.toString());
         }
-
-        queueEmpty.hidden = true;
-        queueList.innerHTML = videos.map(video => {
-            const statusKey = video.status || 'pending';
-            const statusText = i18n.t(\`queue.\${statusKey}\`) || statusKey;
-            return \`
-            <div class="queue-item">
-                <div class="queue-thumbnail">
-                    <video src="\${video.videoUrl || ''}" muted></video>
-                </div>
-                <div class="queue-info">
-                    <div class="queue-title">\${this.escapeHtml(video.channelId || video.id || i18n.t('queue.untitled'))}</div>
-                    <div class="queue-meta">
-                        \${video.platforms ? video.platforms.join(', ') : i18n.t('queue.allPlatforms')} 
-                        \${video.createdAt ? '• ' + this.formatDate(video.createdAt) : ''}
-                    </div>
-                </div>
-                <span class="queue-status \${statusKey}">\${statusText}</span>
-            </div>
-        \`;}).join('');
     }
 
     async loadQueueGrouped() {
@@ -3104,6 +3216,11 @@ const appJsContent = `class App {
         const status = platformStatus ? platformStatus.status : 'pending';
         const statusInfo = this.formatPlatformStatus(status);
 
+        let scheduledTimeHtml = '';
+        if (video.scheduledAt) {
+            scheduledTimeHtml = \`<div class="scheduled-time">\${i18n.t('queue.scheduledFor')}: \${this.formatDate(video.scheduledAt)}</div>\`;
+        }
+
         return \`
             <div class="video-queue-item" data-video-id="\${video.id}">
                 <div class="video-queue-row" onclick="app.toggleVideoDetails('\${video.id}')">
@@ -3113,6 +3230,7 @@ const appJsContent = `class App {
                     <div class="video-info">
                         <div class="video-title">\${this.escapeHtml(video.metadata?.title || video.id)}</div>
                         <div class="video-meta">\${video.createdAt ? this.formatDate(video.createdAt) : ''}</div>
+                        \${scheduledTimeHtml}
                     </div>
                     <div class="video-status-badges">
                         <span class="status-badge \${statusInfo.className}">
@@ -3153,12 +3271,30 @@ const appJsContent = `class App {
         const statusData = status || { status: 'pending' };
         const statusInfo = this.formatPlatformStatus(statusData.status);
 
+        let targetChannelHtml = '';
+        if (statusData.channelId) {
+            targetChannelHtml = \`
+                <div class="target-channel-info">
+                    <span class="target-label">\${i18n.t('queue.targetChannel')}:</span>
+                    <span class="target-value">\${this.escapeHtml(statusData.channelId)}</span>
+                </div>
+            \`;
+        }
+
         let errorHtml = '';
         if (statusData.status === 'failed' && statusData.error) {
             errorHtml = \`
                 <div class="error-details">
+                    <div class="error-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                        <span>\${i18n.t('queue.errorReason')}</span>
+                    </div>
                     <div class="error-message">\${this.escapeHtml(statusData.error)}</div>
-                    \${statusData.errorCode ? \`<div class="error-code">Code: \${this.escapeHtml(statusData.errorCode)}</div>\` : ''}
+                    \${statusData.errorCode ? \`<div class="error-code"><span class="error-code-label">\${i18n.t('queue.errorCode')}:</span> \${this.escapeHtml(statusData.errorCode)}</div>\` : ''}
                 </div>
             \`;
         }
@@ -3171,13 +3307,14 @@ const appJsContent = `class App {
                         <polyline points="23 4 23 10 17 10"></polyline>
                         <path d="M20.49 15C19.9828 16.4332 19.1209 17.7146 17.9845 18.7246C16.8482 19.7346 15.4745 20.4402 13.9917 20.7757C12.5089 21.1112 10.9652 21.0657 9.50481 20.6432C8.04437 20.2208 6.71475 19.4353 5.64 18.36L1 14"></path>
                     </svg>
-                    Retry
+                    \${i18n.t('queue.retryUpload')}
                 </button>
             \`;
         }
 
         let linkHtml = '';
         if (statusData.platformUrl) {
+            const viewOnText = i18n.t('queue.viewOnPlatform').replace('{platform}', platformName);
             linkHtml = \`
                 <a href="\${statusData.platformUrl}" target="_blank" class="platform-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3185,7 +3322,7 @@ const appJsContent = `class App {
                         <polyline points="15 3 21 3 21 9"></polyline>
                         <line x1="10" y1="14" x2="21" y2="3"></line>
                     </svg>
-                    View on \${platformName}
+                    \${viewOnText}
                 </a>
             \`;
         }
@@ -3204,6 +3341,7 @@ const appJsContent = `class App {
                         \${statusInfo.text}
                     </span>
                 </div>
+                \${targetChannelHtml}
                 \${errorHtml}
                 \${retryBtn}
                 \${linkHtml}
@@ -3216,46 +3354,46 @@ const appJsContent = `class App {
         if (!analytics) {
             return \`
                 <div class="analytics-section">
-                    <div class="analytics-title">Analytics</div>
-                    <div class="analytics-unavailable">Analytics not available from platform API</div>
+                    <div class="analytics-title">\${i18n.t('queue.analytics')}</div>
+                    <div class="analytics-unavailable">\${i18n.t('queue.analyticsNotAvailable')}</div>
                 </div>
             \`;
         }
 
         let revenueHtml = '';
         if (analytics.revenue === null || analytics.revenue === undefined) {
-            revenueHtml = \`<div class="analytics-unavailable" style="margin-top: 0.5rem; font-size: 0.75rem;">Revenue data not supported by platform API</div>\`;
+            revenueHtml = \`<div class="analytics-unavailable revenue-unavailable">\${i18n.t('queue.revenueNotSupported')}</div>\`;
         } else {
             revenueHtml = \`
-                <div class="analytics-card">
+                <div class="analytics-card revenue-card">
                     <div class="analytics-value">$\${(analytics.revenue || 0).toFixed(2)}</div>
-                    <div class="analytics-label">Revenue</div>
+                    <div class="analytics-label">\${i18n.t('queue.revenue')}</div>
                 </div>
             \`;
         }
 
         return \`
             <div class="analytics-section">
-                <div class="analytics-title">Analytics</div>
+                <div class="analytics-title">\${i18n.t('queue.analytics')}</div>
                 <div class="analytics-grid">
                     <div class="analytics-card">
                         <div class="analytics-value">\${this.formatNumber(analytics.views || 0)}</div>
-                        <div class="analytics-label">Views</div>
+                        <div class="analytics-label">\${i18n.t('queue.views')}</div>
                     </div>
                     <div class="analytics-card">
                         <div class="analytics-value">\${this.formatNumber(analytics.likes || 0)}</div>
-                        <div class="analytics-label">Likes</div>
+                        <div class="analytics-label">\${i18n.t('queue.likes')}</div>
                     </div>
                     <div class="analytics-card">
                         <div class="analytics-value">\${this.formatNumber(analytics.comments || 0)}</div>
-                        <div class="analytics-label">Comments</div>
+                        <div class="analytics-label">\${i18n.t('queue.comments')}</div>
                     </div>
                     <div class="analytics-card">
                         <div class="analytics-value">\${this.formatNumber(analytics.shares || 0)}</div>
-                        <div class="analytics-label">Shares</div>
+                        <div class="analytics-label">\${i18n.t('queue.shares')}</div>
                     </div>
                 </div>
-                \${analytics.revenue !== null && analytics.revenue !== undefined ? revenueHtml : '<div class="analytics-unavailable" style="margin-top: 0.5rem; font-size: 0.75rem;">Revenue data not supported by platform API</div>'}
+                \${revenueHtml}
             </div>
         \`;
     }
@@ -3929,7 +4067,25 @@ const uzTranslations = `{
     "completed": "Bajarilgan",
     "failed": "Muvaffaqiyatsiz",
     "untitled": "Nomsiz",
-    "allPlatforms": "Barcha platformalar"
+    "allPlatforms": "Barcha platformalar",
+    "scheduledFor": "Scheduled for",
+    "uploading": "Uploading",
+    "skipped": "Skipped",
+    "retryUpload": "Retry Upload",
+    "errorReason": "Error Reason",
+    "errorCode": "Error Code",
+    "analytics": "Analytics",
+    "views": "Views",
+    "likes": "Likes",
+    "comments": "Comments",
+    "shares": "Shares",
+    "revenue": "Revenue",
+    "revenueNotSupported": "Revenue data not supported by platform API",
+    "analyticsNotAvailable": "Analytics not yet available from platform API",
+    "viewOnPlatform": "View on {platform}",
+    "channel": "Channel",
+    "targetPlatform": "Target Platform",
+    "targetChannel": "Target Channel"
   },
   "logs": {
     "title": "Tizim jurnallari",
@@ -4084,7 +4240,25 @@ const tkTranslations = `{
     "completed": "Tamamlandy",
     "failed": "Şowsuz",
     "untitled": "Atsyz",
-    "allPlatforms": "Ähli platformalar"
+    "allPlatforms": "Ähli platformalar",
+    "scheduledFor": "Meýilleşdirilen wagt",
+    "uploading": "Ýüklenýär",
+    "skipped": "Geçildi",
+    "retryUpload": "Täzeden ýüklemek",
+    "errorReason": "Ýalňyşlyk sebäbi",
+    "errorCode": "Ýalňyşlyk kody",
+    "analytics": "Analitika",
+    "views": "Görmeler",
+    "likes": "Halanlar",
+    "comments": "Teswirler",
+    "shares": "Paýlaşmalar",
+    "revenue": "Girdeji",
+    "revenueNotSupported": "Girdeji maglumatlary platforma API tarapyndan goldanmaýar",
+    "analyticsNotAvailable": "Analitika platformadan heniz elýeter däl",
+    "viewOnPlatform": "{platform}-da görmek",
+    "channel": "Kanal",
+    "targetPlatform": "Maksat platforma",
+    "targetChannel": "Maksat kanal"
   },
   "logs": {
     "title": "Ulgam ýazgylary",
