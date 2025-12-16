@@ -1624,9 +1624,16 @@ textarea.form-input {
 
 .log-source {
     color: var(--primary-600);
-    margin-right: 16px;
+    margin-right: 8px;
     flex-shrink: 0;
-    min-width: 100px;
+    min-width: 80px;
+}
+
+.log-step {
+    color: var(--gray-500);
+    margin-right: 12px;
+    flex-shrink: 0;
+    font-size: 0.8125rem;
 }
 
 .log-message {
@@ -1752,18 +1759,41 @@ textarea.form-input {
 
 .logs-load-more {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
     padding: 16px 24px;
     border-top: 1px solid var(--gray-100);
+    gap: 8px;
 }
 
 .logs-load-more .btn {
-    min-width: 180px;
+    min-width: 220px;
+    transition: all var(--transition-fast);
 }
 
 .logs-load-more .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.logs-load-more .btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.logs-load-more .btn.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.logs-count-info {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
 }
 
 .logs-loading {
@@ -3733,13 +3763,21 @@ const appJsContent = `class App {
         const logsError = document.getElementById('logsError');
         const loadMoreContainer = document.getElementById('logsLoadMore');
         const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
+        const loadMoreBtnText = loadMoreBtn.querySelector('span');
         
-        if (this.logs.length === 0) {
+        const isInitialLoad = this.logs.length === 0;
+        
+        if (isInitialLoad) {
             container.innerHTML = '';
             logsLoading.hidden = false;
+        } else {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.classList.add('loading');
+            if (loadMoreBtnText) {
+                loadMoreBtnText.textContent = i18n.t('logs.loading') || 'Loading...';
+            }
         }
         logsError.hidden = true;
-        loadMoreBtn.disabled = true;
 
         try {
             const data = await api.getLogsPaginated(
@@ -3751,6 +3789,7 @@ const appJsContent = `class App {
             );
             
             const newLogs = data.logs || [];
+            const loadedCount = newLogs.length;
             
             if (this.logsCursor === null) {
                 this.logs = newLogs;
@@ -3761,10 +3800,13 @@ const appJsContent = `class App {
             }
             
             this.logsCursor = data.nextCursor || null;
-            this.logsHasMore = data.hasMore !== false && !!data.nextCursor;
+            this.logsHasMore = !!data.nextCursor;
             
             this.updateLogsUI();
-            this.updateRecentActivity();
+            
+            if (this.currentSection === 'dashboard' || isInitialLoad) {
+                this.updateRecentActivity();
+            }
         } catch (error) {
             console.error('Failed to load logs:', error);
             this.logsError = error.message || 'Failed to load logs';
@@ -3774,6 +3816,10 @@ const appJsContent = `class App {
             this.logsIsLoading = false;
             logsLoading.hidden = true;
             loadMoreBtn.disabled = false;
+            loadMoreBtn.classList.remove('loading');
+            if (loadMoreBtnText) {
+                loadMoreBtnText.textContent = i18n.t('logs.loadMore') || 'Load More';
+            }
         }
     }
 
@@ -3787,6 +3833,12 @@ const appJsContent = `class App {
         this.logsCursor = null;
         this.logsHasMore = true;
         this.logsError = null;
+        
+        const logsLoading = document.getElementById('logsLoading');
+        const loadMoreContainer = document.getElementById('logsLoadMore');
+        logsLoading.hidden = false;
+        loadMoreContainer.hidden = true;
+        
         this.loadLogs();
     }
 
@@ -3794,6 +3846,7 @@ const appJsContent = `class App {
         const container = document.getElementById('logsContainer');
         const logsEmpty = document.getElementById('logsEmpty');
         const loadMoreContainer = document.getElementById('logsLoadMore');
+        const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
         const logsError = document.getElementById('logsError');
 
         logsError.hidden = true;
@@ -3807,6 +3860,13 @@ const appJsContent = `class App {
 
         logsEmpty.hidden = true;
         loadMoreContainer.hidden = !this.logsHasMore;
+        
+        const loadMoreBtnText = loadMoreBtn.querySelector('span');
+        if (loadMoreBtnText && this.logsHasMore) {
+            const loadMoreText = i18n.t('logs.loadMore') || 'Load More';
+            loadMoreBtnText.textContent = \`\${loadMoreText} (\${this.logs.length} \${i18n.t('logs.loaded') || 'loaded'})\`;
+        }
+        
         this.filterLogs();
     }
 
@@ -3849,42 +3909,43 @@ const appJsContent = `class App {
     }
 
     renderLogEntry(log, index) {
-        const hasDetails = log.data || log.stackTrace || log.error;
+        const stackTrace = log.stack || log.stackTrace;
+        const hasData = log.data && Object.keys(log.data).length > 0;
+        const hasDetails = hasData || stackTrace;
         const entryClass = hasDetails ? 'log-entry log-entry-expandable' : 'log-entry';
+        const logId = log.id || \`log-\${index}\`;
         
         let detailsHtml = '';
         if (hasDetails) {
             detailsHtml = \`
-                <div class="log-details">
+                <div class="log-details" id="details-\${logId}">
                     <div class="log-details-content">
-                        \${log.error ? \`
-                            <div class="log-details-row">
-                                <span class="log-details-label">\${i18n.t('logs.errorDetails')}:</span>
-                                <span class="log-details-value">\${this.escapeHtml(log.error)}</span>
-                            </div>
-                        \` : ''}
-                        \${log.data ? \`
+                        \${hasData ? \`
                             <div class="log-details-row">
                                 <span class="log-details-label">\${i18n.t('logs.data')}:</span>
                             </div>
                             <pre class="log-full-data">\${this.escapeHtml(JSON.stringify(log.data, null, 2))}</pre>
                         \` : ''}
-                        \${log.stackTrace ? \`
+                        \${stackTrace ? \`
                             <div class="log-details-row">
                                 <span class="log-details-label">\${i18n.t('logs.stackTrace')}:</span>
                             </div>
-                            <pre class="log-stack-trace">\${this.escapeHtml(log.stackTrace)}</pre>
+                            <pre class="log-stack-trace">\${this.escapeHtml(stackTrace)}</pre>
                         \` : ''}
                     </div>
                 </div>
             \`;
         }
 
+        const levelClass = log.level || 'info';
+        const levelText = log.level ? log.level.toUpperCase() : 'INFO';
+
         return \`
-            <div class="\${entryClass}" data-log-index="\${index}">
+            <div class="\${entryClass}" data-log-index="\${index}" data-log-id="\${logId}">
                 <span class="log-timestamp">\${this.formatDate(log.timestamp)}</span>
-                <span class="log-level \${log.level || 'info'}">\${log.level ? log.level.toUpperCase() : i18n.t('logs.infoLevel')}</span>
-                <span class="log-source">[\${this.escapeHtml(log.source || i18n.t('logs.system'))}]</span>
+                <span class="log-level \${levelClass}">\${levelText}</span>
+                <span class="log-source">[\${this.escapeHtml(log.source || 'system')}]</span>
+                <span class="log-step">[\${this.escapeHtml(log.step || '')}]</span>
                 <span class="log-message">\${this.escapeHtml(log.message || '')}</span>
                 \${hasDetails ? \`
                     <svg class="log-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4459,7 +4520,20 @@ const uzTranslations = `{
     "noLogs": "Jurnallar mavjud emas",
     "noMatch": "Filtrlaringizga mos jurnallar yo'q",
     "system": "tizim",
-    "infoLevel": "MA'LUMOT"
+    "infoLevel": "MA'LUMOT",
+    "loadMore": "Ko'proq yuklash",
+    "loading": "Yuklanmoqda...",
+    "loaded": "yuklandi",
+    "retry": "Qayta urinish",
+    "errorLoading": "Jurnallarni yuklashda xato",
+    "allSources": "Barcha manbalar",
+    "sourceSystem": "Tizim",
+    "sourcePlatform": "Platforma",
+    "sourceService": "Xizmat",
+    "data": "Ma'lumotlar",
+    "stackTrace": "Xato tafsilotlari",
+    "startDate": "Boshlanish sanasi",
+    "endDate": "Tugash sanasi"
   },
   "settings": {
     "title": "Sozlamalar",
@@ -4632,7 +4706,20 @@ const tkTranslations = `{
     "noLogs": "Ýazgylar ýok",
     "noMatch": "Süzgüçleriňize gabat gelýän ýazgylar ýok",
     "system": "ulgam",
-    "infoLevel": "MAGLUMAT"
+    "infoLevel": "MAGLUMAT",
+    "loadMore": "Köpräk ýüklemek",
+    "loading": "Ýüklenýär...",
+    "loaded": "ýüklendi",
+    "retry": "Täzeden synanyşmak",
+    "errorLoading": "Ýazgylary ýüklemekde ýalňyşlyk",
+    "allSources": "Ähli çeşmeler",
+    "sourceSystem": "Ulgam",
+    "sourcePlatform": "Platforma",
+    "sourceService": "Hyzmat",
+    "data": "Maglumatlar",
+    "stackTrace": "Ýalňyşlyk jikme-jiklikleri",
+    "startDate": "Başlangyç senesi",
+    "endDate": "Gutaryş senesi"
   },
   "settings": {
     "title": "Sazlamalar",

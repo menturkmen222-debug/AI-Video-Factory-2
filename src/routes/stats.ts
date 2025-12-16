@@ -57,6 +57,7 @@ export async function handleGetLogsPaginated(
     const source = url.searchParams.get('source');
     const startDate = url.searchParams.get('startDate');
     const endDate = url.searchParams.get('endDate');
+    const search = url.searchParams.get('search');
 
     const filters: LogFilters = {};
     
@@ -80,6 +81,10 @@ export async function handleGetLogsPaginated(
       if (!isNaN(parsedEnd.getTime())) {
         filters.endDate = parsedEnd.toISOString();
       }
+    }
+    
+    if (search && search.trim()) {
+      filters.search = search.trim();
     }
 
     const result = await logsManager.getPaginatedLogs(cursor, limit, filters);

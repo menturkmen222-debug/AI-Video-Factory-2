@@ -12,6 +12,7 @@ export interface LogFilters {
   source?: string;
   startDate?: string;
   endDate?: string;
+  search?: string;
 }
 
 export class LogsManager {
@@ -56,78 +57,83 @@ export class LogsManager {
     filters: LogFilters = {}
   ): Promise<PaginatedLogsResult> {
     try {
-      const PAGE_SIZE = 100;
-      const matchedLogs: LogEntry[] = [];
-      let currentCursor = cursor;
-      let hasMoreKeys = true;
-      let iterations = 0;
-      const MAX_ITERATIONS = 50;
-
-      while (matchedLogs.length < limit && hasMoreKeys && iterations < MAX_ITERATIONS) {
-        iterations++;
-        
+      const BATCH_LIMIT = 100;
+      const effectiveLimit = Math.min(limit, BATCH_LIMIT);
+      
+      const allKeys: { name: string }[] = [];
+      let kvCursor: string | undefined = undefined;
+      let listComplete = false;
+      
+      while (!listComplete) {
         const listOptions: KVNamespaceListOptions = {
           prefix: 'log:',
-          limit: PAGE_SIZE * 2
+          limit: 1000
         };
         
-        if (currentCursor) {
-          listOptions.cursor = currentCursor;
+        if (kvCursor) {
+          listOptions.cursor = kvCursor;
         }
-
-        const listResult = await this.logsKV.list(listOptions);
         
-        if (listResult.keys.length === 0) {
-          hasMoreKeys = false;
-          break;
-        }
-
-        const sortedKeys = [...listResult.keys].sort((a, b) => {
-          return b.name.localeCompare(a.name);
-        });
-
-        for (const key of sortedKeys) {
-          if (matchedLogs.length >= limit) break;
-
-          const value = await this.logsKV.get(key.name);
-          if (!value) continue;
-
-          try {
-            const log: LogEntry = JSON.parse(value);
-            
-            if (!log.source && log.step) {
-              log.source = this.inferSource(log.step);
-            }
-            if (!log.id) {
-              log.id = key.name.split(':').pop() || key.name;
-            }
-
-            if (this.matchesFilters(log, filters)) {
-              matchedLogs.push(log);
-            }
-          } catch (e) {
-            console.error('Failed to parse log entry:', e);
-          }
-        }
-
+        const listResult = await this.logsKV.list(listOptions);
+        allKeys.push(...listResult.keys);
+        
         if (listResult.list_complete) {
-          hasMoreKeys = false;
-          currentCursor = null;
+          listComplete = true;
         } else {
-          currentCursor = listResult.cursor || null;
-          hasMoreKeys = true;
+          kvCursor = listResult.cursor;
         }
       }
-
+      
+      allKeys.sort((a, b) => b.name.localeCompare(a.name));
+      
+      let startIndex = 0;
+      if (cursor) {
+        const cursorIndex = allKeys.findIndex(k => k.name === cursor);
+        if (cursorIndex !== -1) {
+          startIndex = cursorIndex + 1;
+        }
+      }
+      
+      const matchedLogs: LogEntry[] = [];
+      let lastProcessedKey: string | null = null;
+      
+      for (let i = startIndex; i < allKeys.length && matchedLogs.length < effectiveLimit; i++) {
+        const key = allKeys[i];
+        lastProcessedKey = key.name;
+        
+        const value = await this.logsKV.get(key.name);
+        if (!value) continue;
+        
+        try {
+          const log: LogEntry = JSON.parse(value);
+          
+          if (!log.source && log.step) {
+            log.source = this.inferSource(log.step);
+          }
+          if (!log.id) {
+            log.id = key.name.split(':').pop() || key.name;
+          }
+          
+          if (this.matchesFilters(log, filters)) {
+            matchedLogs.push(log);
+          }
+        } catch (e) {
+          console.error('Failed to parse log entry:', e);
+        }
+      }
+      
+      const processedUpTo = lastProcessedKey ? allKeys.findIndex(k => k.name === lastProcessedKey) : -1;
+      const hasMoreKeys = processedUpTo !== -1 && processedUpTo < allKeys.length - 1;
+      
+      const nextCursor = hasMoreKeys && lastProcessedKey ? lastProcessedKey : null;
+      
       matchedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-      const resultLogs = matchedLogs.slice(0, limit);
-
+      
       return {
-        logs: resultLogs,
-        nextCursor: hasMoreKeys ? currentCursor : null,
-        hasMore: hasMoreKeys || matchedLogs.length > limit,
-        totalInBatch: resultLogs.length
+        logs: matchedLogs,
+        nextCursor,
+        hasMore: !!nextCursor,
+        totalInBatch: matchedLogs.length
       };
     } catch (error) {
       console.error('Failed to get paginated logs:', error);
@@ -174,6 +180,19 @@ export class LogsManager {
       const logTime = new Date(log.timestamp).getTime();
       const endTime = new Date(filters.endDate).getTime();
       if (logTime > endTime) {
+        return false;
+      }
+    }
+
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      const message = (log.message || '').toLowerCase();
+      const stack = (log.stack || '').toLowerCase();
+      const step = (log.step || '').toLowerCase();
+      const messageMatch = message.includes(searchLower);
+      const stackMatch = stack.includes(searchLower);
+      const stepMatch = step.includes(searchLower);
+      if (!messageMatch && !stackMatch && !stepMatch) {
         return false;
       }
     }
