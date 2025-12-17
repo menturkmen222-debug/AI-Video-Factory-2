@@ -60,6 +60,21 @@ export interface DailyCounter {
 
 const DAILY_LIMIT = 50;
 
+// TTLni statusga qarab aniqlash
+function getTTLByStatus(status: VideoStatus): number | undefined {
+  const DAY = 86400; // 1 kun sekundlarda
+  switch (status) {
+    case 'uploaded':
+      return DAY * 3; // 3 kun
+    case 'failed':
+      return DAY * 5; // 5 kun
+    case 'skipped':
+      return DAY * 10; // 10 kun
+    default:
+      return undefined; // pending / processing -> cheksiz
+  }
+}
+
 export class QueueManager {
   private kv: KVNamespace;
   private logger: Logger;
@@ -113,7 +128,10 @@ export class QueueManager {
       updatedAt: new Date().toISOString()
     };
 
-    await this.kv.put(id, JSON.stringify(updatedEntry));
+    // Statusga qarab TTL belgilash
+    const ttl = updates.status ? getTTLByStatus(updates.status) : undefined;
+
+    await this.kv.put(id, JSON.stringify(updatedEntry), ttl ? { expirationTtl: ttl } : undefined);
     await this.logger.info('queue', 'Updated queue entry', { id, status: updatedEntry.status });
     
     return updatedEntry;
@@ -252,7 +270,10 @@ export class QueueManager {
     entry.platformStatuses[platform] = status;
     entry.updatedAt = new Date().toISOString();
 
-    await this.kv.put(id, JSON.stringify(entry));
+    // Statusga qarab TTL qo‘shish
+    const ttl = getTTLByStatus(status.status);
+    await this.kv.put(id, JSON.stringify(entry), ttl ? { expirationTtl: ttl } : undefined);
+
     await this.logger.info('queue', 'Updated platform status', { id, platform, status: status.status });
     
     return entry;
@@ -297,4 +318,4 @@ export class QueueManager {
     
     return entry;
   }
-}
+                                                 }
