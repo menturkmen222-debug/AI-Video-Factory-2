@@ -56,7 +56,8 @@ export class PromptsManager {
         prompts,
         lastGenerated: new Date().toISOString()
       };
-      await this.kv.put(PROMPTS_KEY, JSON.stringify(data));
+      // TTL 3 kun = 259200 sekund
+      await this.kv.put(PROMPTS_KEY, JSON.stringify(data), { expirationTtl: 259200 });
       await this.logger.info('prompts', 'Saved all prompts', { count: prompts.length });
     } catch (error) {
       await this.logger.error('prompts', 'Failed to save prompts', { error });
@@ -79,7 +80,9 @@ export class PromptsManager {
       updatedAt: new Date().toISOString()
     };
 
-    await this.saveAllPrompts(prompts);
+    // TTL bilan saqlash
+    await this.kv.put(PROMPTS_KEY, JSON.stringify({ prompts, lastGenerated: new Date().toISOString() }), { expirationTtl: 259200 });
+    await this.logger.info('prompts', 'Updated prompt', { id });
     return prompts[index];
   }
 
@@ -184,4 +187,4 @@ export class PromptsManager {
       promptCount: VIDEOS_PER_DAY_PER_CHANNEL
     }));
   }
-}
+  }
