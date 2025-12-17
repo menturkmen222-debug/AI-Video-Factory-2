@@ -14,6 +14,7 @@ const spaRoutes = [
   '/upload',
   '/queue',
   '/logs',
+  '/prompts',
   '/settings',
 ];
 

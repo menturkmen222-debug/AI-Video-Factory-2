@@ -64,6 +64,13 @@ const htmlContent = `<!DOCTYPE html>
                     </svg>
                     <span data-i18n="nav.logs">Jurnallar</span>
                 </a>
+                <a href="#" class="nav-item" data-section="prompts">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path>
+                        <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
+                    </svg>
+                    <span data-i18n="nav.prompts">Promptlar</span>
+                </a>
                 <a href="#" class="nav-item" data-section="settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"></circle>
@@ -549,6 +556,99 @@ const htmlContent = `<!DOCTYPE html>
                                 </svg>
                                 <h3 data-i18n="logs.noLogs">Jurnallar mavjud emas</h3>
                                 <p data-i18n="logs.noMatch">Filtrlaringizga mos jurnallar yo'q</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section" id="section-prompts">
+                    <div class="prompts-header">
+                        <div class="prompts-stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon pending">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="promptsTotal">-</span>
+                                    <span class="stat-label" data-i18n="prompts.totalPrompts">Jami promptlar</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon completed">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="promptsValidated">-</span>
+                                    <span class="stat-label" data-i18n="prompts.validated">Tasdiqlangan</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon processing">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="promptsNeedsImprovement">-</span>
+                                    <span class="stat-label" data-i18n="prompts.needsImprovement">Yaxshilash kerak</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon error">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="promptsErrors">-</span>
+                                    <span class="stat-label" data-i18n="prompts.errors">Xatolar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card prompts-card">
+                        <div class="card-header">
+                            <h2 data-i18n="prompts.title">Video Promptlari</h2>
+                            <div class="prompts-controls">
+                                <select id="promptsChannelFilter" class="form-select">
+                                    <option value="all" data-i18n="prompts.allChannels">Barcha kanallar</option>
+                                </select>
+                                <button class="btn btn-primary" id="validateAllPromptsBtn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    <span data-i18n="prompts.validateAll">Barchasini tasdiqlash</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="prompts-grid" id="promptsGrid">
+                                <div class="loading-placeholder">
+                                    <div class="spinner"></div>
+                                    <span data-i18n="prompts.loading">Promptlar yuklanmoqda...</span>
+                                </div>
+                            </div>
+                            <div class="prompts-loading" id="promptsLoading" hidden>
+                                <div class="spinner"></div>
+                                <span data-i18n="prompts.loading">Yuklanmoqda...</span>
+                            </div>
+                            <div class="prompts-empty" id="promptsEmpty" hidden>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path>
+                                    <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
+                                </svg>
+                                <h3 data-i18n="prompts.noPrompts">Promptlar mavjud emas</h3>
+                                <p data-i18n="prompts.noPromptsHint">Hozircha hech qanday prompt yo'q</p>
                             </div>
                         </div>
                     </div>
@@ -2905,6 +3005,311 @@ textarea.form-input {
 
 .video-queue-item:hover {
     box-shadow: var(--shadow-md);
+}
+
+.prompts-header {
+    margin-bottom: 24px;
+}
+
+.prompts-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+@media (max-width: 1024px) {
+    .prompts-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .prompts-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.prompts-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.prompts-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.prompts-controls .form-select {
+    min-width: 180px;
+}
+
+.prompts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 640px) {
+    .prompts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.prompt-card {
+    position: relative;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: all var(--transition-base);
+    border: 1px solid transparent;
+    background-image: linear-gradient(white, white), linear-gradient(135deg, var(--primary-200), var(--primary-400));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.prompt-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.prompt-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.prompt-channel-info {
+    flex: 1;
+}
+
+.prompt-channel-name {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 0.9375rem;
+    margin-bottom: 4px;
+}
+
+.prompt-topic {
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prompt-topic svg {
+    width: 14px;
+    height: 14px;
+}
+
+.prompt-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.prompt-status-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.prompt-status-badge.validated {
+    background: var(--success-50);
+    color: var(--success-600);
+}
+
+.prompt-status-badge.needs_improvement {
+    background: var(--warning-50);
+    color: var(--warning-600);
+}
+
+.prompt-status-badge.error {
+    background: var(--error-50);
+    color: var(--error-600);
+}
+
+.prompt-status-badge.pending {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.prompt-text {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-sm);
+    padding: 12px;
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin-bottom: 12px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.prompt-text-editable {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    padding: 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-sm);
+    transition: border-color var(--transition-fast);
+}
+
+.prompt-text-editable:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.prompt-suggestion {
+    background: linear-gradient(135deg, var(--info-50), var(--primary-50));
+    border-left: 3px solid var(--info-500);
+    padding: 10px 12px;
+    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+    margin-bottom: 12px;
+    font-size: 0.8125rem;
+    color: var(--gray-700);
+}
+
+.prompt-suggestion-label {
+    font-weight: 600;
+    color: var(--info-600);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prompt-suggestion-label svg {
+    width: 14px;
+    height: 14px;
+}
+
+.prompt-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--gray-100);
+}
+
+.prompt-actions .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.prompt-actions .btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-improve {
+    background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
+    color: white;
+    border: none;
+}
+
+.btn-improve:hover {
+    background: linear-gradient(135deg, var(--warning-600), var(--warning-600));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-improve:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-update {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+    border: none;
+}
+
+.btn-update:hover {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-update:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-validate {
+    background: linear-gradient(135deg, var(--success-500), var(--success-600));
+    color: white;
+    border: none;
+}
+
+.btn-validate:hover {
+    background: linear-gradient(135deg, var(--success-600), var(--success-600));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-validate:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.prompts-loading,
+.prompts-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    color: var(--gray-500);
+    text-align: center;
+}
+
+.prompts-empty svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    color: var(--gray-300);
+}
+
+.prompts-empty h3 {
+    margin-bottom: 8px;
+    color: var(--gray-700);
+}
+
+.prompt-card.editing .prompt-text {
+    display: none;
+}
+
+.prompt-card:not(.editing) .prompt-text-editable {
+    display: none;
 }`;
 
 const apiJsContent = `class API {
@@ -3058,6 +3463,34 @@ const apiJsContent = `class API {
         if (endDate) params.append('endDate', endDate);
         return this.get(\`/api/logs/paginated?\${params.toString()}\`);
     }
+
+    async getPrompts() {
+        return this.get('/api/prompts');
+    }
+
+    async getPromptsByChannel(channelId) {
+        return this.get(\`/api/prompts/channel?channelId=\${channelId}\`);
+    }
+
+    async validatePrompt(promptId) {
+        return this.post('/api/prompts/validate', { promptId });
+    }
+
+    async improvePrompt(promptId) {
+        return this.post('/api/prompts/improve', { promptId });
+    }
+
+    async updatePrompt(promptId, promptText) {
+        return this.post('/api/prompts/update', { promptId, promptText });
+    }
+
+    async validateAllPrompts() {
+        return this.post('/api/prompts/validate-all', {});
+    }
+
+    async getPromptsStats() {
+        return this.get('/api/prompts/stats');
+    }
 }
 
 class APIError extends Error {
@@ -3093,6 +3526,11 @@ const appJsContent = `class App {
             search: ''
         };
         
+        this.prompts = [];
+        this.promptsStats = null;
+        this.promptsChannelFilter = 'all';
+        this.promptsLoading = false;
+        
         this.init();
     }
 
@@ -3118,6 +3556,7 @@ const appJsContent = `class App {
             '/upload': 'upload',
             '/queue': 'queue',
             '/logs': 'logs',
+            '/prompts': 'prompts',
             '/settings': 'settings'
         };
         const section = routeMap[path] || 'dashboard';
@@ -3325,6 +3764,7 @@ const appJsContent = `class App {
             upload: 'upload.title',
             queue: 'queue.title',
             logs: 'logs.title',
+            prompts: 'prompts.title',
             settings: 'settings.title'
         };
 
@@ -3344,6 +3784,8 @@ const appJsContent = `class App {
             this.loadLogs();
         } else if (section === 'queue') {
             this.loadQueueGrouped();
+        } else if (section === 'prompts') {
+            this.loadPrompts();
         }
     }
 
@@ -4317,6 +4759,294 @@ const appJsContent = `class App {
         if (diff < 86400) return i18n.t('time.hoursAgo').replace('{n}', Math.floor(diff / 3600));
         return i18n.t('time.daysAgo').replace('{n}', Math.floor(diff / 86400));
     }
+
+    async loadPrompts() {
+        const promptsGrid = document.getElementById('promptsGrid');
+        const promptsLoading = document.getElementById('promptsLoading');
+        const promptsEmpty = document.getElementById('promptsEmpty');
+
+        promptsLoading.hidden = false;
+        promptsEmpty.hidden = true;
+        promptsGrid.innerHTML = '';
+        this.promptsLoading = true;
+
+        try {
+            const [promptsData, statsData] = await Promise.all([
+                api.getPrompts(),
+                api.getPromptsStats()
+            ]);
+
+            promptsLoading.hidden = true;
+            this.promptsLoading = false;
+
+            this.prompts = promptsData.prompts || [];
+            this.promptsStats = statsData.stats || null;
+
+            this.updatePromptsStatsUI();
+            this.populateChannelFilter();
+
+            if (this.prompts.length === 0) {
+                promptsEmpty.hidden = false;
+                return;
+            }
+
+            this.renderPrompts();
+            this.bindPromptsEvents();
+        } catch (error) {
+            console.error('Failed to load prompts:', error);
+            promptsLoading.hidden = true;
+            this.promptsLoading = false;
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.loadError'));
+        }
+    }
+
+    updatePromptsStatsUI() {
+        if (!this.promptsStats) return;
+
+        document.getElementById('promptsTotal').textContent = this.promptsStats.total || 0;
+        document.getElementById('promptsValidated').textContent = this.promptsStats.byStatus?.validated || 0;
+        document.getElementById('promptsNeedsImprovement').textContent = this.promptsStats.byStatus?.needsImprovement || 0;
+        document.getElementById('promptsErrors').textContent = this.promptsStats.byStatus?.error || 0;
+    }
+
+    populateChannelFilter() {
+        const filter = document.getElementById('promptsChannelFilter');
+        const channels = [...new Set(this.prompts.map(p => p.channelId))];
+        
+        filter.innerHTML = \`<option value="all">\${i18n.t('prompts.allChannels')}</option>\`;
+        channels.forEach(channelId => {
+            const prompt = this.prompts.find(p => p.channelId === channelId);
+            filter.innerHTML += \`<option value="\${channelId}">\${this.escapeHtml(prompt?.channelName || channelId)}</option>\`;
+        });
+
+        filter.addEventListener('change', (e) => {
+            this.promptsChannelFilter = e.target.value;
+            this.renderPrompts();
+            this.bindPromptsEvents();
+        });
+    }
+
+    renderPrompts() {
+        const promptsGrid = document.getElementById('promptsGrid');
+        const promptsEmpty = document.getElementById('promptsEmpty');
+
+        let filteredPrompts = this.prompts;
+        if (this.promptsChannelFilter !== 'all') {
+            filteredPrompts = this.prompts.filter(p => p.channelId === this.promptsChannelFilter);
+        }
+
+        if (filteredPrompts.length === 0) {
+            promptsGrid.innerHTML = '';
+            promptsEmpty.hidden = false;
+            return;
+        }
+
+        promptsEmpty.hidden = true;
+        promptsGrid.innerHTML = filteredPrompts.map(prompt => this.renderPromptCard(prompt)).join('');
+    }
+
+    renderPromptCard(prompt) {
+        const statusBadge = this.getPromptStatusBadge(prompt.validationStatus);
+        const suggestionHtml = prompt.aiSuggestion ? \`
+            <div class="prompt-suggestion">
+                <div class="prompt-suggestion-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    \${i18n.t('prompts.aiSuggestion')}
+                </div>
+                <div class="prompt-suggestion-text">\${this.escapeHtml(prompt.aiSuggestion)}</div>
+            </div>
+        \` : '';
+
+        return \`
+            <div class="prompt-card" data-prompt-id="\${prompt.id}">
+                <div class="prompt-card-header">
+                    <div class="prompt-channel-info">
+                        <div class="prompt-channel-name">\${this.escapeHtml(prompt.channelName)}</div>
+                        <div class="prompt-topic">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                            \${this.escapeHtml(prompt.channelTopic)}
+                        </div>
+                    </div>
+                    \${statusBadge}
+                </div>
+                <div class="prompt-text">\${this.escapeHtml(prompt.promptText)}</div>
+                <textarea class="prompt-text-editable" data-prompt-id="\${prompt.id}">\${this.escapeHtml(prompt.promptText)}</textarea>
+                \${suggestionHtml}
+                <div class="prompt-actions">
+                    <button class="btn btn-improve" data-action="improve" data-prompt-id="\${prompt.id}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                        </svg>
+                        <span>\${i18n.t('prompts.improve')}</span>
+                    </button>
+                    <button class="btn btn-update" data-action="edit" data-prompt-id="\${prompt.id}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path>
+                            <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
+                        </svg>
+                        <span>\${i18n.t('prompts.update')}</span>
+                    </button>
+                    <button class="btn btn-validate" data-action="validate" data-prompt-id="\${prompt.id}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>\${i18n.t('prompts.validate')}</span>
+                    </button>
+                </div>
+            </div>
+        \`;
+    }
+
+    getPromptStatusBadge(status) {
+        const icons = {
+            validated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+            needs_improvement: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            pending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'
+        };
+
+        const labels = {
+            validated: i18n.t('prompts.statusValidated'),
+            needs_improvement: i18n.t('prompts.statusNeedsImprovement'),
+            error: i18n.t('prompts.statusError'),
+            pending: i18n.t('prompts.statusPending')
+        };
+
+        const icon = icons[status] || icons.pending;
+        const label = labels[status] || labels.pending;
+
+        return \`<span class="prompt-status-badge \${status}">\${icon} \${label}</span>\`;
+    }
+
+    bindPromptsEvents() {
+        document.querySelectorAll('[data-action="improve"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleImprovePrompt(btn.dataset.promptId, btn));
+        });
+
+        document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleEditPrompt(btn.dataset.promptId, btn));
+        });
+
+        document.querySelectorAll('[data-action="validate"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleValidatePrompt(btn.dataset.promptId, btn));
+        });
+
+        document.querySelectorAll('[data-action="save"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleSavePrompt(btn.dataset.promptId, btn));
+        });
+
+        const validateAllBtn = document.getElementById('validateAllPromptsBtn');
+        if (validateAllBtn) {
+            validateAllBtn.addEventListener('click', () => this.handleValidateAllPrompts(validateAllBtn));
+        }
+    }
+
+    async handleImprovePrompt(promptId, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = \`<svg class="spinner-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> \${i18n.t('prompts.improving')}\`;
+
+        try {
+            const result = await api.improvePrompt(promptId);
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.improveSuccess'));
+            await this.loadPrompts();
+        } catch (error) {
+            console.error('Failed to improve prompt:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.improveFailed'));
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    handleEditPrompt(promptId, btn) {
+        const card = document.querySelector(\`[data-prompt-id="\${promptId}"].prompt-card\`);
+        if (!card) return;
+
+        const isEditing = card.classList.contains('editing');
+        
+        if (isEditing) {
+            card.classList.remove('editing');
+            btn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path><path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path></svg> <span>\${i18n.t('prompts.update')}</span>\`;
+            btn.dataset.action = 'edit';
+        } else {
+            card.classList.add('editing');
+            btn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> <span>\${i18n.t('prompts.save')}</span>\`;
+            btn.dataset.action = 'save';
+            
+            const textarea = card.querySelector('.prompt-text-editable');
+            if (textarea) textarea.focus();
+        }
+    }
+
+    async handleSavePrompt(promptId, btn) {
+        const card = document.querySelector(\`[data-prompt-id="\${promptId}"].prompt-card\`);
+        if (!card) return;
+
+        const textarea = card.querySelector('.prompt-text-editable');
+        const newText = textarea?.value?.trim();
+
+        if (!newText) {
+            this.showToast('error', i18n.t('toast.error'), i18n.t('prompts.emptyPrompt'));
+            return;
+        }
+
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = \`<svg class="spinner-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> \${i18n.t('prompts.saving')}\`;
+
+        try {
+            await api.updatePrompt(promptId, newText);
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.updateSuccess'));
+            await this.loadPrompts();
+        } catch (error) {
+            console.error('Failed to update prompt:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.updateFailed'));
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    async handleValidatePrompt(promptId, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = \`<svg class="spinner-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> \${i18n.t('prompts.validating')}\`;
+
+        try {
+            await api.validatePrompt(promptId);
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.validateSuccess'));
+            await this.loadPrompts();
+        } catch (error) {
+            console.error('Failed to validate prompt:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.validateFailed'));
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    async handleValidateAllPrompts(btn) {
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = \`<svg class="spinner-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> \${i18n.t('prompts.validatingAll')}\`;
+
+        try {
+            await api.validateAllPrompts();
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.validateAllSuccess'));
+            await this.loadPrompts();
+        } catch (error) {
+            console.error('Failed to validate all prompts:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.validateAllFailed'));
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -4451,6 +5181,7 @@ const uzTranslations = `{
     "upload": "Video yuklash",
     "queue": "Navbat",
     "logs": "Jurnallar",
+    "prompts": "Promptlar",
     "settings": "Sozlamalar"
   },
   "health": {
@@ -4560,6 +5291,43 @@ const uzTranslations = `{
     "startDate": "Boshlanish sanasi",
     "endDate": "Tugash sanasi"
   },
+  "prompts": {
+    "title": "Video Promptlari",
+    "totalPrompts": "Jami promptlar",
+    "validated": "Tasdiqlangan",
+    "needsImprovement": "Yaxshilash kerak",
+    "errors": "Xatolar",
+    "filterByChannel": "Kanal bo'yicha filtrlash",
+    "allChannels": "Barcha kanallar",
+    "validateAll": "Barchasini tasdiqlash",
+    "improve": "Yaxshilash",
+    "update": "Yangilash",
+    "save": "Saqlash",
+    "validate": "Tasdiqlash",
+    "validating": "Tasdiqlanmoqda...",
+    "improving": "Yaxshilanmoqda...",
+    "updating": "Yangilanmoqda...",
+    "saving": "Saqlanmoqda...",
+    "validatingAll": "Hammasi tasdiqlanmoqda...",
+    "loading": "Promptlar yuklanmoqda...",
+    "noPrompts": "Promptlar mavjud emas",
+    "noPromptsHint": "Hozircha hech qanday prompt yo'q",
+    "statusValidated": "Tasdiqlangan",
+    "statusNeedsImprovement": "Yaxshilash kerak",
+    "statusError": "Xato",
+    "statusPending": "Kutilmoqda",
+    "aiSuggestion": "AI tavsiyasi",
+    "improveSuccess": "Prompt muvaffaqiyatli yaxshilandi",
+    "improveFailed": "Promptni yaxshilab bo'lmadi",
+    "updateSuccess": "Prompt muvaffaqiyatli yangilandi",
+    "updateFailed": "Promptni yangilab bo'lmadi",
+    "validateSuccess": "Prompt muvaffaqiyatli tasdiqlandi",
+    "validateFailed": "Promptni tasdiqlab bo'lmadi",
+    "validateAllSuccess": "Barcha promptlar tasdiqlandi",
+    "validateAllFailed": "Promptlarni tasdiqlab bo'lmadi",
+    "loadError": "Promptlarni yuklab bo'lmadi",
+    "emptyPrompt": "Prompt bo'sh bo'lmasligi kerak"
+  },
   "settings": {
     "title": "Sozlamalar",
     "apiEndpoint": "API manzili (ixtiyoriy)",
@@ -4637,6 +5405,7 @@ const tkTranslations = `{
     "upload": "Wideo ýüklemek",
     "queue": "Nobat",
     "logs": "Ýazgylar",
+    "prompts": "Promptlar",
     "settings": "Sazlamalar"
   },
   "health": {
@@ -4745,6 +5514,43 @@ const tkTranslations = `{
     "stackTrace": "Ýalňyşlyk jikme-jiklikleri",
     "startDate": "Başlangyç senesi",
     "endDate": "Gutaryş senesi"
+  },
+  "prompts": {
+    "title": "Wideo Promptlary",
+    "totalPrompts": "Jemi promptlar",
+    "validated": "Tassyklanan",
+    "needsImprovement": "Gowulandyrmak gerek",
+    "errors": "Ýalňyşlyklar",
+    "filterByChannel": "Kanal boýunça süzmek",
+    "allChannels": "Ähli kanallar",
+    "validateAll": "Hemmesini tassyklamak",
+    "improve": "Gowulandyrmak",
+    "update": "Täzelemek",
+    "save": "Ýatda saklamak",
+    "validate": "Tassyklamak",
+    "validating": "Tassyklanýar...",
+    "improving": "Gowulandyrylýar...",
+    "updating": "Täzelenýär...",
+    "saving": "Ýatda saklanýar...",
+    "validatingAll": "Hemmesi tassyklanýar...",
+    "loading": "Promptlar ýüklenýär...",
+    "noPrompts": "Promptlar ýok",
+    "noPromptsHint": "Häzirlikçe hiç hili prompt ýok",
+    "statusValidated": "Tassyklanan",
+    "statusNeedsImprovement": "Gowulandyrmak gerek",
+    "statusError": "Ýalňyşlyk",
+    "statusPending": "Garaşylýar",
+    "aiSuggestion": "AI teklibi",
+    "improveSuccess": "Prompt üstünlikli gowulandyryldy",
+    "improveFailed": "Prompty gowulandyryp bolmady",
+    "updateSuccess": "Prompt üstünlikli täzelendi",
+    "updateFailed": "Prompty täzeläp bolmady",
+    "validateSuccess": "Prompt üstünlikli tassyklandy",
+    "validateFailed": "Prompty tassyklap bolmady",
+    "validateAllSuccess": "Ähli promptlar tassyklandy",
+    "validateAllFailed": "Promptlary tassyklap bolmady",
+    "loadError": "Promptlary ýükläp bolmady",
+    "emptyPrompt": "Prompt boş bolmaly däl"
   },
   "settings": {
     "title": "Sazlamalar",
