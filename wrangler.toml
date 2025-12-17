@@ -15,5 +15,10 @@ binding = "LOGS"
 id = "597608c5497040b6825706ccac2a7a1b"
 preview_id = "597608c5497040b6825706ccac2a7a1b"
 
+[[kv_namespaces]]
+binding = "PROMPTS"
+id = "prompts_namespace_id"
+preview_id = "prompts_namespace_id"
+
 [vars]
 ENVIRONMENT = "development"

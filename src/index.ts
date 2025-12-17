@@ -23,6 +23,7 @@ import {
 export interface Env {
   VIDEO_QUEUE: KVNamespace;
   LOGS: KVNamespace;
+  PROMPTS: KVNamespace;
   
   CLOUDINARY_CLOUD_NAME: string;
   CLOUDINARY_API_KEY: string;
@@ -138,7 +139,7 @@ export default {
     const logger = new Logger(env.LOGS);
     const queueManager = new QueueManager(env.VIDEO_QUEUE, logger);
     const logsManager = new LogsManager(env.LOGS);
-    const promptsManager = new PromptsManager(env.VIDEO_QUEUE, logger);
+    const promptsManager = new PromptsManager(env.PROMPTS, logger);
     const cloudinaryService = new CloudinaryService(getCloudinaryConfig(env), logger);
     const groqService = new GroqService(getGroqConfig(env), logger);
     const promptsAI = new PromptsAIService(getGroqConfig(env), logger);
