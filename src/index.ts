@@ -1,12 +1,24 @@
 import { Logger } from './utils/logger';
 import { QueueManager } from './db/queue';
 import { LogsManager } from './db/logs';
+import { PromptsManager } from './db/prompts';
 import { CloudinaryService, CloudinaryConfig } from './services/cloudinary';
 import { GroqService, GroqConfig } from './services/groq';
+import { PromptsAIService } from './services/promptsAI';
 import { handleUpload } from './routes/upload';
 import { handleSchedule, handleRetryImmediateUpload, PlatformConfigs } from './routes/schedule';
 import { handleGetLogs, handleGetLogsPaginated, handleClearLogs, handleClearQueue, handleGetStats, handleGetQueueGrouped, handleRetryPlatformUpload } from './routes/stats';
 import { handleFrontend, isFrontendPath } from './routes/frontend';
+import { 
+  handleGetAllPrompts, 
+  handleGetPromptsByChannel, 
+  handleValidatePrompt, 
+  handleImprovePrompt, 
+  handleUpdatePrompt,
+  handleValidateAllPrompts,
+  handleResetPrompts,
+  handleGetPromptsStats
+} from './routes/prompts';
 
 export interface Env {
   VIDEO_QUEUE: KVNamespace;
@@ -126,8 +138,10 @@ export default {
     const logger = new Logger(env.LOGS);
     const queueManager = new QueueManager(env.VIDEO_QUEUE, logger);
     const logsManager = new LogsManager(env.LOGS);
+    const promptsManager = new PromptsManager(env.VIDEO_QUEUE, logger);
     const cloudinaryService = new CloudinaryService(getCloudinaryConfig(env), logger);
     const groqService = new GroqService(getGroqConfig(env), logger);
+    const promptsAI = new PromptsAIService(getGroqConfig(env), logger);
 
     let response: Response;
 
@@ -196,6 +210,38 @@ export default {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
           });
+          break;
+
+        case path === '/api/prompts' && method === 'GET':
+          response = await handleGetAllPrompts(promptsManager, logger);
+          break;
+
+        case path === '/api/prompts/channel' && method === 'GET':
+          response = await handleGetPromptsByChannel(request, promptsManager, logger);
+          break;
+
+        case path === '/api/prompts/stats' && method === 'GET':
+          response = await handleGetPromptsStats(promptsManager, logger);
+          break;
+
+        case path === '/api/prompts/validate' && method === 'POST':
+          response = await handleValidatePrompt(request, promptsManager, promptsAI, logger);
+          break;
+
+        case path === '/api/prompts/improve' && method === 'POST':
+          response = await handleImprovePrompt(request, promptsManager, promptsAI, logger);
+          break;
+
+        case path === '/api/prompts/update' && method === 'POST':
+          response = await handleUpdatePrompt(request, promptsManager, logger);
+          break;
+
+        case path === '/api/prompts/validate-all' && method === 'POST':
+          response = await handleValidateAllPrompts(promptsManager, promptsAI, logger);
+          break;
+
+        case path === '/api/prompts/reset' && method === 'POST':
+          response = await handleResetPrompts(promptsManager, logger);
           break;
 
         case isFrontendPath(path) && method === 'GET':
