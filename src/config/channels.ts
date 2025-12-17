@@ -25,11 +25,11 @@ export interface ChannelConfig {
 }
 
 export const CHANNEL_NAMES = [
-  { id: 'channel1', name: 'channel1', displayName: 'Channel 1' },
-  { id: 'channel2', name: 'channel2', displayName: 'Channel 2' },
-  { id: 'channel3', name: 'channel3', displayName: 'Channel 3' },
-  { id: 'channel4', name: 'channel4', displayName: 'Channel 4' },
-  { id: 'channel5', name: 'channel5', displayName: 'Channel 5' }
+  { id: 'channel1', name: 'channel1', displayName: 'Channel 1', topic: 'Technology & Innovation', topicDescription: 'AI, gadgets, software, startups, future tech trends' },
+  { id: 'channel2', name: 'channel2', displayName: 'Channel 2', topic: 'Lifestyle & Health', topicDescription: 'Wellness, fitness, nutrition, mental health, daily routines' },
+  { id: 'channel3', name: 'channel3', displayName: 'Channel 3', topic: 'Business & Finance', topicDescription: 'Investing, entrepreneurship, money management, career growth' },
+  { id: 'channel4', name: 'channel4', displayName: 'Channel 4', topic: 'Entertainment & Comedy', topicDescription: 'Funny moments, reactions, skits, viral trends, pop culture' },
+  { id: 'channel5', name: 'channel5', displayName: 'Channel 5', topic: 'Education & Learning', topicDescription: 'Science facts, history, languages, skills, how-to guides' }
 ] as const;
 
 export type ChannelId = typeof CHANNEL_NAMES[number]['id'];
