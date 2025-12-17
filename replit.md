@@ -13,7 +13,7 @@ Bu loyiha Cloudflare Worker yordamida videolarni bir nechta ijtimoiy tarmoq plat
 ## Texnologiyalar
 - **Runtime**: Cloudflare Workers
 - **Language**: TypeScript
-- **Storage**: Cloudflare KV (VIDEO_QUEUE, LOGS)
+- **Storage**: Cloudflare KV (VIDEO_QUEUE, LOGS, PROMPTS)
 - **Media**: Cloudinary
 - **AI**: Groq API (LLaMA 3.1)
 - **Platforms**: YouTube, TikTok, Instagram, Facebook APIs
@@ -21,13 +21,17 @@ Bu loyiha Cloudflare Worker yordamida videolarni bir nechta ijtimoiy tarmoq plat
 ## Loyiha strukturasi
 ```
 /src
+  /config         - Konfiguratsiya fayllari
+    channels.ts   - Kanal sozlamalari va mavzulari
   /routes         - API endpointlar
     upload.ts     - Video yuklash
     schedule.ts   - Scheduler va platform upload
     stats.ts      - Loglar va statistika
+    prompts.ts    - Promptlar API (CRUD, validate, improve)
   /services       - Tashqi xizmatlar
     cloudinary.ts - Cloudinary integratsiyasi
     groq.ts       - AI metadata generatsiyasi
+    promptsAI.ts  - AI prompt validation va improvement
   /platforms      - Platforma uploaderlar
     youtube.ts    - YouTube Data API v3
     tiktok.ts     - TikTok for Developers API
@@ -36,9 +40,12 @@ Bu loyiha Cloudflare Worker yordamida videolarni bir nechta ijtimoiy tarmoq plat
   /db             - KV database handlers
     queue.ts      - Video queue boshqaruvi
     logs.ts       - Log boshqaruvi
+    prompts.ts    - Promptlar boshqaruvi (dedicated PROMPTS KV)
   /utils          - Yordamchi funksiyalar
     logger.ts     - Logging tizimi
     time.ts       - Vaqt utilitlari
+  /frontend       - Frontend assets
+    assets.ts     - HTML, CSS, JS fayllari
   index.ts        - Asosiy entry point
 ```
 
@@ -53,10 +60,20 @@ Bu loyiha Cloudflare Worker yordamida videolarni bir nechta ijtimoiy tarmoq plat
 - `GET /` - API info
 
 ## Deploy qilish
-1. Cloudflare Dashboard'da KV namespace yarating (VIDEO_QUEUE, LOGS)
+1. Cloudflare Dashboard'da KV namespace yarating (VIDEO_QUEUE, LOGS, PROMPTS)
 2. `wrangler.toml` faylda KV ID larni yangilang
 3. Environment variablelarni sozlang
 4. `wrangler deploy` buyrug'ini bajaring
+
+## Prompts API Endpoints
+- `GET /api/prompts` - Barcha promptlarni olish
+- `GET /api/prompts/channel?id=channel1` - Kanal bo'yicha filtrlash
+- `GET /api/prompts/stats` - Prompt statistikasi
+- `POST /api/prompts/validate` - Bitta promptni AI bilan tekshirish
+- `POST /api/prompts/improve` - Promptni AI bilan yaxshilash
+- `POST /api/prompts/update` - Prompt matnini yangilash
+- `POST /api/prompts/validate-all` - Barcha promptlarni tekshirish
+- `POST /api/prompts/reset` - Promptlarni boshlang'ich holatga qaytarish
 
 ## Cron Job
 Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni platformalarga yuklaydi.
@@ -91,6 +108,16 @@ Har 5 daqiqada `/run-schedule` avtomatik ishga tushadi va pending videolarni pla
   - Added 13 new i18n translation keys for logs section (both Uzbek and Turkmen)
   - Backend: `getPaginatedLogs` in `src/db/logs.ts` with key-based cursor pagination
   - API: `GET /api/logs/paginated` endpoint with query params (cursor, limit, level, source, startDate, endDate, search)
+- 2024-12-17: Implemented complete PROMPTS section:
+  - 25 unique video prompts (5 per channel) with channel-specific topics
+  - Dedicated PROMPTS KV namespace for data isolation from queue
+  - AI validation using Groq API (topic relevance, clarity, creativity checks)
+  - AI improvement functionality for enhancing prompt quality
+  - Premium UI with stats cards, filter dropdown, prompt cards
+  - Action buttons: Improve (Yaxshilash), Update (Yangilash), Validate (Tasdiqlash)
+  - Validate All button for batch processing
+  - Full i18n support in Uzbek and Turkmen languages
+  - Channel topics: Technology & Innovation, Lifestyle & Health, Business & Finance, Entertainment & Comedy, Education & Learning
 
 ## Internationalization (i18n)
 The frontend supports multiple languages:
