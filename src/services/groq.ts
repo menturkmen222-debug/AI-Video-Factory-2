@@ -48,12 +48,12 @@ export class GroqService {
         this.config.model = data.latestModel;
         await this.logger.info('groq', 'Latest model set automatically', { model: data.latestModel });
       } else {
-        this.config.model = 'llama-3.1-8b-instant';
+        this.config.model = 'llama 4 scout 17b 16e';
         await this.logger.warn('groq', 'Could not detect latest model, using fallback', { model: this.config.model });
       }
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
-      this.config.model = 'llama-3.1-8b-instant';
+      this.config.model = 'llama 4 scout 17b 16e';
       await this.logger.error('groq', 'Failed to fetch latest model, using fallback', { error: errMsg, model: this.config.model });
     }
   }
