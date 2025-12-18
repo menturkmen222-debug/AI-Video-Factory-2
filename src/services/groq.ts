@@ -105,42 +105,50 @@ Return ONLY valid JSON with this exact format:
         { role: 'user', content: userPrompt }
       ];
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       const fetchMetadata = async () => {
-        const response = await fetch(`${this.baseUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.config.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: this.config.model,
-            messages,
-            temperature: 0.7,
-            max_tokens: 500
-          })
-        });
+        try {
+          const response = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${this.config.apiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: this.config.model,
+              messages,
+              temperature: 0.7,
+              max_tokens: 500
+            }),
+            signal: controller.signal
+          });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`API request failed: ${errorText}`);
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API request failed: ${response.status} - ${errorText}`);
+          }
+
+          const result = await response.json() as GroqResponse;
+          const content = result.choices[0]?.message?.content;
+          if (!content) throw new Error('Empty response from API');
+          return content;
+        } finally {
+          clearTimeout(timeoutId);
         }
-
-        const result = await response.json() as GroqResponse;
-        const content = result.choices[0]?.message?.content;
-        if (!content) throw new Error('Empty response from API');
-        return content;
       };
 
       const content = await this.retry(fetchMetadata, this.config.maxRetries!);
       const metadata = this.parseMetadata(content);
 
-      await this.logger.info('groq', 'Metadata generated successfully', { metadata });
+      await this.logger.info('groq', 'Metadata generated successfully via groq', { metadata, provider: 'groq' });
       return metadata;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      await this.logger.error('groq', 'Metadata generation exception', { error: errorMessage });
-      return this.getFallbackMetadata();
+      await this.logger.error('groq', 'Metadata generation failed', { error: errorMessage });
+      throw error;
     }
   }
 

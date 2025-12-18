@@ -4,7 +4,10 @@ import { LogsManager } from './db/logs';
 import { PromptsManager } from './db/prompts';
 import { CloudinaryService, CloudinaryConfig } from './services/cloudinary';
 import { GroqService, GroqConfig } from './services/groq';
+import { OpenRouterService } from './services/openrouter';
 import { PromptsAIService } from './services/promptsAI';
+import { AIProviderService } from './services/aiProvider';
+import { AISettingsManager } from './services/aiSettings';
 import { handleUpload } from './routes/upload';
 import { handleSchedule, handleRetryImmediateUpload, PlatformConfigs } from './routes/schedule';
 import { handleGetLogs, handleGetLogsPaginated, handleClearLogs, handleClearQueue, handleGetStats, handleGetQueueGrouped, handleRetryPlatformUpload } from './routes/stats';
@@ -13,12 +16,13 @@ import {
   handleGetAllPrompts, 
   handleGetPromptsByChannel, 
   handleValidatePrompt, 
-  handleImprovePrompt, 
+  handleCopyPrompt, 
   handleUpdatePrompt,
   handleValidateAllPrompts,
   handleResetPrompts,
   handleGetPromptsStats
 } from './routes/prompts';
+import { handleGetAISettings, handleSetAIProvider } from './routes/aiSettings';
 import {
   handleDistributeVideo,
   handleGetPlatforms,
@@ -38,6 +42,7 @@ export interface Env {
   CLOUDINARY_API_SECRET: string;
   
   GROQ_API_KEY: string;
+  OPENROUTER_API_KEY?: string;
   
   // Global/fallback platform credentials
   YOUTUBE_CLIENT_ID?: string;
@@ -204,6 +209,15 @@ export default {
     const cloudinaryService = new CloudinaryService(getCloudinaryConfig(env), logger);
     const groqService = new GroqService(getGroqConfig(env), logger);
     const promptsAI = new PromptsAIService(getGroqConfig(env), logger);
+    const aiSettingsManager = new AISettingsManager(env.PROMPTS, logger);
+    
+    // Initialize OpenRouter if API key is available
+    let openRouterService: OpenRouterService | null = null;
+    if (env.OPENROUTER_API_KEY) {
+      openRouterService = new OpenRouterService({ apiKey: env.OPENROUTER_API_KEY }, logger);
+    }
+    
+    const aiProviderService = new AIProviderService(groqService, openRouterService, aiSettingsManager, logger);
 
     let response: Response;
 
@@ -221,7 +235,8 @@ export default {
             groqService,
             getPlatformConfigs(env),
             logger,
-            env as any
+            env as any,
+            aiProviderService
           );
           break;
 
@@ -262,6 +277,7 @@ export default {
             logger,
             env as any
           );
+          // Note: handleRetryImmediateUpload still uses groqService directly for backward compatibility
           break;
 
         case path === '/health' && method === 'GET':
@@ -290,8 +306,8 @@ export default {
           response = await handleValidatePrompt(request, promptsManager, promptsAI, logger);
           break;
 
-        case path === '/api/prompts/improve' && method === 'POST':
-          response = await handleImprovePrompt(request, promptsManager, promptsAI, logger);
+        case path === '/api/prompts/copy' && method === 'POST':
+          response = await handleCopyPrompt(request, promptsManager, logger);
           break;
 
         case path === '/api/prompts/update' && method === 'POST':
@@ -329,6 +345,14 @@ export default {
 
         case path === '/api/validate-structure' && method === 'GET':
           response = await handleValidateStructure(groqService, logger);
+          break;
+
+        case path === '/api/ai-settings' && method === 'GET':
+          response = await handleGetAISettings(aiSettingsManager, logger);
+          break;
+
+        case path === '/api/ai-settings/provider' && method === 'POST':
+          response = await handleSetAIProvider(request, aiSettingsManager, logger);
           break;
 
         case isFrontendPath(path) && method === 'GET':
@@ -369,7 +393,13 @@ export default {
     await logger.info('cron', 'Scheduled job started', { scheduledTime: new Date(event.scheduledTime).toISOString() });
 
     try {
-      await handleSchedule(queueManager, groqService, getPlatformConfigs(env), logger, env as any);
+      const aiSettings = new AISettingsManager(env.PROMPTS, logger);
+      let openRouter: any = null;
+      if (env.OPENROUTER_API_KEY) {
+        openRouter = new OpenRouterService({ apiKey: env.OPENROUTER_API_KEY }, logger);
+      }
+      const aiProvider = new AIProviderService(groqService, openRouter, aiSettings, logger);
+      await handleSchedule(queueManager, groqService, getPlatformConfigs(env), logger, env as any, aiProvider);
       await logger.info('cron', 'Scheduled job completed');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';

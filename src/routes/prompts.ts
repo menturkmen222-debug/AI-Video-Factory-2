@@ -154,10 +154,9 @@ export async function handleValidatePrompt(
   }
 }
 
-export async function handleImprovePrompt(
+export async function handleCopyPrompt(
   request: Request,
   promptsManager: PromptsManager,
-  promptsAI: PromptsAIService,
   logger: Logger
 ): Promise<Response> {
   try {
@@ -174,7 +173,7 @@ export async function handleImprovePrompt(
       });
     }
 
-    await logger.info('prompts', 'Improving prompt', { promptId });
+    await logger.info('prompts', 'Copying prompt', { promptId });
 
     const prompt = await promptsManager.getPromptById(promptId);
     if (!prompt) {
@@ -187,25 +186,17 @@ export async function handleImprovePrompt(
       });
     }
 
-    const improveResult = await promptsAI.improvePrompt(prompt);
-    
-    const updatedPrompt = await promptsManager.updatePrompt(promptId, {
-      promptText: improveResult.improvedPrompt,
-      validationStatus: 'pending',
-      aiSuggestion: improveResult.changes.join('; ')
-    });
-
     return new Response(JSON.stringify({
       success: true,
-      prompt: updatedPrompt,
-      improvement: improveResult
+      prompt: prompt,
+      text: prompt.promptText
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    await logger.error('prompts', 'Failed to improve prompt', { error: errorMessage });
+    await logger.error('prompts', 'Failed to copy prompt', { error: errorMessage });
     return new Response(JSON.stringify({
       success: false,
       error: errorMessage

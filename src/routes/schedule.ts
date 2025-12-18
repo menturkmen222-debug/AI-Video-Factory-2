@@ -2,6 +2,7 @@
 import { Logger } from '../utils/logger';
 import { QueueManager, VideoQueueEntry, Platform, VideoStatus } from '../db/queue';
 import { GroqService } from '../services/groq';
+import { AIProviderService } from '../services/aiProvider';
 import { YouTubeUploader, YouTubeConfig } from '../platforms/youtube';
 import { TikTokUploader, TikTokConfig } from '../platforms/tiktok';
 import { InstagramUploader, InstagramConfig } from '../platforms/instagram';
@@ -34,7 +35,8 @@ export async function handleSchedule(
   groqService: GroqService,
   platformConfigs: PlatformConfigs,
   logger: Logger,
-  env?: ChannelEnvVars
+  env?: ChannelEnvVars,
+  aiProviderService?: AIProviderService
 ): Promise<Response> {
   await logger.info('schedule', 'Scheduler run started');
 
@@ -61,7 +63,7 @@ export async function handleSchedule(
     await logger.info('schedule', `Processing ${pendingVideos.length} pending videos`);
 
     const uploadPromises = pendingVideos.map(async (video) => {
-      return processVideo(video, queueManager, groqService, platformConfigs, logger, env);
+      return processVideo(video, queueManager, groqService, platformConfigs, logger, env, aiProviderService);
     });
 
     const results = await Promise.allSettled(uploadPromises);
@@ -124,7 +126,8 @@ async function processVideo(
   groqService: GroqService,
   platformConfigs: PlatformConfigs,
   logger: Logger,
-  env?: ChannelEnvVars
+  env?: ChannelEnvVars,
+  aiProviderService?: AIProviderService
 ): Promise<{ id: string; platforms: Platform[]; status: VideoStatus; errors?: Partial<Record<Platform, string>> }> {
   const { id, platforms, channelId, cloudinaryUrl } = video;
 
@@ -168,7 +171,11 @@ async function processVideo(
     let metadata = video.metadata;
     if (!metadata || !metadata.title) {
       await logger.info('schedule', 'Generating AI metadata', { id, context: video.videoContext, channel: channelId });
-      metadata = await groqService.generateMetadata(video.videoContext, channelId);
+      if (aiProviderService) {
+        metadata = await aiProviderService.generateMetadata(video.videoContext, channelId);
+      } else {
+        metadata = await groqService.generateMetadata(video.videoContext, channelId);
+      }
       await queueManager.updateEntry(id, { metadata });
     }
 
