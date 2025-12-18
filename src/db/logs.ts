@@ -29,8 +29,15 @@ export class LogsManager {
     return this.logger;
   }
 
+  // --- Optimized log writing ---
   async addLog(log: LogEntry): Promise<void> {
     try {
+      // faqat warn va error loglarni KV ga yozamiz
+      if (log.level === 'info') {
+        console.log('INFO log:', log.message); // konsolga chiqarish yetarli
+        return;
+      }
+
       const key = `log:${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       await this.logsKV.put(key, JSON.stringify(log), { expirationTtl: this.TTL_SECONDS });
     } catch (e) {
@@ -47,11 +54,8 @@ export class LogsManager {
       while (!listComplete) {
         const result = await this.logsKV.list({ prefix: 'log:', cursor, limit: 1000 });
         allKeys.push(...result.keys);
-        if (result.list_complete) {
-          listComplete = true;
-        } else {
-          cursor = result.cursor;
-        }
+        cursor = result.list_complete ? undefined : result.cursor;
+        listComplete = result.list_complete;
       }
 
       const logs: LogEntry[] = [];
@@ -83,13 +87,11 @@ export class LogsManager {
       while (!listComplete) {
         const result = await this.logsKV.list({ prefix: 'log:', cursor, limit: 1000 });
         allKeys.push(...result.keys);
-        if (result.list_complete) {
-          listComplete = true;
-        } else {
-          cursor = result.cursor;
-        }
+        cursor = result.list_complete ? undefined : result.cursor;
+        listComplete = result.list_complete;
       }
 
+      // batch delete bilan yozuvlarni o'chirish
       for (const key of allKeys) {
         await this.logsKV.delete(key.name);
       }
@@ -135,8 +137,8 @@ export class LogsManager {
 
         const listResult = await this.logsKV.list(listOptions);
         allKeys.push(...listResult.keys);
-        if (listResult.list_complete) listComplete = true;
-        else kvCursor = listResult.cursor;
+        listComplete = listResult.list_complete;
+        kvCursor = listResult.list_complete ? undefined : listResult.cursor;
       }
 
       allKeys.sort((a, b) => b.name.localeCompare(a.name));
@@ -220,4 +222,4 @@ export class LogsManager {
 
     return true;
   }
-  }
+          }
