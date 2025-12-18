@@ -64,7 +64,7 @@ export class Logger {
   async info(step: string, message: string, data?: Record<string, unknown>, source?: string): Promise<void> {
     const entry = this.createEntry('info', step, message, data, source);
     this.logs.push(entry);
-    await this.persistLog(entry);
+    // info loglar KV ga ketmaydi
     console.log(`[INFO] [${entry.source}/${step}] ${message}`, data || '');
   }
 
@@ -93,6 +93,9 @@ export class Logger {
 
   private async persistLog(entry: LogEntry): Promise<void> {
     try {
+      // faqat warn va error loglar KV ga yozilsin
+      if (entry.level === 'info') return;
+
       const key = `log:${entry.timestamp.replace(/[-:.TZ]/g, '')}:${entry.id}`;
       await this.logsKV.put(key, JSON.stringify(entry), { expirationTtl: 86400 * 7 });
     } catch (error) {
@@ -104,7 +107,7 @@ export class Logger {
     try {
       const keys = await this.logsKV.list({ prefix: 'log:' });
       const logs: LogEntry[] = [];
-      
+
       for (const key of keys.keys) {
         const value = await this.logsKV.get(key.name);
         if (value) {
@@ -118,7 +121,7 @@ export class Logger {
           logs.push(parsed);
         }
       }
-      
+
       return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     } catch (error) {
       console.error('Failed to get logs:', error);
@@ -141,4 +144,4 @@ export class Logger {
       throw error;
     }
   }
-}
+      }
