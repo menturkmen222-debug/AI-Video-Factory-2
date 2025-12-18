@@ -18,7 +18,7 @@ export interface LogFilters {
 export class LogsManager {
   private logger: Logger;
   private logsKV: KVNamespace;
-  private TTL_SECONDS = 86400 * 5; // 5 kun
+  private TTL_SECONDS = 86400 * 5; // 5 kunn
 
   constructor(logsKV: KVNamespace) {
     this.logger = new Logger(logsKV);
