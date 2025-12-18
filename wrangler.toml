@@ -17,8 +17,8 @@ preview_id = "597608c5497040b6825706ccac2a7a1b"
 
 [[kv_namespaces]]
 binding = "PROMPTS"
-id = "prompts_namespace_id"
-preview_id = "prompts_namespace_id"
+id = "58635477789a4f07b8bc7b6907c5b968"
+preview_id = "58635477789a4f07b8bc7b6907c5b968"
 
 [vars]
 ENVIRONMENT = "development"
