@@ -61,17 +61,18 @@ export interface DailyCounter {
 const DAILY_LIMIT = 50;
 
 // TTLni statusga qarab aniqlash
-function getTTLByStatus(status: VideoStatus): number | undefined {
+function getTTLByStatus(status: string): number | undefined {
   const DAY = 86400; // 1 kun sekundlarda
   switch (status) {
     case 'uploaded':
+    case 'completed':
       return DAY * 3; // 3 kun
     case 'failed':
       return DAY * 5; // 5 kun
     case 'skipped':
       return DAY * 10; // 10 kun
     default:
-      return undefined; // pending / processing -> cheksiz
+      return undefined; // pending / processing / uploading -> cheksiz
   }
 }
 

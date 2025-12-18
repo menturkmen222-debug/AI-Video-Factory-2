@@ -185,4 +185,51 @@ Return ONLY valid JSON with this exact format:
     this.logger.warn('groq', 'Using fallback metadata');
     return { ...FALLBACK_METADATA };
   }
+
+  async generateWithPrompt(systemPrompt: string, userPrompt: string): Promise<string> {
+    await this.logger.info('groq', 'Generating with custom prompt');
+
+    if (!this.config.model) await this.setLatestModel();
+
+    try {
+      const messages: GroqMessage[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ];
+
+      const fetchResponse = async () => {
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.config.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: this.config.model,
+            messages,
+            temperature: 0.7,
+            max_tokens: 1500
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API request failed: ${errorText}`);
+        }
+
+        const result = await response.json() as GroqResponse;
+        const content = result.choices[0]?.message?.content;
+        if (!content) throw new Error('Empty response from API');
+        return content;
+      };
+
+      const content = await this.retry(fetchResponse, this.config.maxRetries!);
+      await this.logger.info('groq', 'Generated response successfully');
+      return content;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      await this.logger.error('groq', 'Generation failed', { error: errorMessage });
+      throw error;
+    }
   }
+}

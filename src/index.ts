@@ -19,6 +19,14 @@ import {
   handleResetPrompts,
   handleGetPromptsStats
 } from './routes/prompts';
+import {
+  handleDistributeVideo,
+  handleGetPlatforms,
+  handleGetLanguages,
+  handleGetChannels,
+  handleValidateStructure
+} from './routes/distribution';
+import { PlatformCredentials } from './platforms';
 
 export interface Env {
   VIDEO_QUEUE: KVNamespace;
@@ -125,6 +133,59 @@ function getPlatformConfigs(env: Env): PlatformConfigs {
   }
 
   return configs;
+}
+
+function getAllPlatformCredentials(env: Env): Record<string, PlatformCredentials> {
+  const creds: Record<string, PlatformCredentials> = {};
+
+  if (env.YOUTUBE_CLIENT_ID && env.YOUTUBE_CLIENT_SECRET && env.YOUTUBE_REFRESH_TOKEN) {
+    creds.youtube = {
+      clientId: env.YOUTUBE_CLIENT_ID,
+      clientSecret: env.YOUTUBE_CLIENT_SECRET,
+      refreshToken: env.YOUTUBE_REFRESH_TOKEN
+    };
+  }
+
+  if (env.TIKTOK_ACCESS_TOKEN && env.TIKTOK_OPEN_ID) {
+    creds.tiktok = {
+      accessToken: env.TIKTOK_ACCESS_TOKEN,
+      openId: env.TIKTOK_OPEN_ID
+    };
+  }
+
+  if (env.INSTAGRAM_ACCESS_TOKEN && env.INSTAGRAM_USER_ID) {
+    creds.instagram = {
+      accessToken: env.INSTAGRAM_ACCESS_TOKEN,
+      userId: env.INSTAGRAM_USER_ID
+    };
+  }
+
+  if (env.FACEBOOK_ACCESS_TOKEN && env.FACEBOOK_PAGE_ID) {
+    creds.facebook = {
+      accessToken: env.FACEBOOK_ACCESS_TOKEN,
+      pageId: env.FACEBOOK_PAGE_ID
+    };
+  }
+
+  const platformPrefixes = ['SNAPCHAT', 'PINTEREST', 'X', 'REDDIT', 'LINKEDIN', 'TWITCH', 'KWAI', 'LIKEE', 'DZEN', 'RUMBLE', 'ODYSEE', 'DAILYMOTION'];
+  
+  for (const prefix of platformPrefixes) {
+    const accessToken = env[`${prefix}_ACCESS_TOKEN`] as string | undefined;
+    const apiKey = env[`${prefix}_API_KEY`] as string | undefined;
+    
+    if (accessToken || apiKey) {
+      creds[prefix.toLowerCase()] = {
+        accessToken,
+        apiKey,
+        userId: env[`${prefix}_USER_ID`] as string | undefined,
+        pageId: env[`${prefix}_PAGE_ID`] as string | undefined,
+        clientId: env[`${prefix}_CLIENT_ID`] as string | undefined,
+        clientSecret: env[`${prefix}_CLIENT_SECRET`] as string | undefined
+      };
+    }
+  }
+
+  return creds;
 }
 
 export default {
@@ -243,6 +304,31 @@ export default {
 
         case path === '/api/prompts/reset' && method === 'POST':
           response = await handleResetPrompts(promptsManager, logger);
+          break;
+
+        case path === '/api/distribute' && method === 'POST':
+          response = await handleDistributeVideo(
+            request,
+            groqService,
+            getAllPlatformCredentials(env),
+            logger
+          );
+          break;
+
+        case path === '/api/platforms' && method === 'GET':
+          response = await handleGetPlatforms(logger);
+          break;
+
+        case path === '/api/languages' && method === 'GET':
+          response = await handleGetLanguages(logger);
+          break;
+
+        case path === '/api/channels' && method === 'GET':
+          response = await handleGetChannels(logger);
+          break;
+
+        case path === '/api/validate-structure' && method === 'GET':
+          response = await handleValidateStructure(groqService, logger);
           break;
 
         case isFrontendPath(path) && method === 'GET':
