@@ -56,7 +56,7 @@ export class PromptsManager {
         prompts,
         lastGenerated: new Date().toISOString()
       };
-      // TTL 3 kun = 259200 sekund
+      // TTL 3 kun = 259200 sekundd
       await this.kv.put(PROMPTS_KEY, JSON.stringify(data), { expirationTtl: 259200 });
       await this.logger.info('prompts', 'Saved all prompts', { count: prompts.length });
     } catch (error) {
