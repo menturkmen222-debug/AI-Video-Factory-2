@@ -533,12 +533,43 @@ FRONTEND ROUTES:
    1. Rate limiting (batched logging) ✅
    2. Error prevention guide ✅
    3. Backend endpoints sync ✅
+   4. Fixed prompt generation bugs (template literals) ✅
+   5. Added language awareness documentation ✅
 
 👉 DO NEXT:
    1. Add API key authentication
    2. Test with real social media APIs
    3. Deploy to Cloudflare production
 ```
+
+## 🐛 FIXED BUGS IN THIS SESSION
+
+### Bug: Prompts Not Used for Metadata Generation
+**Root Cause**: Template literal syntax errors in `src/services/groq.ts`
+- Line 88: `\( {attempt}/ \)` → `${attempt}/${retries}` ✅ FIXED
+- Line 111: `"\( {channelName}": \)` → `"${channelName}": ` ✅ FIXED  
+- Line 147: `\( {response.status} - \)` → `${response.status} - ` ✅ FIXED
+
+**Impact**: AI now correctly receives your prompt text and generates contextual metadata based on your video description
+
+### How Prompt is Used (Now Fixed):
+```
+1. User uploads video: "car race"
+2. System sends to AI: "Generate metadata for video: car race"
+3. AI creates context-aware title: "Thrilling Car Race - High Speed Action"
+4. AI creates description: "Watch intense racing action with incredible drifts and speeds..."
+5. AI generates tags: ["carrace", "racing", "drifting", "motorsports", "speed"]
+```
+
+### Language Selection
+**Current Behavior**: System generates metadata in English by default
+- No automatic language detection from channel settings
+- All videos get English metadata regardless of channel language
+
+**Future Improvement** (Priority 2):
+- Could detect channel language from settings
+- Auto-translate metadata to match channel language
+- For now: Prompt handles language context (e.g., "in Uzbek" in your prompt)
 
 **PRIORITY 2 - Do These Later:**
 ```

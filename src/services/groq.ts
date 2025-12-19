@@ -85,7 +85,7 @@ export class GroqService {
       } catch (error) {
         lastError = error;
         attempt++;
-        await this.logger.warn('groq', `Retry attempt \( {attempt}/ \){retries} due to error`, { error });
+        await this.logger.warn('groq', `Retry attempt ${attempt}/${retries} due to error`, { error });
       }
     }
     throw lastError;
@@ -108,7 +108,7 @@ Return ONLY valid JSON with this exact format:
 
       let userPrompt: string;
       if (videoContext && channelName) {
-        userPrompt = `Generate metadata for this video from channel "\( {channelName}": \){videoContext}`;
+        userPrompt = `Generate metadata for this video from channel "${channelName}": ${videoContext}`;
       } else if (videoContext) {
         userPrompt = `Generate metadata for this video: ${videoContext}`;
       } else if (channelName) {
@@ -144,7 +144,7 @@ Return ONLY valid JSON with this exact format:
 
           if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API request failed: \( {response.status} - \){errorText}`);
+            throw new Error(`API request failed: ${response.status} - ${errorText}`);
           }
 
           const result = await response.json() as GroqResponse;
