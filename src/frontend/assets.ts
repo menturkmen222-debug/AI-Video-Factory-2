@@ -324,26 +324,22 @@ const htmlContent = `<!DOCTYPE html>
                                 <div class="form-group">
                                     <label data-i18n="upload.targetPlatforms">Maqsadli platformalar</label>
                                     <div class="platform-checkboxes">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" name="platforms" value="youtube" checked>
-                                            <span class="checkbox-custom"></span>
-                                            <span>YouTube</span>
-                                        </label>
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" name="platforms" value="tiktok" checked>
-                                            <span class="checkbox-custom"></span>
-                                            <span>TikTok</span>
-                                        </label>
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" name="platforms" value="instagram" checked>
-                                            <span class="checkbox-custom"></span>
-                                            <span>Instagram</span>
-                                        </label>
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" name="platforms" value="facebook" checked>
-                                            <span class="checkbox-custom"></span>
-                                            <span>Facebook</span>
-                                        </label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="youtube" checked><span class="checkbox-custom"></span><span>YouTube</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="tiktok" checked><span class="checkbox-custom"></span><span>TikTok</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="instagram" checked><span class="checkbox-custom"></span><span>Instagram</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="facebook" checked><span class="checkbox-custom"></span><span>Facebook</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="snapchat" checked><span class="checkbox-custom"></span><span>Snapchat</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="pinterest" checked><span class="checkbox-custom"></span><span>Pinterest</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="x" checked><span class="checkbox-custom"></span><span>X</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="reddit" checked><span class="checkbox-custom"></span><span>Reddit</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="linkedin" checked><span class="checkbox-custom"></span><span>LinkedIn</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="twitch" checked><span class="checkbox-custom"></span><span>Twitch</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="kwai" checked><span class="checkbox-custom"></span><span>Kwai</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="likee" checked><span class="checkbox-custom"></span><span>Likee</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="dzen" checked><span class="checkbox-custom"></span><span>Dzen</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="rumble" checked><span class="checkbox-custom"></span><span>Rumble</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="odysee" checked><span class="checkbox-custom"></span><span>Odysee</span></label>
+                                        <label class="checkbox-label"><input type="checkbox" name="platforms" value="dailymotion" checked><span class="checkbox-custom"></span><span>Dailymotion</span></label>
                                     </div>
                                 </div>
 
@@ -412,12 +408,19 @@ const htmlContent = `<!DOCTYPE html>
                                 </svg>
                                 <span>Instagram</span>
                             </button>
-                            <button class="platform-tab facebook" data-platform="facebook">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                </svg>
-                                <span>Facebook</span>
-                            </button>
+                            <button class="platform-tab facebook" data-platform="facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span>Facebook</span></button>
+                            <button class="platform-tab snapchat" data-platform="snapchat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 12.2c-.8 1.6-2.4 2.4-4 2.4s-3.2-.8-4-2.4c-.16-.32-.32-.64-.4-1.04-1.04.08-1.92.64-2.4 1.52-.4.64-.64 1.44-.48 2.24.32 1.6 1.92 2.88 3.6 2.88.48 0 .96-.08 1.44-.32.8 1.28 2.32 2.16 3.84 2.16s3.04-.88 3.84-2.16c.48.24.96.32 1.44.32 1.68 0 3.28-1.28 3.6-2.88.16-.8-.08-1.6-.48-2.24-.48-.88-1.36-1.44-2.4-1.52-.08.4-.24.72-.4 1.04z"/></svg><span>Snapchat</span></button>
+                            <button class="platform-tab pinterest" data-platform="pinterest"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.223-.937 1.58-6.685 1.58-6.685s-.389-.779-.389-1.937c0-1.816.933-3.163 2.095-3.163 1.012 0 1.514.762 1.514 1.659 0 1.012-.645 2.523-.977 3.916-.279 1.174.558 2.132 1.659 2.132 1.989 0 3.531-2.095 3.531-5.126 0-2.685-1.937-4.565-4.702-4.565-3.203 0-5.079 2.405-5.079 4.889 0 .979.389 2.026.937 2.596.105.126.126.237.095.368l-.379 1.578c-.042.174-.126.215-.389.126-1.658-.826-2.711-3.42-2.711-5.5 0-3.578 2.605-6.858 7.504-6.858 3.937 0 6.984 2.809 6.984 6.556 0 3.911-2.467 7.05-5.888 7.05-1.151 0-2.233-.6-2.605-1.303l-.708 2.686c-.263.989-.973 2.231-1.45 2.989 1.084.316 2.231.495 3.413.495 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg><span>Pinterest</span></button>
+                            <button class="platform-tab x" data-platform="x"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.801-5.997 6.801H2.67l7.73-8.835L1.254 2.25h6.554l4.713 6.231 5.579-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></button>
+                            <button class="platform-tab reddit" data-platform="reddit"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.956 16.056a2.5 2.5 0 01-2.5 2.5H7.544a2.5 2.5 0 01-2.5-2.5v-6.056h13.912v6.056zm2.044-8.056H3a9 9 0 119 9 9 9 0 01-9-9z"/></svg><span>Reddit</span></button>
+                            <button class="platform-tab linkedin" data-platform="linkedin"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.39v-1.2h-2.5v8.5h2.5v-4.74c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.74h2.5M6.5 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3m1.5 15v-8.5H5v8.5h3z"/></svg><span>LinkedIn</span></button>
+                            <button class="platform-tab twitch" data-platform="twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2H2v15h4v4l4-4h5l7-7V2h-6V0m16 11l-4 4h-4l-3 3v-3H8v-11h14v11z"/></svg><span>Twitch</span></button>
+                            <button class="platform-tab kwai" data-platform="kwai"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 5a7 7 0 100 14 7 7 0 000-14z" fill="white"/></svg><span>Kwai</span></button>
+                            <button class="platform-tab likee" data-platform="likee"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg><span>Likee</span></button>
+                            <button class="platform-tab dzen" data-platform="dzen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3 15H9v-2h6v2zm0-4H9V9h6v4z"/></svg><span>Dzen</span></button>
+                            <button class="platform-tab rumble" data-platform="rumble"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15h-2v-6h2v6zm4 0h-2v-9h2v9zm4 0h-2v-3h2v3z"/></svg><span>Rumble</span></button>
+                            <button class="platform-tab odysee" data-platform="odysee"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 11h-3v3h-2v-3H8v-2h3V8h2v3h3v2z"/></svg><span>Odysee</span></button>
+                            <button class="platform-tab dailymotion" data-platform="dailymotion"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11z"/></svg><span>Dailymotion</span></button>
                         </div>
 
                         <div class="queue-content" id="queueContent">
@@ -3911,7 +3914,7 @@ const appJsContent = `class App {
 
     renderQueueByPlatform(groupedData) {
         const queueContent = document.getElementById('queueContent');
-        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
+        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'rumble', 'odysee', 'dailymotion'];
         let html = '';
 
         for (const platform of platforms) {
@@ -4541,7 +4544,7 @@ const appJsContent = `class App {
         const videoUrlInput = document.getElementById('videoUrl');
         const channelSelect = document.getElementById('channelSelect');
         const videoPrompt = document.getElementById('videoPrompt').value.trim();
-        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook'];
+        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'rumble', 'odysee', 'dailymotion'];
 
         const file = videoInput.files[0] || videoInput.file;
         const videoUrl = videoUrlInput.value.trim();
