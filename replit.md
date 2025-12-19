@@ -219,3 +219,47 @@ The frontend supports multiple languages:
 2. Single queue entry is created with video URL, prompt, and target platforms
 3. When `/run-schedule` runs, AI generates title/description/tags using the prompt and channel name
 4. Video is uploaded to all configured platforms with language-adapted metadata
+
+## Common Issues & Prevention Guide
+
+### Issue 1: Notification Bell Button Not Responding
+**Root Cause**: ID mismatch between HTML and JavaScript
+- ❌ WRONG: `getElementById('notificationBtn')` (singular)
+- ✅ CORRECT: `getElementById('notificationsBtn')` (plural)
+**Prevention**: 
+- Always check HTML IDs match JavaScript selectors exactly
+- Use browser DevTools Console to verify: `document.getElementById('notificationsBtn')` returns the element
+
+### Issue 2: Platform Selection Not Working in Upload
+**Root Cause**: Hardcoded platform list instead of reading user selections
+- ❌ WRONG: `const platforms = ['youtube', 'tiktok', 'instagram', ...]`
+- ✅ CORRECT: `const platformCheckboxes = document.querySelectorAll('input[name="platforms"]:checked'); const platforms = Array.from(platformCheckboxes).map(cb => cb.value);`
+**Prevention**:
+- Never hardcode lists that should be dynamic
+- Always read form input values from HTML
+- Test: Check in browser console that checkboxes have `name="platforms"` attribute
+
+### Issue 3: Takomlashtirish (Enhance) Button Not Working
+**Root Cause**: Missing backend endpoint or API call
+- ❌ WRONG: Frontend calls `/api/prompts/improve` but endpoint doesn't exist
+- ✅ CORRECT: Backend has `POST /api/prompts/improve` endpoint implemented
+**Prevention**:
+- When adding frontend buttons, always implement backend handler first
+- Check router in `src/index.ts` for matching endpoint
+- Test API endpoint directly: `curl -X POST http://localhost:5000/api/prompts/improve -d '{"promptId":"test"}'`
+
+### Quick Debug Checklist
+1. **Button not responding**: Check HTML ID matches exactly in JS (case-sensitive)
+2. **Form data not sent**: Check input `name` attributes in HTML
+3. **API call failing**: Check endpoint exists in `src/index.ts` route handler
+4. **Changes not visible**: Restart workflow after editing TypeScript files
+5. **Silent failures**: Check browser Console (F12) for JavaScript errors
+
+### Development Workflow Checklist
+Before committing changes:
+1. ✓ Check HTML `id` attributes used in JavaScript
+2. ✓ Check HTML `name` attributes for form inputs
+3. ✓ Verify backend endpoints exist in `src/index.ts`
+4. ✓ Restart workflow to compile TypeScript
+5. ✓ Test in browser console for syntax errors
+6. ✓ Check network requests (DevTools → Network tab)

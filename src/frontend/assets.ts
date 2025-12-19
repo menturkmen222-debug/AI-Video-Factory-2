@@ -4539,6 +4539,11 @@ const appJsContent = `class App {
         content.hidden = false;
     }
 
+    // IMPORTANT: Platform filtering is DYNAMIC from checkboxes, not hardcoded
+    // User's selected platforms are read from HTML checkboxes with [name="platforms"]:checked
+    // This ensures only selected platforms receive the video
+    // HTML has checkboxes: <input type="checkbox" name="platforms" value="youtube" checked>
+    // NEVER hardcode platform lists - always read from form checkboxes
     async handleUpload() {
         const videoInput = document.getElementById('videoFile');
         const videoUrlInput = document.getElementById('videoUrl');
@@ -5112,6 +5117,10 @@ const appJsContent = `class App {
         }
     }
 
+    // IMPORTANT: setupNotificationIcon() must use 'notificationsBtn' (PLURAL) to match HTML id
+    // HTML: <button class="btn btn-icon" id="notificationsBtn">
+    // COMMON MISTAKE: Using 'notificationBtn' (singular) will fail silently
+    // If button doesn't respond to clicks, check ID matches between HTML and JavaScript
     setupNotificationIcon() {
         const notificationBtn = document.getElementById('notificationsBtn');
         if (notificationBtn) {
