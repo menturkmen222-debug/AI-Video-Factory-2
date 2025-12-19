@@ -32,7 +32,7 @@ export class OpenRouterService {
         lastError = error;
         attempt++;
         if (attempt <= retries) {
-          await this.logger.warn('openrouter', `Retry attempt \( {attempt}/ \){retries}`, { error });
+          await this.logger.warn('openrouter', `Retry attempt ${attempt}/${retries}`, { error });
         }
       }
     }
@@ -53,7 +53,7 @@ Return ONLY valid JSON with this exact format:
 
       let userPrompt: string;
       if (videoContext && channelName) {
-        userPrompt = `Generate metadata for this video from channel "\( {channelName}": \){videoContext}`;
+        userPrompt = `Generate metadata for this video from channel "${channelName}": ${videoContext}`;
       } else if (videoContext) {
         userPrompt = `Generate metadata for this video: ${videoContext}`;
       } else if (channelName) {
@@ -89,7 +89,7 @@ Return ONLY valid JSON with this exact format:
 
           if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API request failed: \( {response.status} - \){errorText}`);
+            throw new Error(`API request failed: ${response.status} - ${errorText}`);
           }
 
           const result = await response.json() as any;
