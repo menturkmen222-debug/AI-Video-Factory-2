@@ -1,0 +1,28 @@
+ROLE: Senior full-stack tizim arxitekturasi va AI avtomatizatsiya mutaxassisi
+
+TASK: Sizga frontend va backendga ega ko‘p platformali video tarqatish tizimi berilgan. Hozirgi tizimda quyidagi muammolar mavjud:
+
+1. 15 platformaning faqat 4 tasi frontendda ko‘rinadi va ishlaydi qolganlari yoq.
+2. Platformalardagi "Yangilash" tugmalari ishlamaydi bossam hech narsa bolmaydi.
+3. Bildirishnoma ikonkasi ishlamaydi bossam hech narsa chiqarmaydi.
+4. Frontend backenddagi o‘zgarishlarni avtomatik aks ettirmaydi.
+5. Til tanlash va AI metadata fallback amalga oshirilgan, ammo frontendda provider yoki fallback holati ko‘rinmaydi.
+6. Prompts bo‘limida eski "Yangilash" tugmasi mavjud, yangi "Copy Prompt" funksiyasi ishlatilmagan.
+
+REQUIREMENTS:
+
+- Backend bilan frontendni to‘liq integratsiya qiling, barcha 15 platforma frontendda ko‘rsatilsin.
+- Barcha platformalar uchun "Yangilash" tugmalarini to‘liq ishlaydigan qiling.
+- Bildirishnoma ikonkasini upload holati va xatolarini aniq aks ettiradigan qilib tuzating.
+- Har bir platformada ishlatilayotgan AI providerni (Groq / OpenRouter / static) ko‘rsating va Sozlamalar bolimida modellarini boshqarib bolsin.
+- Agar primary AI ishlamasa, fallback voqealarini frontend loglarida ko‘rsating.
+- Prompts bo‘limi barcha promptlar uchun yangi "Copy Prompt" tugmasini ishlatsin oldingi promptlar pastidagi "Yangilash" tugmasi orniga.
+- Frontend backenddagi holatlarni avtomatik yangilashini ta’minlang.
+- Barcha kanallar, tillar, kvotalar va metadata frontend orqali to‘liq va to‘g‘ri aks etsin.
+- Upload, retry va AI fallback voqealari frontend loglarida to‘liq ko‘rinadigan bo‘lsin.
+- Barcha tuzatishlar ishlab chiqarishga tayyor, barqaror va to‘liq test qilingan bo‘lsin.
+- Hech qanday bog‘liq bo‘lmagan funksiya yoki qo‘shimcha UI element qo‘shmang.
+- To‘g‘rilikni maksimal darajada oshiring, xatolarni minimal qiling, backend va frontend o‘rtasida to‘g‘ri moslikni ta’minlang.
+
+OUTPUT:  
+Dasturchi uchun qat’iy amalga oshirish ko‘rsatmalari: barcha frontend fayllarni backend o‘zgarishlarini aks ettirish uchun yangilang, tugmalar, ikonka va platforma ko‘rinishini tuzating, AI provider va fallback loglarini integratsiya qiling, prompts bo‘limidagi "Copy Prompt" funksiyasini ishga tushiring. Tizim barcha 15 platforma, barcha kanallar va barcha tillar uchun to‘liq ishlaydigan bo‘lsin. Sozlamalar bolimida barcha AI modellarni boshqarib bolsin. Qo‘shimcha matn, izoh yoki sharhlar bo‘lmasin.
