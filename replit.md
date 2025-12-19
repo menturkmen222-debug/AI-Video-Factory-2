@@ -220,6 +220,31 @@ The frontend supports multiple languages:
 3. When `/run-schedule` runs, AI generates title/description/tags using the prompt and channel name
 4. Video is uploaded to all configured platforms with language-adapted metadata
 
+## What Does the Prompt Do? 📝
+
+**Prompt** - Foydalanuvchi videoini yuklashda yozadigan matn (kontekst):
+- **Nima?** Video haqida qisqacha tavsif yoki ko'rsatma
+- **Misol**: "Yangi biznes tips" yoki "3 minutlik tutorial"
+- **Nima qiladi?**
+  1. Foydalanuvchi prompt yozadi (masalan: "Fitness motivatsiya video")
+  2. System prompt + kanal nomi + videodan foydalanib AI metadata yaratadi
+  3. AI Groq orqali optimal title, description, va tags yaratadi har bir platforma uchun
+  4. Metadata har bir tiliga avtomatik tarjima qilinadi
+  5. Video hammasi tayyorlangan metadata bilan platformalarga yuklaydi
+
+**Konkret misol:**
+- **Video**: Fitness video file
+- **Prompt**: "30 minuta cardio trenirovalrish daqiqalari"
+- **Channel**: Fitness uzbek
+- **AI natijasi**: 
+  - Title: "30 Minutlik Cardio Trenorovalrish - Uydan Ish"
+  - Description: "Bu videoda siz 30 minut moddiy mashqlarni bajarasiz..."
+  - Tags: ["cardio", "fitness", "trenirovalrish", "uyda"]
+
+**Muhim**: Prompt quality = Metadata quality 🎯
+- Yaxshi prompt → Yaxshi metadata → Ko'p views
+- Yomon prompt → Yomon metadata → Kam views
+
 ## Common Issues & Prevention Guide
 
 ### Issue 1: Notification Bell Button Not Responding
@@ -247,6 +272,21 @@ The frontend supports multiple languages:
 - When adding frontend buttons, always implement backend handler first
 - Check router in `src/index.ts` for matching endpoint
 - Test API endpoint directly: `curl -X POST http://localhost:5000/api/prompts/improve -d '{"promptId":"test"}'`
+
+### Issue 4: KV PUT 429 Error (Rate Limiting) - FIXED ✅
+**Root Cause**: Too many simultaneous KV write operations during video processing
+- ❌ WRONG: Each log creates immediate KV write → rate limit exceeded
+- ✅ CORRECT: Logs are batched (max 5), delayed 500ms, with exponential backoff retry
+**Solution Implemented**:
+1. **Batch Writing**: Logs queue in memory, batch flush every 500ms
+2. **Rate Limiting**: Max 5 logs per batch, 50ms delay between writes
+3. **Exponential Backoff**: On 429 error, retry with 100ms → 200ms → 400ms delays
+4. **Graceful Degradation**: Failed logs re-queue for next batch
+**Prevention**:
+- Never write to KV synchronously in loops
+- Always batch writes with delays
+- Implement retry logic for 429 errors
+- Monitor KV operation frequency in console logs
 
 ### Quick Debug Checklist
 1. **Button not responding**: Check HTML ID matches exactly in JS (case-sensitive)

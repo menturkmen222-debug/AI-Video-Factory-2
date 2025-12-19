@@ -19,6 +19,11 @@ export class LogsManager {
   private logger: Logger;
   private logsKV: KVNamespace;
   private TTL_SECONDS = 86400 * 5; // 5 kun
+  private logBatch: LogEntry[] = [];
+  private batchTimeout: any = null; // Timeout reference for batch flushing
+  private isWriting = false;
+  private maxRetries = 3;
+  private baseRetryDelay = 100; // ms
 
   constructor(logsKV: KVNamespace) {
     this.logger = new Logger(logsKV);
@@ -29,19 +34,83 @@ export class LogsManager {
     return this.logger;
   }
 
-  // --- Optimized log writing ---
+  // --- Rate-limited batch log writing with exponential backoff ---
   async addLog(log: LogEntry): Promise<void> {
     try {
-      // faqat warn va error loglarni KV ga yozamiz
+      // فقط warn va error loglarni KV ga yozamiz
       if (log.level === 'info') {
         console.log('INFO log:', log.message); // konsolga chiqarish yetarli
         return;
       }
 
-      const key = `log:${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      await this.logsKV.put(key, JSON.stringify(log), { expirationTtl: this.TTL_SECONDS });
+      // Add to batch queue
+      this.logBatch.push(log);
+
+      // Clear existing timeout
+      if (this.batchTimeout) {
+        clearTimeout(this.batchTimeout);
+      }
+
+      // Batch write after 500ms delay to avoid rate limiting
+      this.batchTimeout = setTimeout(() => {
+        this.flushLogBatch().catch(e => console.error('Failed to flush logs:', e));
+      }, 500);
+
+      // If batch is full, flush immediately
+      if (this.logBatch.length >= 5) {
+        await this.flushLogBatch();
+      }
     } catch (e) {
-      console.error('Failed to write log:', e, log);
+      console.error('Failed to queue log:', e, log);
+    }
+  }
+
+  // --- Flush batch with exponential backoff retry ---
+  private async flushLogBatch(): Promise<void> {
+    if (this.isWriting || this.logBatch.length === 0) {
+      return;
+    }
+
+    this.isWriting = true;
+    const batch = this.logBatch.splice(0, 5); // Take max 5 logs per batch
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt < this.maxRetries; attempt++) {
+      try {
+        // Write all logs in parallel with rate limiting
+        const writePromises = batch.map((log) => {
+          const key = `log:${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          return this.logsKV.put(key, JSON.stringify(log), { expirationTtl: this.TTL_SECONDS });
+        });
+
+        // Add small delay between writes to avoid rate limiting
+        const writeWithDelay = writePromises.map((promise, index) =>
+          new Promise(resolve => setTimeout(() => resolve(promise), index * 50))
+        );
+
+        await Promise.all(writeWithDelay);
+        this.isWriting = false;
+        return; // Success
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // If 429 error, apply exponential backoff
+        if (lastError.message.includes('429')) {
+          const delay = this.baseRetryDelay * Math.pow(2, attempt);
+          console.warn(`KV rate limit (429), retrying in ${delay}ms...`, { attempt: attempt + 1, maxRetries: this.maxRetries });
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // Not a rate limit error, don't retry
+          break;
+        }
+      }
+    }
+
+    this.isWriting = false;
+    if (lastError) {
+      console.error('Failed to write logs after retries:', lastError);
+      // Re-queue failed logs
+      this.logBatch.unshift(...batch);
     }
   }
 
