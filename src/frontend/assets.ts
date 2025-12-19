@@ -199,51 +199,23 @@ const htmlContent = `<!DOCTYPE html>
                                 <h2 data-i18n="dashboard.platformStatus">Platforma holati</h2>
                             </div>
                             <div class="card-body">
-                                <div class="platform-list">
-                                    <div class="platform-item">
-                                        <div class="platform-icon youtube">
-                                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                                            </svg>
-                                        </div>
-                                        <div class="platform-info">
-                                            <span class="platform-name">YouTube</span>
-                                            <span class="platform-status" id="youtubeStatus" data-i18n="dashboard.ready">Tayyor</span>
-                                        </div>
-                                    </div>
-                                    <div class="platform-item">
-                                        <div class="platform-icon tiktok">
-                                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
-                                            </svg>
-                                        </div>
-                                        <div class="platform-info">
-                                            <span class="platform-name">TikTok</span>
-                                            <span class="platform-status" id="tiktokStatus" data-i18n="dashboard.ready">Tayyor</span>
-                                        </div>
-                                    </div>
-                                    <div class="platform-item">
-                                        <div class="platform-icon instagram">
-                                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                                            </svg>
-                                        </div>
-                                        <div class="platform-info">
-                                            <span class="platform-name">Instagram</span>
-                                            <span class="platform-status" id="instagramStatus" data-i18n="dashboard.ready">Tayyor</span>
-                                        </div>
-                                    </div>
-                                    <div class="platform-item">
-                                        <div class="platform-icon facebook">
-                                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                            </svg>
-                                        </div>
-                                        <div class="platform-info">
-                                            <span class="platform-name">Facebook</span>
-                                            <span class="platform-status" id="facebookStatus" data-i18n="dashboard.ready">Tayyor</span>
-                                        </div>
-                                    </div>
+                                <div class="platform-list" id="platformsList">
+                                    <div class="platform-item" data-platform="youtube"><div class="platform-icon youtube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></div><div class="platform-info"><span class="platform-name">YouTube</span><span class="platform-status" id="youtubeStatus">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="tiktok"><div class="platform-icon tiktok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></div><div class="platform-info"><span class="platform-name">TikTok</span><span class="platform-status" id="tiktokStatus">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="instagram"><div class="platform-icon instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div><div class="platform-info"><span class="platform-name">Instagram</span><span class="platform-status" id="instagramStatus">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="facebook"><div class="platform-icon facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><div class="platform-info"><span class="platform-name">Facebook</span><span class="platform-status" id="facebookStatus">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="snapchat"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c6.617 0 10.243 5.366 10.243 11.128 0 3.078-.844 5.752-2.465 7.352-1.195 1.142-2.598 1.633-3.658 1.633.618 0 1.42.275 1.42 1.342 0 .987-.88 1.72-1.68 2.112-1.28.63-2.75.855-4.86.855-2.108 0-3.58-.226-4.859-.855-.8-.392-1.68-1.125-1.68-2.112 0-1.067.8-1.342 1.42-1.342-1.06 0-2.463-.492-3.658-1.633C1.556 17.177.712 14.504.712 11.425.712 5.663 4.338.297 12 .297zm4.5 6.5c1.375 0 2.5-1.16 2.5-2.586 0-1.427-1.125-2.586-2.5-2.586-1.376 0-2.5 1.16-2.5 2.586 0 1.426 1.124 2.586 2.5 2.586zm-9 0c1.375 0 2.5-1.16 2.5-2.586 0-1.427-1.125-2.586-2.5-2.586C5.125 1.625 4 2.785 4 4.211c0 1.426 1.124 2.586 2.5 2.586z"/></svg></div><div class="platform-info"><span class="platform-name">Snapchat</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="pinterest"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#BD081C"><path d="M0 12c0 5.123 3.211 9.497 7.73 11.218-.107-.937-.227-2.482.025-3.566.217-.932 1.401-5.938 1.401-5.938s-.357-.715-.357-1.774c0-1.66.962-2.9 2.161-2.9 1.02 0 1.512.765 1.512 1.682 0 1.025-.652 2.557-.99 3.978-.281 1.189.597 2.159 1.769 2.159 2.123 0 3.756-2.239 3.756-5.471 0-2.861-2.056-4.86-4.991-4.86-3.398 0-5.393 2.549-5.393 5.177 0 1.025.394 2.122.889 2.722.098.12.119.224.089.345-.098.519-.314 1.304-.356 1.486-.057.244-.187.296-.424.177-1.56-.728-2.527-3.021-2.527-4.86 0-3.946 2.882-7.573 8.302-7.573 4.361 0 7.745 3.107 7.745 7.273 0 4.341-2.745 7.83-6.556 7.83-1.28 0-2.486-.664-2.896-1.45.799 2.644 2.369 5.537 2.369 5.537 1.021-.314 3.122-1.451 4.243-3.053.609-.948 1.173-1.976 1.173-3.016 0-1.904-.987-3.626-2.869-4.624 1.162-.034 2.261-.404 3.087-1.132 1.107-.959 1.793-2.373 1.793-4.012 0-2.861-2.056-4.86-4.991-4.86-3.398 0-5.393 2.549-5.393 5.177 0 1.025.394 2.122.889 2.722.098.12.119.224.089.345-.098.519-.314 1.304-.356 1.486-.057.244-.187.296-.424.177-1.56-.728-2.527-3.021-2.527-4.86 0-3.946 2.882-7.573 8.302-7.573 4.361 0 7.745 3.107 7.745 7.273 0 4.341-2.745 7.83-6.556 7.83-1.28 0-2.486-.664-2.896-1.45"/></svg></div><div class="platform-info"><span class="platform-name">Pinterest</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="x"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.6l-5.165-6.75-5.946 6.75h-3.308l7.73-8.835L.424 2.25h6.7l4.759 6.236L17.427 2.25h.817zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg></div><div class="platform-info"><span class="platform-name">X (Twitter)</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="reddit"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#FF4500"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.385 4.859-7.181 4.859-3.796 0-7.182-2.165-7.182-4.859a3.5 3.5 0 0 1 .476-1.565 1.75 1.75 0 1 0 2.516-2.556.75.75 0 1 1 1.042-1.075 3.26 3.26 0 0 1 5.06 0c.555.598 1.307.974 2.127.974.968 0 1.754-.786 1.754-1.754 0-.96-.786-1.746-1.754-1.746-.34 0-.646.101-.92.28-1.181-.934-2.747-1.55-4.59-1.55-.633 0-1.242.066-1.827.179l-.789-3.686a1.25 1.25 0 0 1 .456-1.415l.744-.452 1.41 2.513a3.5 3.5 0 0 1 1.993-.585zM3.75 12.75a1.75 1.75 0 0 0 0 3.5 1.75 1.75 0 0 0 0-3.5zm13.5 0a1.75 1.75 0 0 0 0 3.5 1.75 1.75 0 0 0 0-3.5z"/></svg></div><div class="platform-info"><span class="platform-name">Reddit</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="linkedin"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#0077B5"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.475-2.236-1.986-2.236-1.081 0-1.722.722-2.004 1.42-.103.249-.129.597-.129.946v5.439h-3.554s.05-8.81 0-9.728h3.554v1.375c.427-.659 1.191-1.595 2.897-1.595 2.117 0 3.704 1.385 3.704 4.362v5.586zM5.337 8.855c-1.144 0-1.915-.759-1.915-1.71 0-.955.77-1.71 1.954-1.71 1.188 0 1.915.75 1.94 1.71 0 .951-.752 1.71-1.979 1.71zm1.58 11.597H3.635V9.58h3.282v10.872zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg></div><div class="platform-info"><span class="platform-name">LinkedIn</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="twitch"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.429v4.286h-1.429V4.714zM17.143 4.714h1.429v4.286h-1.429V4.714zM6.857 7.429H8.286v7.715H6.857V7.429zm5.714 0h1.429v7.715h-1.429V7.429zm5.714 0h1.429v4.286h-1.429V7.429zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.857 16.286c-1.714 0-3.429.857-4.286 1.714-.857-.857-2.571-1.714-4.286-1.714-3.428 0-6.428 2.857-6.428 6.429v1.285h17.143v-1.285c0-3.572-3-6.429-6.143-6.429z"/></svg></div><div class="platform-info"><span class="platform-name">Twitch</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="kwai"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#FF0000"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8m3.5 6a1.5 1.5 0 0 1 0 3 1.5 1.5 0 0 1 0-3m-7 0a1.5 1.5 0 0 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg></div><div class="platform-info"><span class="platform-name">Kwai</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="likee"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#FF206E"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m5.5 11c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5m-9 0c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5m7-5H8.5v2h6.5V8z"/></svg></div><div class="platform-info"><span class="platform-name">Likee</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="dzen"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#3366FF"><path d="M0 12c0 6.627 5.373 12 12 12s12-5.373 12-12S18.627 0 12 0 0 5.373 0 12m5.5-3h3v6h-3v-6m5.5 0h3v6h-3v-6m5.5 0h3v6h-3v-6"/></svg></div><div class="platform-info"><span class="platform-name">Dzen</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="rumble"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#24A451"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5m-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11z"/></svg></div><div class="platform-info"><span class="platform-name">Rumble</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="odysee"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#FF2000"><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2m0 2c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8m3.5 6c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5m-7 0c.828 0 1.5.672 1.5 1.5s-.672 1.5-1.5 1.5-1.5-.672-1.5-1.5.672-1.5 1.5-1.5z"/></svg></div><div class="platform-info"><span class="platform-name">Odysee</span><span class="platform-status">Tayyor</span></div></div>
+                                    <div class="platform-item" data-platform="dailymotion"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="#0066FF"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m5.5 11c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5m-9 0c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5"/></svg></div><div class="platform-info"><span class="platform-name">Dailymotion</span><span class="platform-status">Tayyor</span></div></div>
                                 </div>
                             </div>
                         </div>
@@ -667,8 +639,25 @@ const htmlContent = `<!DOCTYPE html>
                                     <input type="url" id="apiEndpoint" class="form-input" data-i18n-placeholder="settings.apiEndpointPlaceholder" placeholder="Bir xil origin uchun bo'sh qoldiring">
                                     <p class="form-hint" data-i18n="settings.apiEndpointHint">Faqat boshqa API serveridan foydalanayotgan bo'lsangiz o'rnating</p>
                                 </div>
-                                <button class="btn btn-primary" id="saveSettings" data-i18n="settings.saveSettings">Sozlamalarni saqlash</button>
                             </div>
+                            <div class="settings-section">
+                                <h3>AI Sozlamalari</h3>
+                                <div class="form-group">
+                                    <label for="aiProvider">AI Provider</label>
+                                    <select id="aiProvider" class="form-select">
+                                        <option value="auto">Avtomatik (Groq, OpenRouter, Static)</option>
+                                        <option value="groq">Groq</option>
+                                        <option value="openrouter">OpenRouter</option>
+                                        <option value="static">Static</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="aiModel">AI Model</label>
+                                    <input type="text" id="aiModel" class="form-input" placeholder="Jeong korlayotgan model nomi">
+                                    <p class="form-hint">Joriy model: <span id="currentAiModel">-</span></p>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" id="saveSettings" data-i18n="settings.saveSettings">Sozlamalarni saqlash</button>
                         </div>
                     </div>
                 </section>
@@ -3491,6 +3480,18 @@ const apiJsContent = `class API {
     async getPromptsStats() {
         return this.get('/api/prompts/stats');
     }
+
+    async getAISettings() {
+        return this.get('/api/ai-settings');
+    }
+
+    async setAIProvider(provider) {
+        return this.post('/api/ai-settings/provider', { provider });
+    }
+
+    async getPlatforms() {
+        return this.get('/api/platforms');
+    }
 }
 
 class APIError extends Error {
@@ -3608,11 +3609,19 @@ const appJsContent = `class App {
             this.loadSection('upload');
         });
 
+        document.querySelectorAll('.platform-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const platform = item.dataset.platform;
+                this.refreshPlatform(platform);
+            });
+        });
+
         this.bindUploadEvents();
         this.bindTabEvents();
         this.bindLogEvents();
         this.bindSettingsEvents();
         this.bindModalEvents();
+        this.setupNotificationIcon();
     }
 
     bindTabEvents() {
@@ -3737,6 +3746,38 @@ const appJsContent = `class App {
         document.getElementById('saveSettings').addEventListener('click', () => {
             this.saveSettings();
         });
+        this.loadAISettings();
+    }
+
+    async loadAISettings() {
+        try {
+            const settings = await api.getAISettings();
+            document.getElementById('aiProvider').value = settings.provider || 'auto';
+            document.getElementById('aiModel').value = settings.model || '';
+            document.getElementById('currentAiModel').textContent = settings.model || 'Auto';
+        } catch (err) {
+            this.logEvent('AI sozlamalarni yuklash xatosi: ' + err.message, 'error');
+        }
+    }
+
+    async saveSettings() {
+        const apiEndpoint = document.getElementById('apiEndpoint').value;
+        const aiProvider = document.getElementById('aiProvider').value;
+        const aiModel = document.getElementById('aiModel').value;
+
+        try {
+            if (aiProvider) {
+                await api.setAIProvider(aiProvider);
+            }
+            if (apiEndpoint) {
+                localStorage.setItem('apiEndpoint', apiEndpoint);
+            }
+            this.showToast('success', 'Muvaffaqiyat', 'Sozlamalar saqlandi');
+            this.logEvent('Sozlamalar yangilandi');
+        } catch (err) {
+            this.showToast('error', 'Xato', 'Sozlamalarni saqlab bo\'lmadi');
+            this.logEvent('Sozlamalar xatosi: ' + err.message, 'error');
+        }
     }
 
     bindModalEvents() {
@@ -4884,14 +4925,14 @@ const appJsContent = `class App {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
                         </svg>
-                        <span>\${i18n.t('prompts.improve')}</span>
+                        <span>Takomlashtirish</span>
                     </button>
-                    <button class="btn btn-update" data-action="edit" data-prompt-id="\${prompt.id}">
+                    <button class="btn btn-update" data-action="copy" data-prompt-id="\${prompt.id}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path>
-                            <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                         </svg>
-                        <span>\${i18n.t('prompts.update')}</span>
+                        <span>Copy Prompt</span>
                     </button>
                     <button class="btn btn-validate" data-action="validate" data-prompt-id="\${prompt.id}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4930,6 +4971,10 @@ const appJsContent = `class App {
             btn.addEventListener('click', () => this.handleImprovePrompt(btn.dataset.promptId, btn));
         });
 
+        document.querySelectorAll('[data-action="copy"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleCopyPrompt(btn.dataset.promptId, btn));
+        });
+
         document.querySelectorAll('[data-action="edit"]').forEach(btn => {
             btn.addEventListener('click', () => this.handleEditPrompt(btn.dataset.promptId, btn));
         });
@@ -4945,6 +4990,21 @@ const appJsContent = `class App {
         const validateAllBtn = document.getElementById('validateAllPromptsBtn');
         if (validateAllBtn) {
             validateAllBtn.addEventListener('click', () => this.handleValidateAllPrompts(validateAllBtn));
+        }
+    }
+
+    async handleCopyPrompt(promptId, btn) {
+        const card = document.querySelector(\`[data-prompt-id="\${promptId}"]\`);
+        const textarea = card.querySelector('.prompt-text-editable');
+        const promptText = textarea.value || textarea.textContent;
+        
+        try {
+            await navigator.clipboard.writeText(promptText);
+            this.showToast('success', 'Muvaffaqiyat', 'Prompt clipboard ga nusxalandi');
+            this.logEvent(\`Prompt nusxalandi: \${promptId}\`);
+        } catch (err) {
+            this.showToast('error', 'Xato', 'Prompt nusxalashtira olmadi');
+            this.logEvent(\`Prompt nusxalash xatosi: \${err.message}\`, 'error');
         }
     }
 
@@ -5045,6 +5105,40 @@ const appJsContent = `class App {
         } finally {
             btn.disabled = false;
             btn.innerHTML = originalHtml;
+        }
+    }
+
+    setupNotificationIcon() {
+        const notificationBtn = document.getElementById('notificationBtn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
+                this.loadSection('logs');
+            });
+        }
+    }
+
+    updateNotificationIcon(hasError = false) {
+        const icon = document.getElementById('notificationIcon');
+        if (icon) {
+            if (hasError) {
+                icon.classList.add('error');
+                icon.style.color = '#ef4444';
+            } else {
+                icon.classList.remove('error');
+                icon.style.color = '#3b82f6';
+            }
+        }
+    }
+
+    async refreshPlatform(platform) {
+        this.logEvent(\`\${platform} platformasi yangilanmoqda...\`);
+        try {
+            const result = await api.post(\`/api/platforms/\${platform}/refresh\`, {});
+            this.showToast('success', 'Muvaffaqiyat', \`\${platform} yangilandi\`);
+            this.logEvent(\`\${platform} muaffaqiyatli yangilandi\`);
+        } catch (err) {
+            this.showToast('error', 'Xato', \`\${platform} yangilanishi xatosi\`);
+            this.logEvent(\`\${platform} yangilash xatosi: \${err.message}\`, 'error');
         }
     }
 }
