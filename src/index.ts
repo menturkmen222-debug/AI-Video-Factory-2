@@ -20,7 +20,8 @@ import {
   handleUpdatePrompt,
   handleValidateAllPrompts,
   handleResetPrompts,
-  handleGetPromptsStats
+  handleGetPromptsStats,
+  handleImprovePrompt
 } from './routes/prompts';
 import { handleGetAISettings, handleSetAIProvider } from './routes/aiSettings';
 import {
@@ -304,6 +305,10 @@ export default {
 
         case path === '/api/prompts/validate' && method === 'POST':
           response = await handleValidatePrompt(request, promptsManager, promptsAI, logger);
+          break;
+
+        case path === '/api/prompts/improve' && method === 'POST':
+          response = await handleImprovePrompt(request, promptsManager, promptsAI, logger);
           break;
 
         case path === '/api/prompts/copy' && method === 'POST':

@@ -4544,7 +4544,8 @@ const appJsContent = `class App {
         const videoUrlInput = document.getElementById('videoUrl');
         const channelSelect = document.getElementById('channelSelect');
         const videoPrompt = document.getElementById('videoPrompt').value.trim();
-        const platforms = ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'rumble', 'odysee', 'dailymotion'];
+        const platformCheckboxes = document.querySelectorAll('input[name="platforms"]:checked');
+        const platforms = Array.from(platformCheckboxes).map(cb => cb.value);
 
         const file = videoInput.files[0] || videoInput.file;
         const videoUrl = videoUrlInput.value.trim();
@@ -5112,7 +5113,7 @@ const appJsContent = `class App {
     }
 
     setupNotificationIcon() {
-        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationBtn = document.getElementById('notificationsBtn');
         if (notificationBtn) {
             notificationBtn.addEventListener('click', () => {
                 this.loadSection('logs');
