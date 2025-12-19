@@ -12,16 +12,10 @@ const FALLBACK_METADATA: VideoMetadata = {
   tags: ['video', 'content', 'viral', 'trending', 'amazing', 'mustwatch']
 };
 
-const PREFERRED_MODELS = [
-  'meta-llama/llama-3-8b-instruct',
-  'mistralai/mistral-7b-instruct',
-  'openrouter/auto'
-];
-
 export class OpenRouterService {
   private config: OpenRouterConfig;
   private logger: Logger;
-  private baseUrl = 'https://openrouter.io/api/v1';
+  private baseUrl = 'https://openrouter.ai/api/v1';
 
   constructor(config: OpenRouterConfig, logger: Logger) {
     this.config = { maxRetries: 2, ...config };
@@ -38,7 +32,7 @@ export class OpenRouterService {
         lastError = error;
         attempt++;
         if (attempt <= retries) {
-          await this.logger.warn('openrouter', `Retry attempt ${attempt}/${retries}`, { error });
+          await this.logger.warn('openrouter', `Retry attempt \( {attempt}/ \){retries}`, { error });
         }
       }
     }
@@ -59,7 +53,7 @@ Return ONLY valid JSON with this exact format:
 
       let userPrompt: string;
       if (videoContext && channelName) {
-        userPrompt = `Generate metadata for this video from channel "${channelName}": ${videoContext}`;
+        userPrompt = `Generate metadata for this video from channel "\( {channelName}": \){videoContext}`;
       } else if (videoContext) {
         userPrompt = `Generate metadata for this video: ${videoContext}`;
       } else if (channelName) {
@@ -68,35 +62,43 @@ Return ONLY valid JSON with this exact format:
         userPrompt = 'Generate generic engaging video metadata for a viral social media video.';
       }
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);  // 10 soniya timeout
+
       const fetchMetadata = async () => {
-        const response = await fetch(`${this.baseUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.config.apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://autooz.app',
-            'X-Title': 'AutoOZ'
-          },
-          body: JSON.stringify({
-            model: 'openrouter/auto',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 500
-          })
-        });
+        try {
+          const response = await fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${this.config.apiKey}`,
+              'Content-Type': 'application/json',
+              'HTTP-Referer': 'https://autooz.app',  // O'zgartirmang, yaxshi
+              'X-Title': 'AutoOZ'                     // O'zgartirmang
+            },
+            body: JSON.stringify({
+              model: 'openrouter/auto',  // Eng yaxshi: avtomatik tanlaydi (2025 da ishlaydi)
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt }
+              ],
+              temperature: 0.7,
+              max_tokens: 500
+            }),
+            signal: controller.signal
+          });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`API request failed: ${response.status} - ${errorText}`);
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API request failed: \( {response.status} - \){errorText}`);
+          }
+
+          const result = await response.json() as any;
+          const content = result.choices?.[0]?.message?.content;
+          if (!content) throw new Error('Empty response from OpenRouter API');
+          return content;
+        } finally {
+          clearTimeout(timeoutId);
         }
-
-        const result = await response.json() as any;
-        const content = result.choices?.[0]?.message?.content;
-        if (!content) throw new Error('Empty response from OpenRouter API');
-        return content;
       };
 
       const content = await this.retry(fetchMetadata, this.config.maxRetries!);
@@ -107,15 +109,15 @@ Return ONLY valid JSON with this exact format:
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      await this.logger.error('openrouter', 'Metadata generation failed', { error: errorMessage });
-      throw error;
+      await this.logger.error('openrouter', 'Metadata generation failed, using fallback', { error: errorMessage });
+      return this.getFallbackMetadata();  // Throw emas, fallback qaytar!
     }
   }
 
   private parseMetadata(content: string): VideoMetadata {
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found in response');
+      if (!jsonMatch) return this.getFallbackMetadata();
 
       const parsed = JSON.parse(jsonMatch[0]) as VideoMetadata;
       return {
@@ -123,8 +125,8 @@ Return ONLY valid JSON with this exact format:
         description: this.truncateString(parsed.description || FALLBACK_METADATA.description, 180),
         tags: this.validateTags(parsed.tags)
       };
-    } catch (error) {
-      throw new Error(`Failed to parse metadata: ${error}`);
+    } catch {
+      return this.getFallbackMetadata();
     }
   }
 
@@ -147,5 +149,10 @@ Return ONLY valid JSON with this exact format:
     }
 
     return validTags;
+  }
+
+  private getFallbackMetadata(): VideoMetadata {
+    this.logger.warn('openrouter', 'Using fallback metadata');
+    return { ...FALLBACK_METADATA };
   }
 }
