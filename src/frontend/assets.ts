@@ -3184,19 +3184,19 @@ textarea.form-input {
     height: 16px;
 }
 
-.btn-copy {
-    background: linear-gradient(135deg, var(--info-500), var(--info-600));
+.btn-refresh {
+    background: linear-gradient(135deg, var(--secondary-500), var(--secondary-600));
     color: white;
     border: none;
 }
 
-.btn-copy:hover {
-    background: linear-gradient(135deg, var(--info-600), var(--info-700));
+.btn-refresh:hover {
+    background: linear-gradient(135deg, var(--secondary-600), var(--secondary-700));
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
-.btn-copy:disabled {
+.btn-refresh:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -4883,25 +4883,13 @@ const appJsContent = `class App {
                 <textarea class="prompt-text-editable" data-prompt-id="\${prompt.id}">\${this.escapeHtml(prompt.promptText)}</textarea>
                 \${suggestionHtml}
                 <div class="prompt-actions">
-                    <button class="btn btn-copy" data-action="copy" data-prompt-id="\${prompt.id}">
+                    <button class="btn btn-refresh" data-action="refresh" data-prompt-id="\${prompt.id}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                         </svg>
-                        <span>\${i18n.t('prompts.copyPrompt')}</span>
-                    </button>
-                    <button class="btn btn-update" data-action="edit" data-prompt-id="\${prompt.id}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13"></path>
-                            <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z"></path>
-                        </svg>
-                        <span>\${i18n.t('prompts.update')}</span>
-                    </button>
-                    <button class="btn btn-validate" data-action="validate" data-prompt-id="\${prompt.id}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>\${i18n.t('prompts.validate')}</span>
+                        <span>\${i18n.t('prompts.refresh')}</span>
                     </button>
                 </div>
             </div>
@@ -4930,20 +4918,8 @@ const appJsContent = `class App {
     }
 
     bindPromptsEvents() {
-        document.querySelectorAll('[data-action="copy"]').forEach(btn => {
-            btn.addEventListener('click', () => this.handleCopyPrompt(btn.dataset.promptId, btn));
-        });
-
-        document.querySelectorAll('[data-action="edit"]').forEach(btn => {
-            btn.addEventListener('click', () => this.handleEditPrompt(btn.dataset.promptId, btn));
-        });
-
-        document.querySelectorAll('[data-action="validate"]').forEach(btn => {
-            btn.addEventListener('click', () => this.handleValidatePrompt(btn.dataset.promptId, btn));
-        });
-
-        document.querySelectorAll('[data-action="save"]').forEach(btn => {
-            btn.addEventListener('click', () => this.handleSavePrompt(btn.dataset.promptId, btn));
+        document.querySelectorAll('[data-action="refresh"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleRefreshPrompt(btn.dataset.promptId, btn));
         });
 
         const validateAllBtn = document.getElementById('validateAllPromptsBtn');
@@ -4952,25 +4928,18 @@ const appJsContent = `class App {
         }
     }
 
-    async handleCopyPrompt(promptId, btn) {
-        const prompt = this.prompts.find(p => p.id === promptId);
-        if (!prompt) return;
-
+    async handleRefreshPrompt(promptId, btn) {
+        btn.disabled = true;
+        btn.classList.add('rotating');
         try {
-            await navigator.clipboard.writeText(prompt.promptText);
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> \${i18n.t('prompts.copied')}\`;
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
-            }, 2000);
-            
-            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.promptCopied'));
+            await this.loadPrompts();
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.refreshSuccess'));
         } catch (error) {
-            console.error('Failed to copy prompt:', error);
-            this.showToast('error', i18n.t('toast.error'), i18n.t('prompts.copyFailed'));
+            console.error('Failed to refresh prompt:', error);
+            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.refreshFailed'));
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('rotating');
         }
     }
 
@@ -5309,10 +5278,9 @@ const uzTranslations = `{
     "filterByChannel": "Kanal bo'yicha filtrlash",
     "allChannels": "Barcha kanallar",
     "validateAll": "Barchasini tasdiqlash",
-    "copyPrompt": "Savolni nusxala",
-    "copied": "Nusxalandi",
-    "promptCopied": "Savol nusxalandi",
-    "copyFailed": "Nusxalashda xato yuz berdi",
+    "refresh": "Yangilash",
+    "refreshSuccess": "Savollar yangilandi",
+    "refreshFailed": "Yangilashda xato yuz berdi",
     "update": "Yangilash",
     "save": "Saqlash",
     "validate": "Tasdiqlash",
@@ -5535,10 +5503,9 @@ const tkTranslations = `{
     "filterByChannel": "Kanal boýunça süzmek",
     "allChannels": "Ähli kanallar",
     "validateAll": "Hemmesini tassyklamak",
-    "copyPrompt": "Teklibini nusxala",
-    "copied": "Nusxalandi",
-    "promptCopied": "Teklib nusxalandi",
-    "copyFailed": "Nusxalaşda ýalňyşlyk",
+    "refresh": "Täzelemek",
+    "refreshSuccess": "Teklibller täzelendi",
+    "refreshFailed": "Täzelemekde ýalňyşlyk",
     "update": "Täzelemek",
     "save": "Ýatda saklamak",
     "validate": "Tassyklamak",
