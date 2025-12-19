@@ -4,7 +4,7 @@ import { VideoMetadata } from '../db/queue';
 export interface GroqConfig {
   apiKey: string;
   model?: string;
-  maxRetries?: number; // Retry soni
+  maxRetries?: number;
 }
 
 interface GroqMessage {
@@ -19,6 +19,14 @@ interface GroqResponse {
     };
   }>;
 }
+
+// Mavjud modellardan eng yaxshisini tanlash uchun prioritet ro'yxati (2025 dekabr holati bo'yicha aktual)
+const PREFERRED_MODELS = [
+  'llama-3.3-70b-versatile',                   // Eng yaxshi barqaror model
+  'openai/gpt-oss-120b',                       // Flagship kuchli model
+  'meta-llama/llama-4-scout-17b-16e-instruct', // Yangi preview model (eski nomi to'g'rilandi)
+  'llama-3.1-8b-instant'                       // Tez va doimiy fallback
+];
 
 const FALLBACK_METADATA: VideoMetadata = {
   title: 'Amazing Video Content',
@@ -36,25 +44,34 @@ export class GroqService {
     this.logger = logger;
   }
 
-  // --- Auto fetch latest Groq model ---
+  // Yangi: Avtomatik eng yaxshi mavjud modelni tanlaydi
   private async setLatestModel(): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/models`, {
         headers: { 'Authorization': `Bearer ${this.config.apiKey}` }
       });
+
       if (!response.ok) throw new Error(`Failed to fetch models: ${response.status}`);
-      const data = await response.json() as { latestModel?: string };
-      if (data.latestModel) {
-        this.config.model = data.latestModel;
-        await this.logger.info('groq', 'Latest model set automatically', { model: data.latestModel });
+
+      const data = await response.json() as { data: Array<{ id: string }> };
+
+      // Mavjud modellardan prioritet bo'yicha birinchisini tanlaymiz
+      const availableModels = data.data.map(m => m.id);
+      const selectedModel = PREFERRED_MODELS.find(model => availableModels.includes(model));
+
+      if (selectedModel) {
+        this.config.model = selectedModel;
+        await this.logger.info('groq', 'Best available model selected automatically', { model: selectedModel });
       } else {
-        this.config.model = 'llama 4 scout 17b 16e';
-        await this.logger.warn('groq', 'Could not detect latest model, using fallback', { model: this.config.model });
+        // Agar hech biri topilmasa, birinchi mavjud modelni fallback qilamiz
+        this.config.model = availableModels[0] || 'llama-3.1-8b-instant';
+        await this.logger.warn('groq', 'No preferred model found, using first available as fallback', { model: this.config.model });
       }
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
-      this.config.model = 'llama 4 scout 17b 16e';
-      await this.logger.error('groq', 'Failed to fetch latest model, using fallback', { error: errMsg, model: this.config.model });
+      // API ga ulanolmasa – eng ishonchli fallback
+      this.config.model = 'llama-3.1-8b-instant';
+      await this.logger.error('groq', 'Failed to fetch models list, using safe fallback', { error: errMsg, model: this.config.model });
     }
   }
 
@@ -68,7 +85,7 @@ export class GroqService {
       } catch (error) {
         lastError = error;
         attempt++;
-        await this.logger.warn('groq', `Retry attempt ${attempt}/${retries} due to error`, { error });
+        await this.logger.warn('groq', `Retry attempt \( {attempt}/ \){retries} due to error`, { error });
       }
     }
     throw lastError;
@@ -91,7 +108,7 @@ Return ONLY valid JSON with this exact format:
 
       let userPrompt: string;
       if (videoContext && channelName) {
-        userPrompt = `Generate metadata for this video from channel "${channelName}": ${videoContext}`;
+        userPrompt = `Generate metadata for this video from channel "\( {channelName}": \){videoContext}`;
       } else if (videoContext) {
         userPrompt = `Generate metadata for this video: ${videoContext}`;
       } else if (channelName) {
@@ -127,7 +144,7 @@ Return ONLY valid JSON with this exact format:
 
           if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API request failed: ${response.status} - ${errorText}`);
+            throw new Error(`API request failed: \( {response.status} - \){errorText}`);
           }
 
           const result = await response.json() as GroqResponse;
@@ -240,4 +257,4 @@ Return ONLY valid JSON with this exact format:
       throw error;
     }
   }
-}
+                         }
