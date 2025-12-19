@@ -3775,7 +3775,7 @@ const appJsContent = `class App {
             this.showToast('success', 'Muvaffaqiyat', 'Sozlamalar saqlandi');
             this.logEvent('Sozlamalar yangilandi');
         } catch (err) {
-            this.showToast('error', 'Xato', 'Sozlamalarni saqlab bo\'lmadi');
+            this.showToast('error', 'Xato', 'Sozlamalarni saqlab bolmadi');
             this.logEvent('Sozlamalar xatosi: ' + err.message, 'error');
         }
     }
