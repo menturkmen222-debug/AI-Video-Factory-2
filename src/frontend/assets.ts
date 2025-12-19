@@ -3184,19 +3184,19 @@ textarea.form-input {
     height: 16px;
 }
 
-.btn-improve {
-    background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
+.btn-copy {
+    background: linear-gradient(135deg, var(--info-500), var(--info-600));
     color: white;
     border: none;
 }
 
-.btn-improve:hover {
-    background: linear-gradient(135deg, var(--warning-600), var(--warning-600));
+.btn-copy:hover {
+    background: linear-gradient(135deg, var(--info-600), var(--info-700));
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
-.btn-improve:disabled {
+.btn-copy:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -3236,6 +3236,33 @@ textarea.form-input {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+}
+
+#notificationBadge {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: #EF4444;
+    color: white;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+#notificationBadge[data-count]:not([data-count="0"]) {
+    display: flex;
+}
+
+.rotating {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .prompts-loading,
@@ -4856,11 +4883,12 @@ const appJsContent = `class App {
                 <textarea class="prompt-text-editable" data-prompt-id="\${prompt.id}">\${this.escapeHtml(prompt.promptText)}</textarea>
                 \${suggestionHtml}
                 <div class="prompt-actions">
-                    <button class="btn btn-improve" data-action="improve" data-prompt-id="\${prompt.id}">
+                    <button class="btn btn-copy" data-action="copy" data-prompt-id="\${prompt.id}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                         </svg>
-                        <span>\${i18n.t('prompts.improve')}</span>
+                        <span>\${i18n.t('prompts.copyPrompt')}</span>
                     </button>
                     <button class="btn btn-update" data-action="edit" data-prompt-id="\${prompt.id}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4902,8 +4930,8 @@ const appJsContent = `class App {
     }
 
     bindPromptsEvents() {
-        document.querySelectorAll('[data-action="improve"]').forEach(btn => {
-            btn.addEventListener('click', () => this.handleImprovePrompt(btn.dataset.promptId, btn));
+        document.querySelectorAll('[data-action="copy"]').forEach(btn => {
+            btn.addEventListener('click', () => this.handleCopyPrompt(btn.dataset.promptId, btn));
         });
 
         document.querySelectorAll('[data-action="edit"]').forEach(btn => {
@@ -4924,20 +4952,25 @@ const appJsContent = `class App {
         }
     }
 
-    async handleImprovePrompt(promptId, btn) {
-        const originalHtml = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = \`<svg class="spinner-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></circle></svg> \${i18n.t('prompts.improving')}\`;
+    async handleCopyPrompt(promptId, btn) {
+        const prompt = this.prompts.find(p => p.id === promptId);
+        if (!prompt) return;
 
         try {
-            const result = await api.improvePrompt(promptId);
-            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.improveSuccess'));
-            await this.loadPrompts();
+            await navigator.clipboard.writeText(prompt.promptText);
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> \${i18n.t('prompts.copied')}\`;
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }, 2000);
+            
+            this.showToast('success', i18n.t('toast.success'), i18n.t('prompts.promptCopied'));
         } catch (error) {
-            console.error('Failed to improve prompt:', error);
-            this.showToast('error', i18n.t('toast.error'), error.message || i18n.t('prompts.improveFailed'));
-            btn.disabled = false;
-            btn.innerHTML = originalHtml;
+            console.error('Failed to copy prompt:', error);
+            this.showToast('error', i18n.t('toast.error'), i18n.t('prompts.copyFailed'));
         }
     }
 
@@ -5276,12 +5309,14 @@ const uzTranslations = `{
     "filterByChannel": "Kanal bo'yicha filtrlash",
     "allChannels": "Barcha kanallar",
     "validateAll": "Barchasini tasdiqlash",
-    "improve": "Yaxshilash",
+    "copyPrompt": "Savolni nusxala",
+    "copied": "Nusxalandi",
+    "promptCopied": "Savol nusxalandi",
+    "copyFailed": "Nusxalashda xato yuz berdi",
     "update": "Yangilash",
     "save": "Saqlash",
     "validate": "Tasdiqlash",
     "validating": "Tasdiqlanmoqda...",
-    "improving": "Yaxshilanmoqda...",
     "updating": "Yangilanmoqda...",
     "saving": "Saqlanmoqda...",
     "validatingAll": "Hammasi tasdiqlanmoqda...",
@@ -5500,12 +5535,14 @@ const tkTranslations = `{
     "filterByChannel": "Kanal boýunça süzmek",
     "allChannels": "Ähli kanallar",
     "validateAll": "Hemmesini tassyklamak",
-    "improve": "Gowulandyrmak",
+    "copyPrompt": "Teklibini nusxala",
+    "copied": "Nusxalandi",
+    "promptCopied": "Teklib nusxalandi",
+    "copyFailed": "Nusxalaşda ýalňyşlyk",
     "update": "Täzelemek",
     "save": "Ýatda saklamak",
     "validate": "Tassyklamak",
     "validating": "Tassyklanýar...",
-    "improving": "Gowulandyrylýar...",
     "updating": "Täzelenýär...",
     "saving": "Ýatda saklanýar...",
     "validatingAll": "Hemmesi tassyklanýar...",
