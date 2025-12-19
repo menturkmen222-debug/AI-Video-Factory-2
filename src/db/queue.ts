@@ -2,7 +2,10 @@
 import { Logger } from '../utils/logger';
 import { getCurrentTimestamp, getDayKey, getCurrentDate } from '../utils/time';
 
-export type Platform = 'youtube' | 'tiktok' | 'instagram' | 'facebook';
+export type Platform = 
+  | 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'snapchat' 
+  | 'pinterest' | 'x' | 'reddit' | 'linkedin' | 'twitch' 
+  | 'kwai' | 'likee' | 'dzen' | 'rumble' | 'odysee' | 'dailymotion';
 export type VideoStatus = 'pending' | 'processing' | 'uploaded' | 'failed' | 'skipped';
 
 export interface PlatformUploadStatus {

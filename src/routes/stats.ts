@@ -247,7 +247,11 @@ export async function handleGetQueueGrouped(
   }
 }
 
-const VALID_PLATFORMS: Platform[] = ['youtube', 'tiktok', 'instagram', 'facebook'];
+const VALID_PLATFORMS: Platform[] = [
+  'youtube', 'tiktok', 'instagram', 'facebook', 'snapchat',
+  'pinterest', 'x', 'reddit', 'linkedin', 'twitch',
+  'kwai', 'likee', 'dzen', 'rumble', 'odysee', 'dailymotion'
+];
 
 export async function handleRetryPlatformUpload(
   request: Request,

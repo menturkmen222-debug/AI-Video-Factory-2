@@ -32,12 +32,7 @@ export class LogsManager {
   // --- Optimized log writing ---
   async addLog(log: LogEntry): Promise<void> {
     try {
-      // faqat warn va error loglarni KV ga yozamiz
-      if (log.level === 'info') {
-        console.log('INFO log:', log.message); // konsolga chiqarish yetarli
-        return;
-      }
-
+      // Hamma loglarni KV ga yozamiz (info ham)
       const key = `log:${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       await this.logsKV.put(key, JSON.stringify(log), { expirationTtl: this.TTL_SECONDS });
     } catch (e) {
