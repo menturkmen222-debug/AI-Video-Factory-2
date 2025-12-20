@@ -25,11 +25,16 @@ export interface ChannelConfig {
 }
 
 export const CHANNEL_NAMES = [
-  { id: 'channel1', name: 'channel1', displayName: 'Channel 1', topic: 'Technology & Innovation', topicDescription: 'AI, gadgets, software, startups, future tech trends' },
-  { id: 'channel2', name: 'channel2', displayName: 'Channel 2', topic: 'Lifestyle & Health', topicDescription: 'Wellness, fitness, nutrition, mental health, daily routines' },
-  { id: 'channel3', name: 'channel3', displayName: 'Channel 3', topic: 'Business & Finance', topicDescription: 'Investing, entrepreneurship, money management, career growth' },
-  { id: 'channel4', name: 'channel4', displayName: 'Channel 4', topic: 'Entertainment & Comedy', topicDescription: 'Funny moments, reactions, skits, viral trends, pop culture' },
-  { id: 'channel5', name: 'channel5', displayName: 'Channel 5', topic: 'Education & Learning', topicDescription: 'Science facts, history, languages, skills, how-to guides' }
+  { id: 'channel1', name: 'rabbit', displayName: 'Qoyin (Rabbit)', topic: 'Fast & Energetic', topicDescription: 'Quick action, bouncy vibes, energetic twists - high energy content!' },
+  { id: 'channel2', name: 'panda', displayName: 'Panda', topic: 'Cute & Clumsy', topicDescription: 'Adorable moments, clumsy twists, funny falls - heart-melting content' },
+  { id: 'channel3', name: 'penguin', displayName: 'Pingvin (Penguin)', topic: 'Funny & Slippery', topicDescription: 'Clumsy sliding, cold humor, funny twists - comedy gold!' },
+  { id: 'channel4', name: 'raccoon', displayName: 'Yenot (Raccoon)', topic: 'Night Life & Mischief', topicDescription: 'Trash diving, night activities, sneaky twists - super viral!' },
+  { id: 'channel5', name: 'wolf', displayName: 'Bo\'ri (Wolf)', topic: 'Cool & Mysterious', topicDescription: 'Bad boy character, romantic twists, aldov va cool moves - billion views!' },
+  { id: 'channel6', name: 'hippo', displayName: 'Begemot (Hippo)', topic: 'Heavy & Bold', topicDescription: 'Big personality, heavy twists, impactful moments - powerful content' },
+  { id: 'channel7', name: 'owl', displayName: 'Boyo\'g\'li (Owl)', topic: 'Wise & Funny', topicDescription: 'Intelligent humor, wise cracks, funny philosophy - clever content' },
+  { id: 'channel8', name: 'crocodile', displayName: 'Timsoh (Crocodile)', topic: 'Scary Yet Cute', topicDescription: 'Big teeth romance, scary but sweet, unique twists - viral moments!' },
+  { id: 'channel9', name: 'koala', displayName: 'Koala', topic: 'Sleepy & Lazy', topicDescription: 'Napping everywhere, sleepy vibes, viral laziness - most relatable!' },
+  { id: 'channel10', name: 'sloth', displayName: 'Lenivets (Sloth)', topic: 'Slowmo & Chill', topicDescription: 'Everything in slow motion, dangasa portlaydi, ultra chill - slowest trends!' }
 ] as const;
 
 export type ChannelId = typeof CHANNEL_NAMES[number]['id'];
@@ -42,9 +47,9 @@ export function isValidChannel(id: string): boolean {
   return CHANNEL_NAMES.some(ch => ch.id === id);
 }
 
-export const VIDEOS_PER_DAY_PER_CHANNEL = 5;
-export const TOTAL_CHANNELS = 5;
-export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook'] as const;
+export const VIDEOS_PER_DAY_PER_CHANNEL = 3;
+export const TOTAL_CHANNELS = 10;
+export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'dailymotion'] as const;
 export type Platform = typeof PLATFORMS[number];
 
 // Environment variable interface for channel-based credentials

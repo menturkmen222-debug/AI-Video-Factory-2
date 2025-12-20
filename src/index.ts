@@ -31,7 +31,12 @@ import {
   handleGetChannels,
   handleValidateStructure
 } from './routes/distribution';
+import { handleProcessVideo, handleMockUpload, handleGetQueueStatus } from './routes/videoProcessor';
+import { FFmpegProcessor } from './services/ffmpegProcessor';
+import { FileSystemManager } from './services/fileSystemManager';
+import { QueueManagerService } from './services/queueManager';
 import { PlatformCredentials } from './platforms';
+import { CHANNEL_NAMES } from './config/channels';
 
 export interface Env {
   VIDEO_QUEUE: KVNamespace;
@@ -358,6 +363,28 @@ export default {
 
         case path === '/api/ai-settings/provider' && method === 'POST':
           response = await handleSetAIProvider(request, aiSettingsManager, logger);
+          break;
+
+        case path === '/api/video/process' && method === 'POST':
+          const ffmpeg = new FFmpegProcessor(logger);
+          const fileSystem = new FileSystemManager({
+            baseDir: '/workspace/videos',
+            channels: CHANNEL_NAMES.map(c => c.id),
+            languages: ['en', 'de', 'es', 'ar', 'ru'],
+            platforms: ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'dailymotion']
+          }, logger);
+          const videoQueueManager = new QueueManagerService(logger);
+          response = await handleProcessVideo(request, ffmpeg, fileSystem, videoQueueManager, logger);
+          break;
+
+        case path === '/api/video/upload-mock' && method === 'POST':
+          const videoQueue = new QueueManagerService(logger);
+          response = await handleMockUpload(request, videoQueue, logger);
+          break;
+
+        case path === '/api/video/queue-status' && method === 'GET':
+          const queueSvc = new QueueManagerService(logger);
+          response = await handleGetQueueStatus(queueSvc, logger);
           break;
 
         case isFrontendPath(path) && method === 'GET':
