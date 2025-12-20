@@ -213,12 +213,12 @@ export class TemplatesManager {
   async validateChannelStructure(): Promise<{ valid: boolean; errors: string[] }> {
     const errors: string[] = [];
     
-    if (CHANNEL_NAMES.length !== 5) {
-      errors.push(`Expected 5 channels, found ${CHANNEL_NAMES.length}`);
+    if (CHANNEL_NAMES.length !== 10) {
+      errors.push(`Expected 10 channels, found ${CHANNEL_NAMES.length}`);
     }
 
-    if (VIDEOS_PER_DAY_PER_CHANNEL !== 5) {
-      errors.push(`Expected 5 videos per day per channel, found ${VIDEOS_PER_DAY_PER_CHANNEL}`);
+    if (VIDEOS_PER_DAY_PER_CHANNEL !== 3) {
+      errors.push(`Expected 3 videos per day per channel, found ${VIDEOS_PER_DAY_PER_CHANNEL}`);
     }
 
     return {
