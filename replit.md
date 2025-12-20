@@ -545,6 +545,12 @@ FRONTEND ROUTES:
    - Updated to 14 platforms (was 4, now includes Snapchat, Pinterest, X, Reddit, LinkedIn, Twitch, Kwai, Likee, Dzen, Rumble, Odysee, Dailymotion)
    - 5 languages per platform (English, German, Spanish, Arabic, Russian)
 
+✅ SESSION 4: Auto Language & Time Detection
+   - SmartScheduler service with platform-specific peak times
+   - Channel-based language auto-detection (Russian for CIS, German for Europe, Spanish for LATAM)
+   - Timezone-aware optimal posting time calculation
+   - Override capability (provide custom values to bypass auto-detection)
+
 👉 MANUAL STEPS REMAINING (User Implementation):
    1. Connect real social media APIs (YouTube Data API, TikTok Open API, etc.)
    2. Add platform-specific uploaders for all 14 platforms
@@ -741,21 +747,65 @@ Body: { "provider": "openrouter" }
 
 ---
 
+## ✨ AVTOMATIK TIL VA VAQT TANLASH (NEW - COMPLETED)
+
+### SmartScheduler Service (`src/services/smartScheduler.ts`)
+```
+Auto Language Detection:
+├─ Channel1-5 (Global) → English (en)
+├─ Channel6 (Hippo) → Russian (ru) + Moscow timezone
+├─ Channel7 (Owl) → German (de) + Berlin timezone
+├─ Channel8 (Crocodile) → Spanish (es) + Mexico City timezone
+├─ Channel9 (Koala) → English (en) + Sydney timezone
+└─ Channel10 (Sloth) → Russian (ru) + Tashkent timezone
+
+Auto Optimal Posting Time:
+├─ YouTube: 18:00-22:00 (peak watch time)
+├─ TikTok: 18:00-23:00 (youth engagement)
+├─ Instagram: 19:00-22:00 (evening scrolling)
+├─ Facebook: 20:00-22:00 (late evening)
+├─ Pinterest: 14:00-18:00 (afternoon planning)
+├─ LinkedIn: 09:00-12:00 (morning work hours)
+├─ Twitch: 21:00-01:00 (night gaming)
+└─ Others: Platform-specific peak hours
+
+Features:
+├─ Timezone-aware scheduling
+├─ Next available peak hour calculation
+├─ Multi-language support mapping
+└─ Audience engagement optimization
+```
+
+---
+
 ## 🚀 TEST ENDPOINTS (Ready to Use):
 
-### Video Processing Pipeline:
+### Video Processing Pipeline (With Auto Detection):
 ```bash
-# 1. Process video with FFmpeg
+# 1. Process video WITH auto-detection
 POST /api/video/process
 {
-  "channel": "channel1",
-  "language": "en",
+  "channel": "channel6",        # Will auto-detect: Russian, Europe/Moscow timezone
   "platform": "youtube",
   "videoFile": "sample.mp4",
   "logoFile": "logo.png",
   "title": "Amazing Video Title",
   "description": "Compelling description here",
   "tags": ["viral", "trending", "content"]
+  # language and scheduledTime are OPTIONAL - auto-detected!
+}
+
+# 2. Or specify custom values (override auto-detection)
+POST /api/video/process
+{
+  "channel": "channel1",
+  "language": "de",             # Override auto-detection
+  "platform": "youtube",
+  "videoFile": "sample.mp4",
+  "scheduledTime": "2025-02-20T19:00:00Z",  # Override smart scheduling
+  "title": "Custom Video",
+  "description": "Custom description",
+  "tags": ["custom", "tags"]
 }
 
 # 2. Get queue status

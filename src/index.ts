@@ -35,6 +35,7 @@ import { handleProcessVideo, handleMockUpload, handleGetQueueStatus } from './ro
 import { FFmpegProcessor } from './services/ffmpegProcessor';
 import { FileSystemManager } from './services/fileSystemManager';
 import { QueueManagerService } from './services/queueManager';
+import { SmartSchedulerService } from './services/smartScheduler';
 import { PlatformCredentials } from './platforms';
 import { CHANNEL_NAMES } from './config/channels';
 
