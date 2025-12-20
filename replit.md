@@ -1,5 +1,15 @@
 # AI Video Uploader - Cloudflare Worker
 
+## 📖 KO'LLIK TUSHUNTIRISH - READ THIS FIRST!
+**👉 [WORKFLOW_GUIDE.md](./WORKFLOW_GUIDE.md)** - To'liq tafsir:
+- **SIZNING VAZIFALARINGIZ** (User) - Nima qilishingiz kerak
+- **AI NIMA QILADI** (Groq) - Avtomatik metadata generation
+- **SISTEMA NIMA QILADI** (Automation) - Auto scheduling, processing, queuing
+- **COMPLETE WORKFLOW EXAMPLE** - Real scenario qadam-qadam
+- **API ENDPOINTS** - Barcha endpoint'lar
+
+---
+
 ## Overview
 Bu loyiha Cloudflare Worker yordamida videolarni bir nechta ijtimoiy tarmoq platformalariga avtomatik yuklash uchun yaratilgan AI quvvatli tizimdir.
 
