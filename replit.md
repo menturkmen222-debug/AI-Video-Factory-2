@@ -67,3 +67,35 @@ The system utilizes Cloudflare Workers (TypeScript) as its runtime environment, 
     - Rumble API
     - Odysee/LBRY API
     - Dailymotion Partner API
+## Frontend Documentation
+
+**Complete Frontend Guide Available:** [FRONTEND_GUIDE.md](./FRONTEND_GUIDE.md)
+
+The frontend is a modern, responsive dashboard with:
+- Multi-language support (Uzbek & Turkmen)
+- Real-time statistics and monitoring
+- Video upload with AI metadata generation
+- Queue management with scheduling
+- Comprehensive logging system
+- Prompt management and optimization
+- Settings and configuration panel
+
+**Key Pages:**
+- Dashboard (Boshqaruv paneli) - Statistics and platform status
+- Upload (Video yuklash) - Upload videos and add metadata
+- Queue (Navbat) - Monitor pending uploads and schedules
+- Logs (Jurnallar) - View system logs and errors
+- Prompts (Promptlar) - Manage AI generation prompts
+- Settings (Sozlamalar) - Configure AI providers and platforms
+
+**Features:**
+- ✅ Real-time dashboard with live stats
+- ✅ Responsive design (desktop & mobile)
+- ✅ Multi-language interface (Uzbek, Turkmen)
+- ✅ AI-powered metadata generation
+- ✅ Automatic queue management
+- ✅ Comprehensive logging and monitoring
+- ✅ Platform-specific optimization
+- ✅ Health status indicator
+- ✅ Toast notifications
+- ✅ Keyboard shortcuts support
