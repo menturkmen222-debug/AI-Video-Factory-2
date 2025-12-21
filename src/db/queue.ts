@@ -38,6 +38,7 @@ export interface VideoQueueEntry {
   id: string;
   videoUrl: string;
   cloudinaryUrl: string;
+  cloudinaryPublicId?: string;
   platforms: Platform[];
   channelId: string;
   status: VideoStatus;

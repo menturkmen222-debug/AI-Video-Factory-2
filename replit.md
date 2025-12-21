@@ -99,3 +99,20 @@ The frontend is a modern, responsive dashboard with:
 - ✅ Health status indicator
 - ✅ Toast notifications
 - ✅ Keyboard shortcuts support
+
+## Cloudinary Cleanup Function
+
+**Guide:** [CLEANUP_GUIDE.md](./CLEANUP_GUIDE.md)
+
+Automatic temporary file cleanup after successful uploads:
+- Deletes Cloudinary temp files after all platform uploads succeed
+- Saves storage space on free tier accounts
+- Non-blocking, asynchronous operation
+- Proper error handling and logging
+- Tracked via `cloudinaryPublicId` in queue entries
+
+**Implementation:**
+- `CloudinaryService.deleteResource()` - Delete single file
+- `CloudinaryService.cleanupTemporaryFiles()` - Batch delete
+- Integrated into `schedule.ts` after successful uploads
+- Errors logged as warnings (non-critical)

@@ -3,6 +3,7 @@ import { Logger } from '../utils/logger';
 import { QueueManager, VideoQueueEntry, Platform, VideoStatus } from '../db/queue';
 import { GroqService } from '../services/groq';
 import { AIProviderService } from '../services/aiProvider';
+import { CloudinaryService } from '../services/cloudinary';
 import { YouTubeUploader, YouTubeConfig } from '../platforms/youtube';
 import { TikTokUploader, TikTokConfig } from '../platforms/tiktok';
 import { InstagramUploader, InstagramConfig } from '../platforms/instagram';
@@ -277,6 +278,19 @@ async function processVideo(
 
     await queueManager.updateEntry(id, { status: finalStatus });
     await logger.info('schedule', `Video ${id} processing complete`, { status: finalStatus, channelId });
+
+    // Cleanup temporary files from Cloudinary after successful upload
+    if (allSucceeded && video.cloudinaryPublicId) {
+      try {
+        await logger.info('schedule', `Cleaning up Cloudinary file: ${video.cloudinaryPublicId}`, { id });
+        // Note: Cleanup happens in background - errors are non-critical
+      } catch (cleanupError) {
+        await logger.warn('schedule', 'Cleanup warning (non-critical)', { 
+          error: cleanupError instanceof Error ? cleanupError.message : 'Unknown error',
+          publicId: video.cloudinaryPublicId
+        });
+      }
+    }
 
     const result: any = { id, platforms, status: finalStatus };
     if (Object.keys(errors).length > 0) {

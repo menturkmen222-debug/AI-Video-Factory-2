@@ -13,6 +13,12 @@ export interface CloudinaryUploadResult {
   error?: string;
 }
 
+export interface CloudinaryDeleteResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
 export class CloudinaryService {
   private config: CloudinaryConfig;
   private logger: Logger;
@@ -44,6 +50,22 @@ export class CloudinaryService {
     return Array.from(data).reduce((acc, byte) => {
       return acc + byte.toString(16).padStart(2, '0');
     }, '').substring(0, 40);
+  }
+
+  private generateDeleteSignature(publicId: string, timestamp: number): string {
+    const params: Record<string, string> = {
+      public_id: publicId,
+      timestamp: timestamp.toString(),
+      type: 'upload'
+    };
+
+    const sortedParams = Object.keys(params)
+      .sort()
+      .map(key => `${key}=${params[key]}`)
+      .join('&');
+    
+    const stringToSign = `${sortedParams}${this.config.apiSecret}`;
+    return this.sha1(stringToSign);
   }
 
   async uploadFromUrl(videoUrl: string): Promise<CloudinaryUploadResult> {
@@ -141,5 +163,93 @@ export class CloudinaryService {
       await this.logger.error('cloudinary', 'File upload exception', { error: errorMessage });
       return { success: false, error: errorMessage };
     }
+  }
+
+  async deleteResource(publicId: string): Promise<CloudinaryDeleteResult> {
+    await this.logger.info('cloudinary', 'Starting delete', { publicId });
+    
+    try {
+      const timestamp = Math.floor(Date.now() / 1000);
+      
+      const formData = new FormData();
+      formData.append('public_id', publicId);
+      formData.append('api_key', this.config.apiKey);
+      formData.append('timestamp', timestamp.toString());
+      formData.append('type', 'upload');
+      formData.append('signature', this.generateDeleteSignature(publicId, timestamp));
+
+      const deleteUrl = `https://api.cloudinary.com/v1_1/${this.config.cloudName}/image/destroy`;
+      
+      const response = await fetch(deleteUrl, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        await this.logger.warn('cloudinary', 'Delete failed (not critical)', { 
+          status: response.status, 
+          error: errorText,
+          publicId 
+        });
+        return { 
+          success: false, 
+          error: errorText,
+          message: 'File may have already been deleted or not found'
+        };
+      }
+
+      await this.logger.info('cloudinary', 'Delete successful', { publicId });
+      return {
+        success: true,
+        message: `File ${publicId} deleted successfully`
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      await this.logger.warn('cloudinary', 'Delete exception (not critical)', { 
+        error: errorMessage,
+        publicId 
+      });
+      return { 
+        success: false, 
+        error: errorMessage,
+        message: 'Delete operation failed, but this is not critical'
+      };
+    }
+  }
+
+  async cleanupTemporaryFiles(publicIds: string[]): Promise<{ deleted: number; failed: number; errors: string[] }> {
+    if (!publicIds || publicIds.length === 0) {
+      await this.logger.info('cloudinary', 'No files to cleanup');
+      return { deleted: 0, failed: 0, errors: [] };
+    }
+
+    await this.logger.info('cloudinary', 'Starting cleanup', { count: publicIds.length });
+
+    let deleted = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    const deletePromises = publicIds.map(async (publicId) => {
+      const result = await this.deleteResource(publicId);
+      if (result.success) {
+        deleted++;
+      } else {
+        failed++;
+        if (result.error) {
+          errors.push(`${publicId}: ${result.error}`);
+        }
+      }
+    });
+
+    await Promise.allSettled(deletePromises);
+
+    await this.logger.info('cloudinary', 'Cleanup completed', { 
+      deleted, 
+      failed, 
+      total: publicIds.length 
+    });
+
+    return { deleted, failed, errors };
   }
 }
