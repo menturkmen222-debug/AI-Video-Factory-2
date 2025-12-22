@@ -264,11 +264,16 @@ const htmlContent = `<!DOCTYPE html>
                                     <label for="channelSelect" data-i18n="upload.selectChannel">Kanalni tanlang</label>
                                     <select id="channelSelect" class="form-select" required>
                                         <option value="" data-i18n="upload.selectChannelPlaceholder">-- Kanalni tanlang --</option>
-                                        <option value="channel1" data-i18n="upload.channel1">Kanal 1</option>
-                                        <option value="channel2" data-i18n="upload.channel2">Kanal 2</option>
-                                        <option value="channel3" data-i18n="upload.channel3">Kanal 3</option>
-                                        <option value="channel4" data-i18n="upload.channel4">Kanal 4</option>
-                                        <option value="channel5" data-i18n="upload.channel5">Kanal 5</option>
+                                        <option value="channel1" data-i18n="upload.channel1">Qoyin (Rabbit)</option>
+                                        <option value="channel2" data-i18n="upload.channel2">Panda</option>
+                                        <option value="channel3" data-i18n="upload.channel3">Pingvin (Penguin)</option>
+                                        <option value="channel4" data-i18n="upload.channel4">Yenot (Raccoon)</option>
+                                        <option value="channel5" data-i18n="upload.channel5">Bo'ri (Wolf)</option>
+                                        <option value="channel6" data-i18n="upload.channel6">Begemot (Hippo)</option>
+                                        <option value="channel7" data-i18n="upload.channel7">Boyo'g'li (Owl)</option>
+                                        <option value="channel8" data-i18n="upload.channel8">Timsoh (Crocodile)</option>
+                                        <option value="channel9" data-i18n="upload.channel9">Koala</option>
+                                        <option value="channel10" data-i18n="upload.channel10">Lenivets (Sloth)</option>
                                     </select>
                                     <p class="form-hint" data-i18n="upload.channelHint">Video ushbu kanal uchun YouTube, TikTok, Instagram va Facebook'ga yuklanadi</p>
                                 </div>
@@ -5332,11 +5337,16 @@ const uzTranslations = `{
     "submitUpload": "Video yuklash",
     "uploading": "Yuklanmoqda...",
     "uploadComplete": "Yuklash tugadi!",
-    "channel1": "Kanal 1",
-    "channel2": "Kanal 2",
-    "channel3": "Kanal 3",
-    "channel4": "Kanal 4",
-    "channel5": "Kanal 5"
+    "channel1": "Qoyin (Rabbit)",
+    "channel2": "Panda",
+    "channel3": "Pingvin (Penguin)",
+    "channel4": "Yenot (Raccoon)",
+    "channel5": "Bo'ri (Wolf)",
+    "channel6": "Begemot (Hippo)",
+    "channel7": "Boyo'g'li (Owl)",
+    "channel8": "Timsoh (Crocodile)",
+    "channel9": "Koala",
+    "channel10": "Lenivets (Sloth)"
   },
   "queue": {
     "title": "Video navbati",
@@ -5556,11 +5566,16 @@ const tkTranslations = `{
     "submitUpload": "Wideo ýüklemek",
     "uploading": "Ýüklenýär...",
     "uploadComplete": "Ýüklemek tamamlandy!",
-    "channel1": "Kanal 1",
-    "channel2": "Kanal 2",
-    "channel3": "Kanal 3",
-    "channel4": "Kanal 4",
-    "channel5": "Kanal 5"
+    "channel1": "Qoyin (Rabbit)",
+    "channel2": "Panda",
+    "channel3": "Pingvin (Penguin)",
+    "channel4": "Yenot (Raccoon)",
+    "channel5": "Bo'ri (Wolf)",
+    "channel6": "Begemot (Hippo)",
+    "channel7": "Boyo'g'li (Owl)",
+    "channel8": "Timsoh (Crocodile)",
+    "channel9": "Koala",
+    "channel10": "Lenivets (Sloth)"
   },
   "queue": {
     "title": "Wideo nobaty",
