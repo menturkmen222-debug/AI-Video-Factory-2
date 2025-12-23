@@ -4866,15 +4866,30 @@ const appJsContent = `class App {
 
     populateChannelFilter() {
         const filter = document.getElementById('promptsChannelFilter');
-        const channels = [...new Set(this.prompts.map(p => p.channelId))];
+        const allChannels = [
+            { id: 'channel1', name: 'Qoyin (Rabbit)' },
+            { id: 'channel2', name: 'Panda' },
+            { id: 'channel3', name: 'Pingvin (Penguin)' },
+            { id: 'channel4', name: 'Yenot (Raccoon)' },
+            { id: 'channel5', name: 'Bo\'ri (Wolf)' },
+            { id: 'channel6', name: 'Begemot (Hippo)' },
+            { id: 'channel7', name: 'Boyo\'g\'li (Owl)' },
+            { id: 'channel8', name: 'Timsoh (Crocodile)' },
+            { id: 'channel9', name: 'Koala' },
+            { id: 'channel10', name: 'Lenivets (Sloth)' }
+        ];
         
         filter.innerHTML = \`<option value="all">\${i18n.t('prompts.allChannels')}</option>\`;
-        channels.forEach(channelId => {
-            const prompt = this.prompts.find(p => p.channelId === channelId);
-            filter.innerHTML += \`<option value="\${channelId}">\${this.escapeHtml(prompt?.channelName || channelId)}</option>\`;
+        allChannels.forEach(channel => {
+            filter.innerHTML += \`<option value="\${channel.id}">\${this.escapeHtml(channel.name)}</option>\`;
         });
 
-        filter.addEventListener('change', (e) => {
+        // Remove duplicate listeners
+        const newFilter = filter.cloneNode(true);
+        filter.parentNode.replaceChild(newFilter, filter);
+        
+        const updatedFilter = document.getElementById('promptsChannelFilter');
+        updatedFilter.addEventListener('change', (e) => {
             this.promptsChannelFilter = e.target.value;
             this.renderPrompts();
             this.bindPromptsEvents();

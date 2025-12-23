@@ -59,7 +59,13 @@ export interface DailyCounter {
   count: number;
 }
 
-const DAILY_LIMIT = 50;
+// Daily upload limit per channel (3 videos per channel per day as per config)
+const DAILY_LIMIT_PER_CHANNEL = 3;
+
+// Get daily limit for a specific channel
+function getDailyLimitForChannel(channelId: string): number {
+  return DAILY_LIMIT_PER_CHANNEL;
+}
 
 // TTLni statusga qarab aniqlash
 function getTTLByStatus(status: string): number | undefined {
@@ -210,10 +216,11 @@ export class QueueManager {
 
   async canUpload(platform: Platform, channelId: string): Promise<boolean> {
     const count = await this.getDailyCount(platform, channelId);
-    const canUpload = count < DAILY_LIMIT;
+    const limit = getDailyLimitForChannel(channelId);
+    const canUpload = count < limit;
     
     if (!canUpload) {
-      await this.logger.warn('queue', 'Daily limit reached', { platform, channelId, count, limit: DAILY_LIMIT });
+      await this.logger.warn('queue', 'Daily limit reached for channel', { platform, channelId, count, limit, dailyLimitPerChannel: DAILY_LIMIT_PER_CHANNEL });
     }
     
     return canUpload;
