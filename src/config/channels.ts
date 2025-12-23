@@ -25,22 +25,27 @@ export interface ChannelConfig {
 }
 
 export const CHANNEL_NAMES = [
-  { id: 'channel1', name: 'rabbit', displayName: 'Qoyin (Rabbit)', topic: 'Fast & Energetic', topicDescription: 'Quick action, bouncy vibes, energetic twists - high energy content!', defaultLanguage: 'en', timezone: 'UTC' },
-  { id: 'channel2', name: 'panda', displayName: 'Panda', topic: 'Cute & Clumsy', topicDescription: 'Adorable moments, clumsy twists, funny falls - heart-melting content', defaultLanguage: 'en', timezone: 'UTC' },
-  { id: 'channel3', name: 'penguin', displayName: 'Pingvin (Penguin)', topic: 'Funny & Slippery', topicDescription: 'Clumsy sliding, cold humor, funny twists - comedy gold!', defaultLanguage: 'en', timezone: 'UTC' },
-  { id: 'channel4', name: 'raccoon', displayName: 'Yenot (Raccoon)', topic: 'Night Life & Mischief', topicDescription: 'Trash diving, night activities, sneaky twists - super viral!', defaultLanguage: 'en', timezone: 'UTC' },
-  { id: 'channel5', name: 'wolf', displayName: 'Bo\'ri (Wolf)', topic: 'Cool & Mysterious', topicDescription: 'Bad boy character, romantic twists, aldov va cool moves - billion views!', defaultLanguage: 'en', timezone: 'UTC' },
-  { id: 'channel6', name: 'hippo', displayName: 'Begemot (Hippo)', topic: 'Heavy & Bold', topicDescription: 'Big personality, heavy twists, impactful moments - powerful content', defaultLanguage: 'ru', timezone: 'Europe/Moscow' },
-  { id: 'channel7', name: 'owl', displayName: 'Boyo\'g\'li (Owl)', topic: 'Wise & Funny', topicDescription: 'Intelligent humor, wise cracks, funny philosophy - clever content', defaultLanguage: 'de', timezone: 'Europe/Berlin' },
-  { id: 'channel8', name: 'crocodile', displayName: 'Timsoh (Crocodile)', topic: 'Scary Yet Cute', topicDescription: 'Big teeth romance, scary but sweet, unique twists - viral moments!', defaultLanguage: 'es', timezone: 'America/Mexico_City' },
-  { id: 'channel9', name: 'koala', displayName: 'Koala', topic: 'Sleepy & Lazy', topicDescription: 'Napping everywhere, sleepy vibes, viral laziness - most relatable!', defaultLanguage: 'en', timezone: 'Australia/Sydney' },
-  { id: 'channel10', name: 'sloth', displayName: 'Lenivets (Sloth)', topic: 'Slowmo & Chill', topicDescription: 'Everything in slow motion, dangasa portlaydi, ultra chill - slowest trends!', defaultLanguage: 'ru', timezone: 'Asia/Tashkent' }
+  { id: 'channel1', name: 'rabbit', displayName: 'Qoyin (Rabbit)', topic: 'Fast & Energetic', topicDescription: 'Quick action, bouncy vibes, energetic twists - high energy content!', defaultLanguage: 'en', timezone: 'UTC', dailyLimit: 3 },
+  { id: 'channel2', name: 'panda', displayName: 'Panda', topic: 'Cute & Clumsy', topicDescription: 'Adorable moments, clumsy twists, funny falls - heart-melting content', defaultLanguage: 'en', timezone: 'UTC', dailyLimit: 3 },
+  { id: 'channel3', name: 'penguin', displayName: 'Pingvin (Penguin)', topic: 'Funny & Slippery', topicDescription: 'Clumsy sliding, cold humor, funny twists - comedy gold!', defaultLanguage: 'en', timezone: 'UTC', dailyLimit: 3 },
+  { id: 'channel4', name: 'raccoon', displayName: 'Yenot (Raccoon)', topic: 'Night Life & Mischief', topicDescription: 'Trash diving, night activities, sneaky twists - super viral!', defaultLanguage: 'en', timezone: 'UTC', dailyLimit: 3 },
+  { id: 'channel5', name: 'wolf', displayName: 'Bo\'ri (Wolf)', topic: 'Cool & Mysterious', topicDescription: 'Bad boy character, romantic twists, aldov va cool moves - billion views!', defaultLanguage: 'en', timezone: 'UTC', dailyLimit: 3 },
+  { id: 'channel6', name: 'hippo', displayName: 'Begemot (Hippo)', topic: 'Heavy & Bold', topicDescription: 'Big personality, heavy twists, impactful moments - powerful content', defaultLanguage: 'ru', timezone: 'Europe/Moscow', dailyLimit: 3 },
+  { id: 'channel7', name: 'owl', displayName: 'Boyo\'g\'li (Owl)', topic: 'Wise & Funny', topicDescription: 'Intelligent humor, wise cracks, funny philosophy - clever content', defaultLanguage: 'de', timezone: 'Europe/Berlin', dailyLimit: 3 },
+  { id: 'channel8', name: 'crocodile', displayName: 'Timsoh (Crocodile)', topic: 'Scary Yet Cute', topicDescription: 'Big teeth romance, scary but sweet, unique twists - viral moments!', defaultLanguage: 'es', timezone: 'America/Mexico_City', dailyLimit: 3 },
+  { id: 'channel9', name: 'koala', displayName: 'Koala', topic: 'Sleepy & Lazy', topicDescription: 'Napping everywhere, sleepy vibes, viral laziness - most relatable!', defaultLanguage: 'en', timezone: 'Australia/Sydney', dailyLimit: 3 },
+  { id: 'channel10', name: 'sloth', displayName: 'Lenivets (Sloth)', topic: 'Slowmo & Chill', topicDescription: 'Everything in slow motion, dangasa portlaydi, ultra chill - slowest trends!', defaultLanguage: 'ru', timezone: 'Asia/Tashkent', dailyLimit: 3 }
 ] as const;
 
 export type ChannelId = typeof CHANNEL_NAMES[number]['id'];
 
 export function getChannelById(id: string): typeof CHANNEL_NAMES[number] | undefined {
   return CHANNEL_NAMES.find(ch => ch.id === id);
+}
+
+export function getChannelDailyLimit(channelId: string): number {
+  const channel = getChannelById(channelId);
+  return channel?.dailyLimit ?? VIDEOS_PER_DAY_PER_CHANNEL;
 }
 
 export function isValidChannel(id: string): boolean {

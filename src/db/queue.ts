@@ -59,12 +59,12 @@ export interface DailyCounter {
   count: number;
 }
 
-// Daily upload limit per channel (3 videos per channel per day as per config)
-const DAILY_LIMIT_PER_CHANNEL = 3;
+// Import channel config for per-channel daily limits
+import { getChannelDailyLimit } from '../config/channels';
 
-// Get daily limit for a specific channel
+// Get daily limit for a specific channel (reads from config)
 function getDailyLimitForChannel(channelId: string): number {
-  return DAILY_LIMIT_PER_CHANNEL;
+  return getChannelDailyLimit(channelId);
 }
 
 // TTLni statusga qarab aniqlash
@@ -220,7 +220,7 @@ export class QueueManager {
     const canUpload = count < limit;
     
     if (!canUpload) {
-      await this.logger.warn('queue', 'Daily limit reached for channel', { platform, channelId, count, limit, dailyLimitPerChannel: DAILY_LIMIT_PER_CHANNEL });
+      await this.logger.warn('queue', 'Daily limit reached for channel', { platform, channelId, count, limit });
     }
     
     return canUpload;
