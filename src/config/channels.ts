@@ -52,8 +52,8 @@ export function isValidChannel(id: string): boolean {
   return CHANNEL_NAMES.some(ch => ch.id === id);
 }
 
-export const VIDEOS_PER_DAY_PER_CHANNEL = 3;
-export const TOTAL_CHANNELS = 10;
+export const VIDEOS_PER_DAY_PER_CHANNEL = 3 as const;
+export const TOTAL_CHANNELS = 10 as const;
 export const PLATFORMS = ['youtube', 'tiktok', 'instagram', 'facebook', 'snapchat', 'pinterest', 'x', 'reddit', 'linkedin', 'twitch', 'kwai', 'likee', 'dzen', 'dailymotion'] as const;
 export type Platform = typeof PLATFORMS[number];
 
