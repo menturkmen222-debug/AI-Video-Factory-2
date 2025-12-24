@@ -1,6 +1,7 @@
 import { Logger } from '../utils/logger';
 import { QueueManager, Platform } from '../db/queue';
 import { CloudinaryService } from '../services/cloudinary';
+import { UploadSchedulerService } from '../services/uploadScheduler';
 
 export interface UploadRequest {
   videoUrl?: string;
@@ -14,8 +15,10 @@ export interface UploadResponse {
   message: string;
   queueEntries?: Array<{
     id: string;
-    platforms: Platform[]; // ✅ platform emas, platforms
+    platforms: Platform[];
     status: string;
+    uploadSchedule?: Record<Platform, string>;
+    scheduleSummary?: string;
   }>;
   error?: string;
 }
@@ -138,11 +141,20 @@ export async function handleUpload(
       videoContext
     });
 
+    // Calculate upload schedule for each platform
+    const scheduler = new UploadSchedulerService(logger);
+    const uploadSchedule = scheduler.calculateSchedule(entry.createdAt, entry.platforms, channelId);
+    const scheduleSummary = scheduler.getScheduleSummary(uploadSchedule);
+
+    // Update entry with schedule
+    await queueManager.updateEntry(entry.id, { uploadSchedule });
+
     await logger.info('upload', 'Step 8: Video successfully queued for processing', { 
       queueId: entry.id,
       channelId,
       platforms: entry.platforms.join(', '),
-      status: entry.status
+      status: entry.status,
+      schedule: scheduleSummary
     });
 
     const response: UploadResponse = {
@@ -151,7 +163,9 @@ export async function handleUpload(
       queueEntries: [{
         id: entry.id,
         platforms: entry.platforms,
-        status: entry.status
+        status: entry.status,
+        uploadSchedule,
+        scheduleSummary
       }]
     };
 

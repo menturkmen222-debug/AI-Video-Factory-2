@@ -225,9 +225,22 @@ export async function handleGetQueueGrouped(
   try {
     const groupedData = await queueManager.getQueueGroupedByPlatformAndChannel();
     
+    // Enhance with schedule information
+    const enrichedData = Object.entries(groupedData).reduce((acc, [platform, channels]) => {
+      acc[platform] = Object.entries(channels).reduce((chAcc, [channelId, videos]) => {
+        chAcc[channelId] = videos.map(video => ({
+          ...video,
+          uploadSchedule: video.uploadSchedule || {},
+          nextUploadTime: video.uploadSchedule ? Object.entries(video.uploadSchedule).sort(([,a], [,b]) => new Date(a).getTime() - new Date(b).getTime())[0] : null
+        }));
+        return chAcc;
+      }, {} as any);
+      return acc;
+    }, {} as any);
+    
     return new Response(JSON.stringify({
       success: true,
-      data: groupedData,
+      data: enrichedData,
       timestamp: new Date().toISOString()
     }), {
       status: 200,

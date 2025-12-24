@@ -7,6 +7,7 @@ import { GroqService, GroqConfig } from './services/groq';
 import { OpenRouterService } from './services/openrouter';
 import { PromptsAIService } from './services/promptsAI';
 import { VideoGeneratorService } from './services/videoGenerator';
+import { UploadSchedulerService } from './services/uploadScheduler';
 import { AIProviderService } from './services/aiProvider';
 import { AISettingsManager } from './services/aiSettings';
 import { handleUpload } from './routes/upload';

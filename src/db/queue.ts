@@ -13,6 +13,8 @@ export interface PlatformUploadStatus {
   platformVideoId?: string;
   platformUrl?: string;
   retryAttempt?: string;
+  scheduledAt?: string;
+  estimatedUploadTime?: string;
   analytics?: {
     views?: number;
     likes?: number;
@@ -50,6 +52,7 @@ export interface VideoQueueEntry {
   retryCount: number;
   platformStatuses: Record<Platform, PlatformUploadStatus>;
   scheduledAt?: string;
+  uploadSchedule?: Record<Platform, string>;
 }
 
 export interface DailyCounter {
