@@ -2,7 +2,7 @@ import { Logger } from '../utils/logger';
 import { VideoTemplate, VideoAdaptation, PublishTarget } from '../models/videoTemplate';
 import { LanguageCode } from '../config/languages';
 import { PlatformId } from '../config/platforms';
-import { VIDEOS_PER_DAY_PER_CHANNEL, CHANNEL_NAMES } from '../config/channels';
+import { VIDEOS_PER_DAY_PER_CHANNEL, CHANNEL_NAMES, TOTAL_CHANNELS } from '../config/channels';
 
 export interface DailyQuotaEntry {
   date: string;
@@ -213,8 +213,8 @@ export class TemplatesManager {
   async validateChannelStructure(): Promise<{ valid: boolean; errors: string[] }> {
     const errors: string[] = [];
     
-    if (CHANNEL_NAMES.length !== 10) {
-      errors.push(`Expected 10 channels, found ${CHANNEL_NAMES.length}`);
+    if (CHANNEL_NAMES.length !== TOTAL_CHANNELS) {
+      errors.push(`Expected ${TOTAL_CHANNELS} channels, found ${CHANNEL_NAMES.length}`);
     }
 
     if (VIDEOS_PER_DAY_PER_CHANNEL !== 3) {

@@ -2,7 +2,7 @@ import { Logger } from '../utils/logger';
 import { LanguageCode, getLanguageByCode, getLanguageTimezone } from '../config/languages';
 import { PlatformId, getPlatformById, getPlatformOptimalHours, PLATFORM_IDS } from '../config/platforms';
 import { PublishTarget, VideoTemplate, PlatformMetadata, createPublishTarget } from '../models/videoTemplate';
-import { CHANNEL_NAMES, VIDEOS_PER_DAY_PER_CHANNEL } from '../config/channels';
+import { CHANNEL_NAMES, VIDEOS_PER_DAY_PER_CHANNEL, TOTAL_CHANNELS } from '../config/channels';
 
 export interface ScheduleConfig {
   channelId: string;
@@ -182,10 +182,9 @@ export class MultiPlatformSchedulerService {
 
   validateChannelStructure(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
-    const expectedChannels = 10;
 
-    if (CHANNEL_NAMES.length !== expectedChannels) {
-      errors.push(`Expected ${expectedChannels} channels, found ${CHANNEL_NAMES.length}`);
+    if (CHANNEL_NAMES.length !== TOTAL_CHANNELS) {
+      errors.push(`Expected ${TOTAL_CHANNELS} channels, found ${CHANNEL_NAMES.length}`);
     }
 
     if (VIDEOS_PER_DAY_PER_CHANNEL !== 3) {
