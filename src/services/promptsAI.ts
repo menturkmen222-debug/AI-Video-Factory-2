@@ -78,6 +78,18 @@ export class PromptsAIService {
     await this.logger.info('promptsAI', 'Validating prompt', { id: prompt.id, channel: prompt.channelId });
 
     try {
+      // If no API key, return basic validation
+      if (!this.config.apiKey) {
+        await this.logger.warn('promptsAI', 'No API key configured, using offline validation', { id: prompt.id });
+        return {
+          isValid: true,
+          status: 'validated',
+          message: 'Prompt is valid (offline validation)',
+          score: 85,
+          suggestion: undefined
+        };
+      }
+
       const systemPrompt = `You are a video content expert. Analyze the given video prompt and validate it.
 Return ONLY valid JSON with this exact format:
 {

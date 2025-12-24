@@ -33,7 +33,12 @@ export class PromptsManager {
   async getAllPrompts(): Promise<VideoPrompt[]> {
     try {
       const data = await this.kv.get<PromptsData>(PROMPTS_KEY, 'json');
-      return data?.prompts || [];
+      if (data?.prompts && data.prompts.length > 0) {
+        return data.prompts;
+      }
+      // Auto-initialize if empty
+      await this.logger.info('prompts', 'No prompts found, auto-initializing');
+      return await this.initializeDefaultPrompts();
     } catch (error) {
       await this.logger.error('prompts', 'Failed to get prompts', { error });
       return [];
