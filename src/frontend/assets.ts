@@ -4871,9 +4871,9 @@ const appJsContent = `class App {
             { id: 'channel2', name: 'Panda' },
             { id: 'channel3', name: 'Pingvin (Penguin)' },
             { id: 'channel4', name: 'Yenot (Raccoon)' },
-            { id: 'channel5', name: 'Bo\'ri (Wolf)' },
+            { id: 'channel5', name: 'Bori (Wolf)' },
             { id: 'channel6', name: 'Begemot (Hippo)' },
-            { id: 'channel7', name: 'Boyo\'g\'li (Owl)' },
+            { id: 'channel7', name: 'Boyoggli (Owl)' },
             { id: 'channel8', name: 'Timsoh (Crocodile)' },
             { id: 'channel9', name: 'Koala' },
             { id: 'channel10', name: 'Lenivets (Sloth)' }
