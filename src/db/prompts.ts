@@ -166,11 +166,85 @@ export class PromptsManager {
         'Create a comprehensive video on negotiation tactics for salary increases, featuring role-play scenarios, psychology tips, and real-world success examples.'
       ],
       'Entertainment & Comedy': [
-        'Produce a hilarious reaction video to the week\'s most viral social media moments, with witty commentary, perfectly timed edits, and shareable punchlines.',
-        'Create a sketch comedy video parodying common workplace situations, featuring relatable scenarios, exaggerated characters, and unexpected plot twists.',
-        'Design a challenge video with a unique twist on a trending format, incorporating creative elements, genuine reactions, and audience engagement hooks.',
-        'Develop a compilation video of the funniest animal moments with creative sound effects, comedic narration, and perfect comedic timing in editing.',
-        'Produce a "day in the life" parody video exaggerating common daily struggles with dramatic effects, over-the-top reactions, and self-deprecating humor.'
+        JSON.stringify({
+          "type": "Absurd Surrealism",
+          "title": "Realistic Environment + Illogical Events",
+          "description": "100% realistic environment, camera quality, and lighting, but completely illogical and impossible events. Creates visual shock.",
+          "essence": "Unexpected visual impact - what the mind doesn't expect",
+          "key_elements": {
+            "setting": "Ultra-realistic, everyday mundane locations (apartment, office, street)",
+            "animals": "Using AI to animate real animals performing impossible acts",
+            "logic": "Event breaks laws of physics and reality",
+            "camera": "High quality, realistic footage - NO stylization",
+            "impact": "Cognitive dissonance between realistic visuals and absurd events"
+          },
+          "example_scenario": "A sheep stuck in a toilet, rotating like a washing machine. 100% real toilet, real bathroom, but the sheep is infinite spinning.",
+          "retention_factor": "Viewer brain catches the contradiction - keeps watching to understand"
+        }),
+        JSON.stringify({
+          "type": "Brain Rot Content",
+          "title": "Fast Stimuli + Zero Logic = Viral Hypnosis",
+          "description": "Rapid-fire visual stimuli without logical connections. Designed for Gen Alpha/Z attention spans. Pure visual noise creating addiction.",
+          "essence": "Hypnosis through visual chaos - doesn't make sense, that's the point",
+          "key_elements": {
+            "pacing": "5-10 cuts per 3 seconds minimum",
+            "transitions": "Chaotic, unexpected, NO smooth transitions",
+            "audio": "Loud, overlapping, meme sounds and trend audio",
+            "effects": "Heavy color grading, saturation, lens distortion",
+            "content": "Completely disconnected scenes strung together",
+            "hook": "First 0.5 seconds determines 90% of success"
+          },
+          "example_scenario": "Cut: Animal face. Cut: Explosion sound. Cut: Spinning text. Cut: Animal making weird face. Cut: Random zoom. Cut: Trending song drops.",
+          "retention_factor": "Brain can't predict next frame - forces constant attention to avoid missing something"
+        }),
+        JSON.stringify({
+          "type": "Cursed Video Aesthetic",
+          "title": "Low Quality Camera + Unsettling Situation",
+          "description": "Poor image quality (CCTV, old phone) creates authenticity. Unexplainable situation triggers 'cursed' feeling: fear + curiosity + laughter.",
+          "essence": "Found footage horror mixed with comedy - what IS this?",
+          "key_elements": {
+            "camera": "Deliberately low quality - CCTV, security cam, 2005 phone quality",
+            "resolution": "720p or lower, heavy noise/grain",
+            "lighting": "Unnatural, surveillance-like, cold",
+            "situation": "Bizarre, unexplainable, slightly disturbing but funny",
+            "timestamp": "Add timestamp overlay for authenticity (fake OK)",
+            "feeling": "Did I just see something cursed?"
+          },
+          "example_scenario": "CCTV quality: Bunny just standing in kitchen corner at 3am, not moving, staring at camera for 30 seconds. No explanation.",
+          "retention_factor": "Unique feeling - not pure fear, not pure funny, but mysterious mixture keeps people sharing"
+        }),
+        JSON.stringify({
+          "type": "Slapstick AI Comedy",
+          "title": "AI-Generated Physical Comedy",
+          "description": "Animals performing exaggerated physical comedy: falling, hitting, crashing. AI makes it look real but impossible. NO PAIN shown (cartoonish).",
+          "essence": "Physical comedy so extreme and unrealistic it's hilarious",
+          "key_elements": {
+            "actions": "Extreme falls, collisions, flying, bouncing",
+            "physics": "AI-enhanced to be MORE dramatic than reality",
+            "impact": "Cartoonish but LOOKING realistic",
+            "sound_design": "Perfect comedic timing with sound effects",
+            "expression": "Animal expressions enhanced to show 'stunned' reactions",
+            "scale": "Overexaggerated but believable visually"
+          },
+          "example_scenario": "Penguin walks into glass door at high speed, bounces back 20 feet, slides on ice, crashes into wall in slow-motion, shakes head dizzy.",
+          "retention_factor": "Slapstick is timeless - works across ALL ages and cultures. Pure physical comedy = universal language"
+        }),
+        JSON.stringify({
+          "type": "Uncanny Valley (G'alati Yaqinlik)",
+          "title": "Unsettlingly Human-Like Animal Behavior",
+          "description": "Animals behaving TOO humanly creates discomfort + fascination. They do things no animal should do: sit on toilet, use phone, eat with utensils.",
+          "essence": "Familiar yet wrong - triggers both laughter and unease",
+          "key_elements": {
+            "behavior": "Animals doing distinctly human activities",
+            "expressions": "AI enhances facial expressions to seem almost conscious",
+            "intelligence": "Animal appears to UNDERSTAND what it's doing",
+            "setting": "Everyday human situations (bathroom, restaurant, office)",
+            "props": "Using human objects naturally (phone, toilet, tools)",
+            "feeling": "Is this animal actually intelligent? UNSETTLING."
+          },
+          "example_scenario": "Sheep sitting on toilet like human, reading newspaper, flushing. Making eye contact with camera like 'don't look at me' expression.",
+          "retention_factor": "Psychological - brain is confused, forces attention to resolve the confusion. Shareable because 'did you FEEL that?'"
+        })
       ],
       'Education & Learning': [
         'Create an animated explainer video about a complex scientific concept, breaking it down into digestible segments with colorful visuals and memorable analogies.',
