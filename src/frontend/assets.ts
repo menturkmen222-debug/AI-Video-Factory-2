@@ -2615,6 +2615,35 @@ textarea.form-input {
     color: var(--gray-500);
 }
 
+.upload-schedule {
+    font-size: 0.75rem;
+    color: var(--primary-600);
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.platform-schedule-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.schedule-label {
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.schedule-value {
+    color: var(--primary-600);
+    font-weight: 600;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
 .video-status-badges {
     display: flex;
     gap: 0.5rem;
@@ -3984,9 +4013,11 @@ const appJsContent = `class App {
         const status = platformStatus ? platformStatus.status : 'pending';
         const statusInfo = this.formatPlatformStatus(status);
 
-        let scheduledTimeHtml = '';
-        if (video.scheduledAt) {
-            scheduledTimeHtml = \`<div class="scheduled-time">\${i18n.t('queue.scheduledFor')}: \${this.formatDate(video.scheduledAt)}</div>\`;
+        let uploadTimeHtml = '';
+        if (video.uploadSchedule && video.uploadSchedule[currentPlatform]) {
+            const uploadTime = new Date(video.uploadSchedule[currentPlatform]);
+            const timeStr = uploadTime.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+            uploadTimeHtml = \`<div class="upload-schedule">📅 \${timeStr} UTC</div>\`;
         }
 
         return \`
@@ -3998,7 +4029,7 @@ const appJsContent = `class App {
                     <div class="video-info">
                         <div class="video-title">\${this.escapeHtml(video.metadata?.title || video.id)}</div>
                         <div class="video-meta">\${video.createdAt ? this.formatDate(video.createdAt) : ''}</div>
-                        \${scheduledTimeHtml}
+                        \${uploadTimeHtml}
                     </div>
                     <div class="video-status-badges">
                         <span class="status-badge \${statusInfo.className}">
@@ -4023,7 +4054,7 @@ const appJsContent = `class App {
 
         for (const platform of platforms) {
             const status = video.platformStatuses ? video.platformStatuses[platform] : null;
-            platformsHtml += this.renderPlatformStatusCard(video.id, platform, status);
+            platformsHtml += this.renderPlatformStatusCard(video.id, platform, status, video.uploadSchedule);
         }
 
         return \`
@@ -4033,11 +4064,23 @@ const appJsContent = `class App {
         \`;
     }
 
-    renderPlatformStatusCard(videoId, platform, status) {
+    renderPlatformStatusCard(videoId, platform, status, uploadSchedule) {
         const platformNames = { youtube: 'YouTube', tiktok: 'TikTok', instagram: 'Instagram', facebook: 'Facebook' };
         const platformName = platformNames[platform] || platform;
         const statusData = status || { status: 'pending' };
         const statusInfo = this.formatPlatformStatus(statusData.status);
+
+        let scheduleHtml = '';
+        if (uploadSchedule && uploadSchedule[platform]) {
+            const uploadTime = new Date(uploadSchedule[platform]);
+            const timeStr = uploadTime.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+            scheduleHtml = \`
+                <div class="platform-schedule-info">
+                    <span class="schedule-label">⏰ Upload at:</span>
+                    <span class="schedule-value">\${timeStr} UTC</span>
+                </div>
+            \`;
+        }
 
         let targetChannelHtml = '';
         if (statusData.channelId) {
@@ -4109,6 +4152,7 @@ const appJsContent = `class App {
                         \${statusInfo.text}
                     </span>
                 </div>
+                \${scheduleHtml}
                 \${targetChannelHtml}
                 \${errorHtml}
                 \${retryBtn}
