@@ -16,6 +16,19 @@ export interface ImproveResult {
   score: number;
 }
 
+export interface DetailedPrompt {
+  title: string;
+  description: string;
+  videoContext: string;
+  duration: number;
+  style: string;
+  visualElements: string[];
+  audioElements: string[];
+  editingTechniques: string[];
+  keyFrames: Array<{ timestamp: string; action: string }>;
+  trendingHooks: string[];
+}
+
 export class PromptsAIService {
   private config: GroqConfig;
   private logger: Logger;
@@ -233,5 +246,124 @@ ${prompt.aiSuggestion ? `Previous AI suggestion: "${prompt.aiSuggestion}"` : ''}
     });
 
     return results;
+  }
+
+  async generateDetailedPrompt(prompt: VideoPrompt): Promise<DetailedPrompt> {
+    await this.logger.info('promptsAI', 'Generating detailed prompt for video creation', { 
+      id: prompt.id, 
+      channel: prompt.channelName 
+    });
+
+    try {
+      const systemPrompt = `You are a professional video production specialist. Create a detailed, actionable video production prompt.
+Return ONLY valid JSON with this exact format:
+{
+  "title": "Video title",
+  "description": "Full description",
+  "videoContext": "Complete context for video creation",
+  "duration": 12,
+  "style": "Content style/mood",
+  "visualElements": ["Element 1", "Element 2", "Element 3"],
+  "audioElements": ["Audio 1", "Audio 2"],
+  "editingTechniques": ["Technique 1", "Technique 2"],
+  "keyFrames": [{"timestamp": "0-2s", "action": "description"}],
+  "trendingHooks": ["Hook 1", "Hook 2", "Hook 3"]
+}
+
+Requirements:
+1. Duration MUST be 10-15 seconds
+2. Include 3+ visual elements with specific details
+3. Include audio/music recommendations
+4. Specify editing cuts and transitions
+5. Define key moments at specific timestamps
+6. Include trending elements for 2025`;
+
+      const userPrompt = `Generate complete production details for this prompt:
+Channel: "${prompt.channelName}"
+Topic: "${prompt.channelTopic}"
+Original Prompt: ${prompt.promptText}
+
+Make it production-ready with exact timing, visual specs, audio recommendations, and editing instructions.`;
+
+      const content = await this.callGroq(systemPrompt, userPrompt);
+      const detailed = this.parseDetailedPrompt(content);
+
+      await this.logger.info('promptsAI', 'Detailed prompt generated', { 
+        id: prompt.id, 
+        duration: detailed.duration 
+      });
+
+      return detailed;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      await this.logger.error('promptsAI', 'Failed to generate detailed prompt', { 
+        id: prompt.id, 
+        error: errorMessage 
+      });
+      
+      return this.getDefaultDetailedPrompt(prompt.promptText);
+    }
+  }
+
+  private parseDetailedPrompt(content: string): DetailedPrompt {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found');
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]) as any;
+      return {
+        title: parsed.title || 'Trending Video',
+        description: parsed.description || 'Amazing content',
+        videoContext: parsed.videoContext || 'Professional video',
+        duration: Math.min(Math.max(parseInt(parsed.duration) || 12, 10), 15),
+        style: parsed.style || 'Viral',
+        visualElements: Array.isArray(parsed.visualElements) ? parsed.visualElements : ['Dynamic visuals'],
+        audioElements: Array.isArray(parsed.audioElements) ? parsed.audioElements : ['Trending audio'],
+        editingTechniques: Array.isArray(parsed.editingTechniques) ? parsed.editingTechniques : ['Quick cuts'],
+        keyFrames: Array.isArray(parsed.keyFrames) ? parsed.keyFrames : [{ timestamp: '0-12s', action: 'Main content' }],
+        trendingHooks: Array.isArray(parsed.trendingHooks) ? parsed.trendingHooks : ['Compelling hook']
+      };
+    } catch {
+      return this.getDefaultDetailedPrompt('Video content');
+    }
+  }
+
+  private getDefaultDetailedPrompt(promptText: string): DetailedPrompt {
+    return {
+      title: 'Trending Video Content',
+      description: 'Engaging and shareable video optimized for viral reach',
+      videoContext: promptText,
+      duration: 12,
+      style: 'Modern Viral',
+      visualElements: [
+        'Dynamic camera movements',
+        'Vibrant color grading',
+        'Smooth transitions between scenes'
+      ],
+      audioElements: [
+        'Trending background music (upbeat, 120-130 BPM)',
+        'Sound effects at key moments',
+        'Ambient audio for authenticity'
+      ],
+      editingTechniques: [
+        '4-5 cuts per second for retention',
+        'Color grading with warm tones',
+        'Speed ramping at climax (6s-10s)',
+        'Text overlays with animated entrance'
+      ],
+      keyFrames: [
+        { timestamp: '0-2s', action: 'Hook/immediate attention' },
+        { timestamp: '2-7s', action: 'Build momentum' },
+        { timestamp: '7-10s', action: 'Climax moment' },
+        { timestamp: '10-12s', action: 'Resolution and CTA' }
+      ],
+      trendingHooks: [
+        'Unexpected visual element at 0-2s',
+        'Peak retention moment at 6-7s',
+        'Share-worthy ending at 10-12s'
+      ]
+    };
   }
 }

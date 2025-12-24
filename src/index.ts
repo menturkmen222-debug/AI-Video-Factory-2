@@ -6,6 +6,7 @@ import { CloudinaryService, CloudinaryConfig } from './services/cloudinary';
 import { GroqService, GroqConfig } from './services/groq';
 import { OpenRouterService } from './services/openrouter';
 import { PromptsAIService } from './services/promptsAI';
+import { VideoGeneratorService } from './services/videoGenerator';
 import { AIProviderService } from './services/aiProvider';
 import { AISettingsManager } from './services/aiSettings';
 import { handleUpload } from './routes/upload';
@@ -21,7 +22,9 @@ import {
   handleValidateAllPrompts,
   handleResetPrompts,
   handleGetPromptsStats,
-  handleImprovePrompt
+  handleImprovePrompt,
+  handleGenerateDetailedPrompt,
+  handleGenerateVideoSpec
 } from './routes/prompts';
 import { handleGetAISettings, handleSetAIProvider } from './routes/aiSettings';
 import {
@@ -331,6 +334,15 @@ export default {
 
         case path === '/api/prompts/reset' && method === 'POST':
           response = await handleResetPrompts(promptsManager, logger);
+          break;
+
+        case path === '/api/prompts/detailed' && method === 'POST':
+          response = await handleGenerateDetailedPrompt(request, promptsManager, promptsAI, logger);
+          break;
+
+        case path === '/api/prompts/video-spec' && method === 'POST':
+          const videoGen = new VideoGeneratorService(env.OPENROUTER_API_KEY || '', logger);
+          response = await handleGenerateVideoSpec(request, promptsManager, videoGen, logger);
           break;
 
         case path === '/api/distribute' && method === 'POST':

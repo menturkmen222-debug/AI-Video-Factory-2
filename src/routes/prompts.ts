@@ -1,6 +1,7 @@
 import { Logger } from '../utils/logger';
 import { PromptsManager, VideoPrompt } from '../db/prompts';
-import { PromptsAIService } from '../services/promptsAI';
+import { PromptsAIService, DetailedPrompt } from '../services/promptsAI';
+import { VideoGeneratorService } from '../services/videoGenerator';
 import { GroqConfig } from '../services/groq';
 
 export async function handleGetAllPrompts(
@@ -454,6 +455,120 @@ export async function handleImprovePrompt(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     await logger.error('prompts', 'Failed to improve prompt', { error: errorMessage });
+    return new Response(JSON.stringify({
+      success: false,
+      error: errorMessage
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+export async function handleGenerateDetailedPrompt(
+  request: Request,
+  promptsManager: PromptsManager,
+  promptsAI: PromptsAIService,
+  logger: Logger
+): Promise<Response> {
+  try {
+    const body = await request.json() as { promptId: string };
+    const { promptId } = body;
+
+    if (!promptId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'promptId is required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    await logger.info('prompts', 'Generating detailed prompt', { promptId });
+
+    const prompt = await promptsManager.getPromptById(promptId);
+    if (!prompt) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Prompt not found'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const detailed = await promptsAI.generateDetailedPrompt(prompt);
+
+    return new Response(JSON.stringify({
+      success: true,
+      prompt: prompt,
+      detailed,
+      message: 'Detailed prompt generated successfully'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await logger.error('prompts', 'Failed to generate detailed prompt', { error: errorMessage });
+    return new Response(JSON.stringify({
+      success: false,
+      error: errorMessage
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+export async function handleGenerateVideoSpec(
+  request: Request,
+  promptsManager: PromptsManager,
+  videoGenerator: VideoGeneratorService,
+  logger: Logger
+): Promise<Response> {
+  try {
+    const body = await request.json() as { promptId: string };
+    const { promptId } = body;
+
+    if (!promptId) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'promptId is required'
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    await logger.info('prompts', 'Generating video spec', { promptId });
+
+    const prompt = await promptsManager.getPromptById(promptId);
+    if (!prompt) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Prompt not found'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const videoSpec = await videoGenerator.generateCompleteVideoSpec(prompt);
+
+    return new Response(JSON.stringify({
+      success: true,
+      prompt: prompt,
+      videoSpec,
+      message: 'Complete video specification generated successfully'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    await logger.error('prompts', 'Failed to generate video spec', { error: errorMessage });
     return new Response(JSON.stringify({
       success: false,
       error: errorMessage
