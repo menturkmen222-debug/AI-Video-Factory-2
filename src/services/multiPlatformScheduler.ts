@@ -183,11 +183,11 @@ export class MultiPlatformSchedulerService {
   validateChannelStructure(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (CHANNEL_NAMES.length !== TOTAL_CHANNELS) {
+    if ((CHANNEL_NAMES.length as number) !== (TOTAL_CHANNELS as number)) {
       errors.push(`Expected ${TOTAL_CHANNELS} channels, found ${CHANNEL_NAMES.length}`);
     }
 
-    if (VIDEOS_PER_DAY_PER_CHANNEL !== 3) {
+    if ((VIDEOS_PER_DAY_PER_CHANNEL as number) !== 3) {
       errors.push(`Expected 3 videos per day per channel, configured: ${VIDEOS_PER_DAY_PER_CHANNEL}`);
     }
 
